@@ -1,3 +1,29 @@
+set_hue_scene:
+  alias: Set Hue Scene
+  description: Activate a Hue scene for a given group and scene name
+  fields:
+    group:
+      description: Group name (Bedroom, Upstairs, Garden)
+      example: Bedroom
+    scene:
+      description: Scene name
+      example: Energize
+  sequence:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ group == ''Upstairs'' and scene == ''Crocus'' }}'
+      sequence:
+      - action: scene.turn_on
+        target:
+          entity_id: scene.upstairs_crocus
+  - default:
+    - action: scene.turn_on
+      target:
+        entity_id: >-
+          {% set group_map = {'Bedroom': 'bedroom', 'Upstairs': 'living_room', 'Garden': 'garden'} %}
+          {% set scene_slug = scene | lower | replace(' ', '_') %}
+          scene.{{ group_map[group] }}_{{ scene_slug }}
 fan_swing:
   sequence:
   - service: switch.broadlink_send_packet_192_168_0_15

@@ -2645,7 +2645,7 @@
       action: dismiss_laundry_notification
   condition: []
   action:
-  - action: script.dismiss_laundry_notification
+  - action: script.dismiss_persistent_laundry_notification
   mode: single
 - id: '1725250369322'
   alias: CDS -  E1 Supplemental Alarm Enable
