@@ -65,19 +65,6 @@
 - sensor:
     - name: "Mew Meow Entries"
       state: "{{ states('input_number.mew_meow_entries') }}"
-      
-- sensor:
-    - name: "Mew Meow Avg Time Outside"
-      state: >
-        {% set day1 = states('sensor.mew_meow_time_outside_day_1') | float(0) %}
-        {% set day2 = states('sensor.mew_meow_time_outside_day_2') | float(0) %}
-        {% set day3 = states('sensor.mew_meow_time_outside_day_3') | float(0) %}
-        {% set day4 = states('sensor.mew_meow_time_outside_day_4') | float(0) %}
-        {% set day5 = states('sensor.mew_meow_time_outside_day_5') | float(0) %}
-        {% set day6 = states('sensor.mew_meow_time_outside_day_6') | float(0) %}
-        {% set day7 = states('sensor.mew_meow_time_outside_day_7') | float(0) %}
-        {% set avg_time = (day1 + day2 + day3 + day4 + day5 + day6 + day7) / 7 %}
-        {{ avg_time | round(1) }}
 
 - sensor:
     - name: "Avg Outside Formatted"
