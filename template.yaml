@@ -98,12 +98,6 @@
         {% set hours = states('sensor.mew_meow_duration_inside') | float(0) %}
         {% set minutes = (hours % 1) * 60 %}
         {{ hours | int }}h {{ minutes | int }}m
-- sensor:
-    - name: "Duration Outside Formatted"
-      state: >
-        {% set hours = states('sensor.mew_meow_duration_outside') | float(0) %}
-        {% set minutes = (hours % 1) * 60 %}
-        {{ hours | int }}h {{ minutes | int }}m
 
 - sensor:
     - name: "Alarm Sequence Last Triggered"

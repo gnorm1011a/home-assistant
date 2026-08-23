@@ -14,18 +14,9 @@ http:
   ip_ban_enabled: false
   login_attempts_threshold: 5
 
-# Checks for available updates
-
-##updater:
-  # Optional, allows Home Assistant developers to focus on popular components.
-  # include_used_components: true
-
-
 system_health:
 
 default_config:
-
-
 
 # Allows you to issue voice commands from the frontend in enabled browsers
 conversation:
@@ -52,169 +43,24 @@ energy:
 
 scene: !include scenes.yaml
 
-mobile_app:
-  - platform: html5
-    name: Home Assistant
-    vapid_pub_key: BK_8FarCkrZn9gab2oJCpciai9_1w2l-w2Eht6ayyi6i9Aamso9gNn_tooj0Jrhw1XgS-uonYq084EABnuiDVXg
-    vapid_prv_key: UUxKAfGFoKk2PpFtn1fa_66u_uX5hvke6_BFmoivQ8Y
-    vapid_email: home-assistant@adam-smith.me
-
 logger:
   default: info
-  logs:
-    homeassistant.core: debug
-    homeassistant.components.zha: debug
-    bellows.zigbee.application: debug
-    bellows.ezsp: debug
-    zigpy: debug
-    zigpy_deconz.zigbee.application: debug
-    zigpy_deconz.api: debug
-    zigpy_xbee.zigbee.application: debug
-    zigpy_xbee.api: debug
-    zigpy_zigate: debug
-    zigpy_znp: debug
-    zhaquirks: debug
 
 # Text to speech
-tts:
-  - platform: google_translate
+# tts: configured via UI
 
-
-
-# Presence detection
-
-    
-google_assistant: 
-  project_id: home-assistant-c4179
-  service_account: !include home-assistant-c4179-c76f8bc7d628.json
-  report_state: true
-
-##xiaomi_aqara:
-##  discovery_retry: 10
-##  gateways:
-##    - mac: 04cf8cf2fb95
-##      host: 192.168.0.19
-##      key: ubz052tafb7x7zle
-    
-      
-camera:
-  - platform: ffmpeg
-    name: Living Room
-    input: -rtsp_transport tcp -i rtsp://192.168.0.18:554/unicast
-
-  - platform: ffmpeg
-    name: Kitchen
-    input: -rtsp_transport tcp -i rtsp://192.168.0.17:554/unicast
-    
-  - platform: ffmpeg
-    name: Backyard
-    input: -rtsp_transport tcp -i rtsp://192.168.0.16:554/unicast      
-  
-  - platform: xiaomi_cloud_map_extractor
-    host: 192.168.0.55
-    token: 56574b4775354b714b496c62574d5478
-    username: xiaomi@adam-smith.me 
-    password: Rqj.k_wx3_W7pwvu
-    draw: ['all']
-    attributes:
-      - calibration_points  
-      
-  
-climate:
-  - platform: generic_thermostat
-    name: Bedroom Thermostat
-    heater: switch.bedroom_ac
-    target_sensor: sensor.lumi_lumi_weather_temperature_5
-    precision: 0.5
-    ac_mode: false
-  - platform: generic_thermostat
-    name: Living Room Thermostat
-    heater: switch.living_room_ac
-    target_sensor: sensor.lumi_lumi_weather_temperature_4
-    ac_mode: false
-    precision: 0.5
-  - platform: generic_thermostat
-    name: Den Thermostat
-    heater: switch.den_ac
-    target_sensor: sensor.lumi_lumi_weather_temperature 
-    ac_mode: false
-    precision: 0.5    
-  - platform: generic_thermostat
-    name: Guestroom Thermostat
-    heater: switch.guestroom_ac
-    target_sensor: sensor.weather_6_temperature
-    ac_mode: false
-    precision: 0.5  
-    
+# Broadlink IR - Fan only (bedroom)
+# Other Broadlink devices removed during cleanup:
+#   34:EA:34:8E:F8:53 (Living Room - AC/Heat/TV)
+#   A0:43:B0:07:E9:E0 (Den - AC/Heat/Stereo)
+#   24:DF:A7:DF:09:EE (Guestroom - AC/Heat)
 switch:
-  - platform: broadlink
-    mac: '34:EA:34:8E:F8:53'
-    switches:
-      - name: Living Room AC
-        command_on: 'JgBAAGIAAUURNA8SEBMPEw80ERIQEhASEBIQEhATDxMQEhASEBMPEhESEBIPNQ81DxIQNQ8SEBMPEhA1DzUPNQ8ADQU='
-        command_off: 'JgBAAGMAAUQQNBIRDxMQEhIyEhEREBASEDQSMhIQEhEREBIREBIRERIQEBIQEhIQEBIRMxIQEjMREQ8SERIRMxEADQU='
-      
-      - name: Living Room Heat
-        command_on: 'JgBAAGUAAUURMxASEBIREhAzERIQEhASEREREhASERIQEhA0EBIRERESEDQQNBEzEREREhA0ERIQMxA0EBIQNBAADQU='
-        command_off: 'JgBAAGUAAUURMxASEBIREhAzERIQEhASEREREhASERIQEhA0EBIRERESEDQQNBEzEREREhA0ERIQMxA0EBIQNBAADQU='
-      
-      - name: TV
-        command_on: 'JgBgAAABIpMSEhETEhMRExEUERQRFBETETgSNxA5ETkRORE5ERUROBE4EBUQOBE4ERQRFRAUEhMRExA5EBQRFBA5EjgRORE5EQAFIQABJEwRAAupAAEkTBEAC6kAASRMEQANBQAAAAAAAAAA'
-        command_off: 'JgBYAAABI5MTERETERMRFBEUEBUQFRETEDkQORE4ETkRORE5ERQROBE4ERMRORA5ERQSExAVERMRExE4EhMRExE5ETkQORE6EQAFIQABJEsSAAupAAEkTBEADQU='
-      
   - platform: broadlink
     mac: '34:EA:34:58:9E:0A'
     switches:
-      - name: Bedroom AC
-        command_on: 'JgBAAGIAAUURNA8SEBMPEw80ERIQEhASEBIQEhATDxMQEhASEBMPEhESEBIPNQ81DxIQNQ8SEBMPEhA1DzUPNQ8ADQU='
-        command_off: 'JgBAAGMAAUQQNBIRDxMQEhIyEhEREBASEDQSMhIQEhEREBIREBIRERIQEBIQEhIQEBIRMxIQEjMREQ8SERIRMxEADQU='
-      
-      - name: Bedroom Heat
-        command_on: 'JgBAAGUAAUURMxASEBIREhAzERIQEhASEREREhASERIQEhA0EBIRERESEDQQNBEzEREREhA0ERIQMxA0EBIQNBAADQU='
-        command_off: 'JgBAAGUAAUURMxASEBIREhAzERIQEhASEREREhASERIQEhA0EBIRERESEDQQNBEzEREREhA0ERIQMxA0EBIQNBAADQU='
-      
       - name: Fan
         command_on: 'JgCcACoNKg0PKSoNKA8NKg8pDygOKQ8oKw0MAAEIKg0oDw0qKw0oDw0qDygPKQ4pDikqDQ0AAQcrDSoNDygqDSsNDikOKQ8oDygNKyoNDwABBSgPKw0PKCgPKwwPKA0rDCsNKg0qKQ8PAAEFKg0rDA8oKw0qDQ8oDygPKQ4pDygqDQ4AAQYrDSgPDSoqDSsNDikOKQ8oDykOKSoNDgANBQAAAAAAAAAAAAAAAA=='
         command_off: 'JgDyACoNKwwPKCsNKg0PKA8oDykPKA8oDygr6CwNKg0PKCsMKw0PKA8oDygPKQ8oDygr6SsMKw0PKCsNKg0PKA8oDygPKQ4pDygq6ioNKwwPKSsMKg0PKQ8oDygPKA8pDikq6ioNKg0PKSoNKg0PKA8pDygOKQ8oDykq6SsNKg0PKCsMKwwQKA8oDygPKQ8oDygr6SsMKwwQKCoNKwwPKQ4pDygPKQ4pDikr6SsMKwwPKSoNKwwPKQ4oECgPKA8oDygr6SsNKg0PKSoMKw0PKA8pDikPKA8oDygr5y0MKw0PKCsMKwwPKQ8oDygPKA8pDikqAA0FAAAAAAAA=='
-
-  - platform: broadlink
-    mac: 'A0:43:B0:07:E9:E0'
-    switches:
-      - name: Den AC
-        command_on: 'JgBAAGIAAUURNA8SEBMPEw80ERIQEhASEBIQEhATDxMQEhASEBMPEhESEBIPNQ81DxIQNQ8SEBMPEhA1DzUPNQ8ADQU='
-        command_off: 'JgBAAGMAAUQQNBIRDxMQEhIyEhEREBASEDQSMhIQEhEREBIREBIRERIQEBIQEhIQEBIRMxIQEjMREQ8SERIRMxEADQU='
-      
-      - name: Den Heat
-        command_on: 'JgBAAGUAAUURMxASEBIREhAzERIQEhASEREREhASERIQEhA0EBIRERESEDQQNBEzEREREhA0ERIQMxA0EBIQNBAADQU='
-        command_off: 'JgBAAGQAAUUQMxESEBIQEhA0EBIQEhASETMRNBASEBEREhASEBIQEhASEBIREhARERIQNBESDzQRERESEBIQNBAADQU='
-
-      - name: Stereo Power
-        command_on: 'JgBOAJOUExISExISEhMTNxISEhMTEhITEhISFBISEjcSFBISEhMSExI3ETkROBE5ERQSEhEUEzcSEhEVERMRFBE5ETgSOBEABpaUkxQ2EwANBQAAAAAAAAAAAAA='
-        command_off: 'JgBOAJOUExISExISEhMTNxISEhMTEhITEhISFBISEjcSFBISEhMSExI3ETkROBE5ERQSEhEUEzcSEhEVERMRFBE5ETgSOBEABpaUkxQ2EwANBQAAAAAAAAAAAAA='
-
-  - platform: broadlink
-    mac: '24:DF:A7:DF:09:EE'
-    switches:
-      - name: Guestroom AC
-        command_on: 'JgBAAGIAAUURNA8SEBMPEw80ERIQEhASEBIQEhATDxMQEhASEBMPEhESEBIPNQ81DxIQNQ8SEBMPEhA1DzUPNQ8ADQU='
-        command_off: 'JgBAAGMAAUQQNBIRDxMQEhIyEhEREBASEDQSMhIQEhEREBIREBIRERIQEBIQEhIQEBIRMxIQEjMREQ8SERIRMxEADQU='
-      - name: Guestroom Heat
-        command_on: 'JgBAAGUAAUURMxASEBIREhAzERIQEhASEREREhASERIQEhA0EBIRERESEDQQNBEzEREREhA0ERIQMxA0EBIQNBAADQU='
-        command_off: 'JgBAAGUAAUURMxASEBIREhAzERIQEhASEREREhASERIQEhA0EBIRERESEDQQNBEzEREREhA0ERIQMxA0EBIQNBAADQU='
-
-  - platform: template
-    switches:
-      living_room_tv:
-        friendly_name: "Living Room TV"
-        value_template: "{{is_state('device_tracker.android_tv', 'home') }}"
-        turn_on:
-          service: switch.toggle
-          target:
-            entity_id: switch.tv
-        turn_off:
-          service: switch.toggle
-          target:
-            entity_id: switch.tv  
 
 template: !include template.yaml
 
@@ -243,7 +89,7 @@ sensor:
     state: 'off'
     type: time
     start: '{{ now().replace(hour=0, minute=0, second=0) }}'
-    end: '{{ now() }}'    
+    end: '{{ now() }}'
 
   - platform: history_stats
     name: Mew Meow Time Outside Day 1
@@ -301,7 +147,6 @@ sensor:
     start: '{{ now().replace(hour=0, minute=0, second=0) - timedelta(days=7) }}'
     end: '{{ now().replace(hour=0, minute=0, second=0) - timedelta(days=6) }}'
 
-
   - platform: history_stats
     name: Washing Machine Cycles Daily
     entity_id: sensor.electrolux_washing_machine_totalcyclecounter
@@ -334,12 +179,7 @@ sensor:
     start: '{{ now().replace(month=1, day=1, hour=0, minute=0, second=0) }}'
     end: '{{ now() }}'
 
-  - platform: google_fit
-    name: Adam
-    client_id: !secret google_fit_client_id
-    client_secret: !secret google_fit_client_secret  
-
-#Motion statistics##
+#Motion statistics
   - platform: history_stats
     name: "Daily Person Count"
     entity_id: binary_sensor.front_balcony_person
@@ -372,12 +212,12 @@ input_number:
     min: 0
     max: 1
     step: 0.05
-    
+
 input_boolean:
   tv_switch:
     name: TV Switch
     icon: mdi:tv
-  
+
 input_select:
 
   house_mode:
@@ -404,7 +244,7 @@ input_select:
       - "Spring blossom"
     initial: "Select"
     icon: mdi:flask-outline
-    
+
   upstairs_light_scenes:
     name: Upstairs Scenes
     options:
@@ -420,7 +260,7 @@ input_select:
       - "Crocus"
     initial: "Select"
     icon: mdi:flask-outline
-    
+
   garden_light_scenes:
     name: Garden Scenes
     options:
@@ -435,8 +275,8 @@ input_select:
       - "Spring blossom"
       - "Outdoor living"
     initial: "Select"
-    icon: mdi:flask-outline    
-    
+    icon: mdi:flask-outline
+
   den_light_scenes:
     name: Den Scenes
     options:
@@ -451,7 +291,7 @@ input_select:
       - "Spring blossom"
       - "Outdoor living"
     initial: "Select"
-    icon: mdi:flask-outline 
+    icon: mdi:flask-outline
 
   spotify_playlist:
       name: 'Playlist:'
@@ -464,7 +304,7 @@ input_select:
         - Piano in the Background
       initial: Rap
       icon: mdi:spotify
-  
+
   spotify_source:
     name: 'Source:'
     options:
@@ -481,48 +321,45 @@ input_text:
 
   tv_remote:
     name: "TV Remote"
-  
+
   tv_tiles:
     name: "TV Channels"
 
   fan_remote:
     name: "Fan Remote"
-  
+
   presence_detection:
     name: "Presence Detection"
-    
-##  Custom media player dummy inputs
 
 media_source:
 
   spotify:
     name: "Spotify"
-    
+
   sony_soundbar:
     name: "Sony"
-    
+
   google_home:
     name: "Home"
-  
+
   kitch_google_mini:
     name: "Kitchen"
-  
+
   bedroom_google_mini:
     name: "Bedroom"
-  
+
   whole_house:
     name: "Whole House"
-    
+
   downstairs:
     name: "Downstairs"
-    
+
 
 frontend:
   extra_module_url:
     - /local/hass-hue-icons.js
   themes: !include_dir_merge_named themes
 
-  
-#group: !include groups.yaml
+
 automation: !include automations.yaml
 script: !include scripts.yaml
