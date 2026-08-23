@@ -1,0 +1,18 @@
+Cleanup: remove dead files and unused secrets
+
+Deleted dead files (tracked in git):
+- Scenes.yaml (empty, not loaded - scenes.yaml lowercase is used)
+- template_backup.yaml (backup, not loaded)
+- themes.yaml (not loaded - themes/ directory used via include_dir_merge_named)
+- ui-lovelace.yaml (not referenced in configuration.yaml)
+
+Deleted orphaned files (not in git):
+- home-assistant-c4179-c76f8bc7d628.json (Google Assistant service account, integration removed)
+- known_devices.yaml (deprecated by HA, not used)
+
+Removed from configuration.yaml:
+- input_boolean.tv_switch (dead - UI-created input_boolean.tv is used instead)
+
+Cleaned secrets.yaml:
+- Removed google_fit_client_id and google_fit_client_secret (integration removed)
+- Removed pushbullet_key (no longer referenced)

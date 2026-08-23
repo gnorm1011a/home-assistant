@@ -213,11 +213,6 @@ input_number:
     max: 1
     step: 0.05
 
-input_boolean:
-  tv_switch:
-    name: TV Switch
-    icon: mdi:tv
-
 input_select:
 
   house_mode:
