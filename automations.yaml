@@ -1,0 +1,3504 @@
+- id: 7e5a772c86ef4840a68d7ba9996e6781
+  alias: Presence Detection - Home mode
+  triggers:
+  - entity_id: input_select.house_mode
+    to: Home
+    trigger: state
+  conditions:
+  actions:
+  - action: alarm_control_panel.alarm_arm_home
+    data: {}
+    target:
+      entity_id: alarm_control_panel.alarmo
+  mode: single
+- id: 1c69a5fe81504c3bb6409a3dcf121e95
+  alias: Presence Detection - Sleep mode
+  triggers:
+  - entity_id: input_select.house_mode
+    to: Sleep
+    trigger: state
+  actions:
+  - action: alarm_control_panel.alarm_arm_night
+    data: {}
+    target:
+      entity_id: alarm_control_panel.alarmo
+  mode: single
+- id: 2d14a20a3410467c9604c3269d5c1bcf
+  alias: Presence Detection - Holiday mode
+  triggers:
+  - entity_id: input_select.house_mode
+    to: Holiday
+    trigger: state
+  actions:
+  - action: alarm_control_panel.alarm_arm_away
+    data: {}
+    target:
+      entity_id: alarm_control_panel.alarmo
+  mode: single
+- id: f9d3baa409ee4d26a946bf151a04e78e
+  alias: Presence Detection - Set house mode to 'Away' (Adam)
+  description: Set house mode to away when Adam and Mads are not home
+  trigger:
+  - platform: state
+    entity_id: person.adam_smith
+    to: not_home
+    from: home
+    for: '10'
+  condition:
+  - condition: state
+    entity_id: person.madeleine_moloney
+    state: not_home
+  action:
+  - service: input_select.select_option
+    data:
+      entity_id: input_select.house_mode
+      option: Away
+  mode: single
+- id: e6c7561e3dc04c45bc3eb100c5a57a12
+  alias: Presence Detection - Set house mode to 'Home' (Adam)
+  trigger:
+  - platform: state
+    entity_id: person.adam_smith
+    to: home
+  condition: []
+  action:
+  - service: input_select.select_option
+    data:
+      entity_id: input_select.house_mode
+      option: Home
+  mode: single
+- id: 1514e71b983c471e8a1326c33f5be956
+  alias: Presence Detection - Set house mode to 'Holiday'
+  trigger:
+  - platform: state
+    entity_id: person.adam_smith
+    to: not_home
+    for: '12:00:00'
+  condition:
+  - condition: state
+    entity_id: person.madeleine_moloney
+    state: not_home
+    for: '12:00:00'
+  action:
+  - service: input_select.select_option
+    data:
+      entity_id: input_select.house_mode
+      option: Holiday
+  mode: single
+- id: c7a9d6ad319e4ee1b99eec9336dcf168
+  alias: Notification - Mads arrival
+  description: ''
+  triggers:
+  - entity_id: person.madeleine_moloney
+    to: home
+    for: 00:01:00
+    trigger: state
+  actions:
+  - data:
+      message: Mads Departure
+      title: Mads has left home
+      data: Notice
+    action: notify.mobile_app_pixel_6
+  mode: single
+- id: da9d89c9867947cd97f2b8e0d4df4739
+  alias: Notification - Mads departure
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: person.madeleine_moloney
+    to: not_home
+    for: 00:01:00
+  action:
+  - service: notify.mobile_app_pixel_6
+    data:
+      title: Mad's Departure
+      message: Mads has left the house
+  mode: single
+- id: 3445eb4906bb4fd6a5bffe72a5a6ed7f
+  alias: Living Room Switch - Toggle living room lights
+  description: Toggle living room lights on left click
+  triggers:
+  - event_data:
+      click_type: single
+      entity_id: binary_sensor.wall_switch_left_158d000424af41
+    event_type: xiaomi_aqara.click
+    trigger: event
+  actions:
+  - entity_id: light.living_room
+    action: light.toggle
+  mode: single
+- id: 29ae57a8cc4c470ea422420e5b7512b2
+  alias: Wall Switch - Garden - Cycle light scenes
+  description: Cycle garden light scenes when right button is clicked.
+  trigger:
+  - platform: event
+    event_type: xiaomi_aqara.click
+    event_data:
+      entity_id: binary_sensor.wall_switch_garden_right
+      click_type: single
+  action:
+  - service: input_select.select_next
+    data: {}
+    target:
+      entity_id: input_select.garden_light_scenes
+  mode: single
+- id: 139191e1f39e4d129531254873ceff56
+  alias: Cube event shake
+  trigger:
+  - platform: event
+    event_type: xiaomi_aqara.cube_action
+    event_data:
+      entity_id: binary_sensor.cube_158d00029ac468
+      action_type: shake_air
+  action:
+  - service: input_boolean.toggle
+    target:
+      entity_id: input_boolean.watchman
+    data: {}
+- id: 83ea02b8456047009348261701f2968c
+  alias: Cube event flip90
+  trigger:
+  - platform: event
+    event_type: xiaomi_aqara.cube_action
+    event_data:
+      entity_id: binary_sensor.cube_158d00029ac468
+      action_type: flip90
+  action:
+  - service: input_select.select_next
+    data: {}
+    target:
+      entity_id: input_select.den_light_scenes
+- id: e69620e57fe44173a94aef7eec43f55b
+  alias: Cube event rotate
+  trigger:
+  - platform: event
+    event_type: xiaomi_aqara.cube_action
+    event_data:
+      entity_id: binary_sensor.cube_158d00029ac468
+      action_type: rotate
+  action:
+  - service: light.turn_on
+    entity_id: light.den
+    data_template:
+      brightness: "{% if state_attr('light.bedroom', 'brightness') %}\n  {% if state_attr('light.bedroom',
+        'brightness') + 60 <= 255 %}\n    {{state_attr('light.bedroom', 'brightness')
+        + 60}}\n  {% else %}\n    {{state_attr('light.bedroom', 'brightness')}}\n
+        \ {% endif %}\n{% else %}\n  10\n{% endif %}"
+- id: fa8f26fcde8f43238bd3f270bd62b3c7
+  alias: Cube event double tap
+  trigger:
+  - platform: event
+    event_type: xiaomi_aqara.cube_action
+    event_data:
+      entity_id: binary_sensor.cube_158d00029ac468
+      action_type: tap_twice
+  action:
+  - service: light.toggle
+    target:
+      entity_id: light.den
+    data: {}
+- id: 459b703bba20475a9ee40d2908cdc0f9
+  alias: Xiaomi Button - Toggle bedroom lights on single click
+  trigger:
+  - platform: event
+    event_type: xiaomi_aqara.click
+    event_data:
+      entity_id: binary_sensor.switch_158d0001bf611d
+      click_type: single
+  action:
+  - service: light.toggle
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.guestroom
+  initial_state: 'on'
+  mode: single
+- id: 264c0c410e274eeda7689ee525ba6784
+  alias: Xiaomi Button - Toggle bedroom light scene on double click
+  trigger:
+  - platform: event
+    event_type: xiaomi_aqara.click
+    event_data:
+      entity_id: binary_sensor.switch_158d0001bf611d
+      click_type: double
+  action:
+  - service: input_select.select_next
+    entity_id: input_select.bedroom_light_scenes
+  initial_state: 'on'
+  mode: single
+- id: a07e28582d174e78a8d3069383db9117
+  alias: Xiaomi Button - Toggle bedroom fan on long press
+  trigger:
+  - platform: event
+    event_type: xiaomi_aqara.click
+    event_data:
+      entity_id: binary_sensor.switch_158d0001bf611d
+      click_type: long_click_press
+  action:
+  - service: switch.toggle
+    data: {}
+    target:
+      entity_id:
+      - switch.bed_heat_power
+      - switch.fan
+  initial_state: 'on'
+  mode: single
+- alias: Lighting - Trigger scene (Bedroom)
+  initial_state: true
+  trigger:
+    platform: state
+    entity_id: input_select.bedroom_light_scenes
+  condition:
+    condition: template
+    value_template: '{{ not is_state(''input_select.bedroom_light_scenes'' ,''Select'')
+      }}'
+  action:
+    service: script.set_hue_scene
+    data_template:
+      group: Bedroom
+      scene: '{{ states.input_select.bedroom_light_scenes.state }}'
+  id: bb27eee2653f4f82b4e82af6a7170a75
+- id: fc0f82b064ab4db8a8fa1ec043d7e39c
+  alias: Lighting - Trigger scene (Living Room)
+  trigger:
+  - platform: state
+    entity_id:
+    - input_select.upstairs_light_scenes
+  condition:
+  - condition: template
+    value_template: '{{ not is_state(''input_select.upstairs_light_scenes'' ,''Select'')
+      }}'
+  action:
+  - service: script.set_hue_scene
+    data_template:
+      group: Upstairs
+      scene: '{{ states.input_select.upstairs_light_scenes.state }}'
+  initial_state: true
+- alias: Lighting - Trigger scene (Garden)
+  initial_state: true
+  trigger:
+    platform: state
+    entity_id: input_select.garden_light_scenes
+  condition:
+    condition: template
+    value_template: '{{ not is_state(''input_select.garden_light_scenes'' ,''Select'')
+      }}'
+  action:
+    service: script.set_hue_scene
+    data_template:
+      group: Garden
+      scene: '{{ states.input_select.garden_light_scenes.state }}'
+  id: 0a9f391f276841109cbfa681e7178c41
+- id: ef8114bc05fe11eb88af597202624728
+  alias: Wall Switch - Bedroom - Toggle bedroom lights
+  description: Toggle bedroom lights on left-click
+  trigger:
+  - event_data:
+      click_type: single
+      entity_id: binary_sensor.wall_switch_left_158d000424af41
+    event_type: xiaomi_aqara.click
+    platform: event
+  action:
+  - service: light.toggle
+    entity_id: light.bedroom
+  mode: single
+- id: ef8114bc05fe11eb88af597202624729
+  alias: Wall Switch - Bedroom  - Cycle light scenes
+  description: Cycle bedroom light scenes on right click
+  trigger:
+  - platform: event
+    event_type: xiaomi_aqara.click
+    event_data:
+      entity_id: binary_sensor.wall_switch_right_158d000424af41
+      click_type: single
+  action:
+  - service: input_select.select_next
+    entity_id: input_select.bedroom_light_scenes
+  mode: single
+- id: ef8114bc05fe11eb88af597202624731
+  alias: 'Wall Switch - Bedroom - Toggle bedroom AC '
+  description: Toggle bedroom heating/cooling on double press
+  trigger:
+  - platform: event
+    event_type: xiaomi_aqara.click
+    event_data:
+      entity_id: binary_sensor.wall_switch_both_158d000424af41
+  action:
+  - service: switch.toggle
+    entity_id: switch.bedroom_ac
+  mode: single
+- id: '1617193062777'
+  alias: Presence Detection - Set house mode to 'Home' (Mads)
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: person.madeleine_moloney
+    to: home
+  condition: []
+  action:
+  - service: input_select.select_option
+    data:
+      entity_id: input_select.house_mode
+      option: Home
+  mode: single
+- id: '1617323375986'
+  alias: Presence Detection - Set house mode to 'Away' (Mads)
+  description: Set house mode to away when Adam and Mads are not home
+  trigger:
+  - platform: state
+    entity_id: person.madeleine_moloney
+    to: not_home
+    from: home
+    for: '10'
+  condition:
+  - condition: state
+    entity_id: person.adam_smith
+    state: not_home
+  action:
+  - service: input_select.select_option
+    data:
+      entity_id: input_select.house_mode
+      option: Away
+  mode: single
+- id: '1617333879315'
+  alias: Entertainment - Turn soundbar on with TV
+  description: Set soundbar input when TV is turned on
+  trigger:
+  - platform: state
+    entity_id:
+    - media_player.living_room_tv_2_2
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: media_player.ht_ct800
+    state: 'off'
+  action:
+  - target:
+      device_id: f7d924134b72fe8858c47b5c43119235
+    data: {}
+    action: media_player.turn_on
+  mode: single
+- id: '1617335053228'
+  alias: Entertainment - Set soundbar source
+  description: Set input of soundbar to TV when turned on
+  trigger:
+  - platform: state
+    entity_id:
+    - media_player.ht_ct800
+    to: 'on'
+  condition: []
+  action:
+  - data:
+      source: TV
+    target:
+      device_id: f7d924134b72fe8858c47b5c43119235
+    action: media_player.select_source
+  mode: single
+- id: '1618488076821'
+  alias: Climate - Living Room climate control off on weekdays
+  description: Lower temperature and turn off downstairs climate control Sun-Thursday
+  trigger:
+  - platform: time
+    at: '23:00:00'
+  condition:
+  - condition: time
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - sun
+  action:
+  - service: climate.set_temperature
+    data:
+      temperature: 12
+    target:
+      entity_id: climate.living_room_thermostat
+  - service: climate.turn_off
+    target:
+      entity_id: climate.living_room_thermostat
+  mode: single
+- id: '1618488461076'
+  alias: Climate - Living Room climate control off on weekends
+  description: Lower temperature and turn off downstairs climate control Fri-Sat
+  trigger:
+  - platform: time
+    at: '23:59:00'
+  condition:
+  - condition: time
+    weekday:
+    - fri
+    - sat
+  action:
+  - service: climate.set_temperature
+    data:
+      temperature: 12
+  - service: climate.turn_off
+    target:
+      entity_id: climate.living_room_thermostat
+  mode: single
+- id: '1618489137844'
+  alias: Climate - Living Room climate control on Weekdays
+  description: Set temperature and turn on downstairs climate control Sun-Thursday
+  trigger:
+  - platform: time
+    at: 08:15:00
+  condition:
+  - condition: time
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+  action:
+  - service: climate.turn_on
+    target:
+      entity_id: climate.living_room_thermostat
+  - service: climate.set_temperature
+    target:
+      entity_id: climate.living_room_thermostat
+    data:
+      temperature: 19
+  mode: single
+- id: '1618489190656'
+  alias: Climate - Living Room climate control on Weekends
+  description: Set temperature and turn on downstairs climate control Fri-Sat
+  trigger:
+  - platform: time
+    at: 08:30:00
+  condition:
+  - condition: time
+    weekday:
+    - sat
+    - sun
+  action:
+  - service: climate.turn_on
+    target:
+      entity_id: climate.living_room_thermostat
+  - service: climate.set_temperature
+    data:
+      temperature: 19
+  mode: single
+- id: '1618489552838'
+  alias: Climate - Living Room auto control off
+  description: Turn off climate automations when toggle is disabled
+  trigger:
+  - platform: state
+    entity_id: input_boolean.auto_climate
+    from: 'on'
+    to: 'off'
+  condition: []
+  action:
+  - service: automation.turn_off
+    target:
+      entity_id:
+      - automation.living_room_climate_auto_off_weekdays
+      - automation.living_room_climate_auto_off_weekends
+      - automation.living_room_climate_auto_on_weekdays
+      - automation.living_room_climate_auto_on_weekends
+  mode: single
+- id: '1618489641317'
+  alias: Climate - Living Room auto control on
+  description: Turn on climate automations when toggle is enabled
+  trigger:
+  - platform: state
+    entity_id: input_boolean.auto_climate
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: automation.turn_on
+    target:
+      entity_id:
+      - automation.living_room_climate_auto_off_weekdays
+      - automation.living_room_climate_auto_on_weekends
+      - automation.living_room_climate_auto_off_weekends
+      - automation.living_room_climate_auto_on_weekdays
+  mode: single
+- id: '1625315279375'
+  alias: Movie - Scene on
+  description: Set lighting and volume for movie watching (and turn off TV and Casual
+    Dining mode)
+  trigger:
+  - platform: state
+    entity_id: input_boolean.movie_mode
+    to: 'on'
+  condition: []
+  action:
+  - target:
+      entity_id: scene.movie
+    data:
+      transition: 5
+    action: scene.turn_on
+  - data: {}
+    target:
+      entity_id:
+      - input_boolean.casual_dining
+      - input_boolean.tv
+    action: input_boolean.turn_off
+  mode: single
+- id: '1629117847288'
+  alias: Climate - Bedroom climate set at night
+  description: Set climate control to 13 at 11pm in bedroom
+  trigger:
+  - platform: time
+    at: '23:00:00'
+  condition: []
+  action:
+  - service: climate.set_temperature
+    data:
+      temperature: 13
+    target:
+      entity_id: climate.bedroom_thermostat
+  mode: single
+- id: '1631620607053'
+  alias: Movie - Disable scene
+  description: Turn off movie mode and reset house
+  trigger:
+  - platform: state
+    entity_id: input_boolean.movie_mode
+    to: 'off'
+    id: Movie-off
+  condition:
+  - condition: template
+    value_template: '{{ trigger.to_state.context.user_id is not none }}'
+  - condition: state
+    entity_id: light.upstairs_2
+    state: 'on'
+  action:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      transition: 8
+      kelvin: 2518
+      brightness_pct: 60
+    target:
+      entity_id: light.upstairs_2
+  - data:
+      volume_level: 0.4
+    action: media_player.volume_set
+    target:
+      device_id: f7d924134b72fe8858c47b5c43119235
+  mode: single
+- id: '1653195520382'
+  alias: Lighting - Bedtime light scene (on)
+  description: Turn on bedtime night lights
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.bedtime
+    to: 'on'
+  condition: []
+  action:
+  - service: scene.turn_on
+    target:
+      entity_id: scene.bedroom_savanna_sunset
+    metadata: {}
+  - type: turn_on
+    device_id: 60a532083740c66810acc6ce801f225a
+    entity_id: light.bedroom
+    domain: light
+    brightness_pct: 15
+  mode: single
+- id: '1671016855187'
+  alias: Motion Lights - Bathroom turn on
+  description: Turn on bathroom leds on motion.
+  triggers:
+  - entity_id:
+    - binary_sensor.motion_bathroom
+    from: 'off'
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.bathroom_motion_lights
+    state: 'on'
+  - condition: state
+    entity_id: light.gledopto_led_light_cct
+    state: 'off'
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    target:
+      entity_id: light.gledopto_led_light_cct
+    data:
+      color_temp_kelvin: 6500
+      brightness_pct: 100
+  mode: single
+- id: '1671018928419'
+  alias: Motion Lights - Bathroom turn off
+  description: Turn off bathroom lights when no motion is detected for 2 minutes.
+  triggers:
+  - entity_id:
+    - binary_sensor.motion_bathroom
+    from:
+    - 'on'
+    to:
+    - 'off'
+    for:
+      hours: 0
+      minutes: 3
+      seconds: 0
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.bathroom_motion_lights
+    state: 'on'
+  - condition: state
+    entity_id: light.gledopto_led_light_cct
+    state: 'on'
+  actions:
+  - data: {}
+    target:
+      entity_id: light.gledopto_led_light_cct
+    action: light.turn_off
+  mode: single
+- id: '1679375346350'
+  alias: 'Motion Lights -  Entry turn on '
+  description: Turn on hallway light on motion.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.front_entry
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: input_boolean.entry_motion_lights
+    state: 'on'
+  - condition: state
+    entity_id: light.hallway_light
+    state: 'off'
+  action:
+  - service: light.turn_on
+    data: {}
+    target:
+      entity_id: light.hallway_light
+  mode: single
+- id: '1679898656470'
+  alias: Motion Lights - Entry turn off
+  description: Turn off hallway light on no motion.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.front_entry
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: input_boolean.entry_motion_lights
+    state: 'on'
+  - condition: state
+    entity_id: light.hallway_light
+    state: 'on'
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id: light.hallway_light
+  mode: single
+- id: '1679918928671'
+  alias: Motion Lights - Den turn on
+  description: Turn on den lights on motion.
+  triggers:
+  - entity_id:
+    - binary_sensor.den_motion
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.den_motion_lights
+    state: 'on'
+  - condition: state
+    entity_id: light.den
+    state: 'off'
+  actions:
+  - data: {}
+    target:
+      entity_id: light.den
+    action: light.turn_on
+  mode: single
+- id: '1679918997536'
+  alias: 'Motion Lights - Den turn off '
+  description: Turn off den lights when no motion.
+  triggers:
+  - entity_id:
+    - binary_sensor.den_motion
+    to: 'off'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.den_motion_lights
+    state: 'on'
+  - condition: state
+    entity_id: light.den
+    state: 'on'
+  actions:
+  - data: {}
+    target:
+      entity_id: light.den
+    action: light.turn_off
+  mode: single
+- id: '1679974942324'
+  alias: Motion Lights - Dining turn on
+  description: Turn on dining lights on motion.
+  triggers:
+  - entity_id:
+    - binary_sensor.motion_dining
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.dining_motion_lights
+    state: 'on'
+  - condition: state
+    entity_id: light.dining
+    state: 'off'
+  actions:
+  - data: {}
+    target:
+      entity_id:
+      - light.dining
+    action: light.turn_on
+  mode: single
+- id: '1679974988710'
+  alias: Motion Lights - Dining turn off
+  description: Turn off dining lights when no motion.
+  triggers: []
+  conditions:
+  - condition: state
+    entity_id: input_boolean.dining_motion_lights
+    state: 'on'
+  actions:
+  - data: {}
+    target:
+      entity_id: light.dining
+    action: light.turn_off
+  mode: single
+- id: '1679975174380'
+  alias: Motion Lights - Living room turn on
+  description: Turn on living room lights on motion.
+  triggers:
+  - entity_id:
+    - binary_sensor.living_room
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.living_room_motion_lights
+    state: 'on'
+  - condition: state
+    entity_id: light.living_room
+    state: 'off'
+  actions:
+  - data: {}
+    target:
+      entity_id: light.living_room
+    action: light.turn_on
+  mode: single
+- id: '1679975225560'
+  alias: Motion  Lights -  Living room turn off
+  description: Turn off living room lights when no motion.
+  triggers:
+  - entity_id:
+    - binary_sensor.living_room
+    to: 'off'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.living_room_motion_lights
+    state: 'on'
+  - condition: state
+    entity_id: light.living_room
+    state: 'on'
+  actions:
+  - data: {}
+    target:
+      entity_id: light.living_room
+    action: light.turn_off
+  mode: single
+- id: '1679975262213'
+  alias: Motion Lights - Kitchen turn off
+  description: Turn off kitchen lights when no motion.
+  triggers:
+  - entity_id:
+    - binary_sensor.kitchen
+    to: 'off'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.kitchen_motion_lights
+    state: 'on'
+  - condition: state
+    entity_id: light.kitchen
+    state: 'on'
+  actions:
+  - data: {}
+    target:
+      entity_id: light.kitchen
+    action: light.turn_off
+  mode: single
+- id: '1680335384448'
+  alias: Motion Lights - Bedroom turn on
+  description: Turn on bedroom light on motion.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.motion_8
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: input_boolean.bedroom_motion_lights
+    state: 'on'
+  - condition: state
+    entity_id: light.bedroom
+    state: 'off'
+  action:
+  - service: light.turn_on
+    data: {}
+    target:
+      entity_id: light.bedroom
+  mode: single
+- id: '1680335450488'
+  alias: Motion Lights - Bedroom turn off
+  description: Turn off bedroom light on motion.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.motion_8
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: light.bedroom
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.bedroom_motion_lights
+    state: 'on'
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id: light.bedroom
+  mode: single
+- id: '1680607820601'
+  alias: Motion Lights -  Patio turn on
+  description: Turn on patio lights on motion.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.patio
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: input_boolean.patio_motion_lights
+    state: 'on'
+  - condition: state
+    entity_id: switch.mains_patio_hallway_switch_0
+    state: 'off'
+  action:
+  - service: switch.turn_on
+    target:
+      entity_id:
+      - switch.mains_patio_hallway_switch_0
+    data: {}
+  mode: single
+- id: '1680607865187'
+  alias: Motion Lights - Patio turn off
+  description: Turn off patio lights when no motion is detected.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.patio
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 2
+      seconds: 0
+  condition:
+  - condition: state
+    entity_id: switch.mains_patio_hallway_switch_0
+    state: 'on'
+  action:
+  - service: switch.turn_off
+    target:
+      entity_id:
+      - switch.mains_patio_hallway_switch_0
+    data: {}
+  mode: single
+- id: '1680760096226'
+  alias: Motion Lights - Upstairs turn on
+  description: Turn on upstairs lights on motion.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.upstairs
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: input_boolean.upstairs_motion_lights
+    state: 'on'
+  - condition: state
+    entity_id: light.upstairs_2
+    state: 'off'
+  action:
+  - service: light.turn_on
+    data: {}
+    target:
+      entity_id: light.upstairs_2
+  mode: single
+- id: '1680760160403'
+  alias: Motion Lights - Upstairs turn off
+  description: Turn off upstairs lights on no motion.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.upstairs
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: input_boolean.upstairs_motion_lights
+    state: 'on'
+  - condition: state
+    entity_id: light.upstairs_2
+    state: 'on'
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id: light.upstairs_2
+  mode: single
+- id: '1680762317192'
+  alias: Motion Lights - Front turn on
+  description: Turn on front lights on motion.
+  triggers:
+  - entity_id:
+    - binary_sensor.motion_7
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.front_motion_lights
+    state: 'on'
+  actions:
+  - data:
+      scene_id: motion_lights_front_before
+      snapshot_entities:
+      - light.front_3
+    action: scene.create
+  - data:
+      brightness_pct: 100
+      color_temp_kelvin: 3008
+    target:
+      entity_id: light.front_3
+    action: light.turn_on
+  mode: single
+- id: '1680762382649'
+  alias: Motion Lights - Front turn off
+  description: Turn off front lights when no motion.
+  triggers:
+  - entity_id:
+    - binary_sensor.motion_7
+    to:
+    - 'off'
+    trigger: state
+    for:
+      hours: 0
+      minutes: 2
+      seconds: 0
+  conditions:
+  - condition: state
+    entity_id: input_boolean.front_motion_lights
+    state: 'on'
+  - condition: state
+    entity_id: light.front_3
+    state: 'on'
+  actions:
+  - data:
+      transition: 30
+    target:
+      entity_id: scene.motion_lights_front_before
+    action: scene.turn_on
+  mode: single
+- id: '1680846655381'
+  alias: Motion Lights - Side turn on
+  description: Turn on side lights on motion.
+  triggers:
+  - entity_id:
+    - binary_sensor.motion_4
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.side_motion_lights
+    state: 'on'
+  - condition: state
+    entity_id: light.side
+    state: 'off'
+  actions:
+  - data:
+      color_temp_kelvin: 5567
+      brightness_pct: 100
+    target:
+      entity_id: light.side
+    action: light.turn_on
+  mode: single
+- id: '1680846707171'
+  alias: Motion Lights - Side turn off
+  description: Turn off side lights when no motion.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.motion_4
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 2
+      seconds: 0
+  condition:
+  - condition: state
+    entity_id: input_boolean.side_motion_lights
+    state: 'on'
+  - condition: state
+    entity_id: light.side
+    state: 'on'
+  action:
+  - data:
+      transition: 10
+    target:
+      entity_id: light.side
+    action: light.turn_off
+  mode: single
+- id: '1680848063210'
+  alias: Motion Lights - Studio turn on
+  description: Turn on studio light on motion.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.motion_studio
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: input_boolean.studio_motion_lights
+    state: 'on'
+  - condition: state
+    entity_id: light.studio_lamp_light
+    state: 'off'
+  - condition: sun
+    before: sunrise
+    before_offset: 00:30:00
+    after: sunset
+    after_offset: -00:30:00
+  action:
+  - service: light.turn_on
+    data:
+      color_temp: 320
+      brightness_pct: 100
+    target:
+      entity_id: light.studio_lamp_light
+  mode: single
+- id: '1680848113491'
+  alias: Motion Lights - Studio turn off
+  description: Turn off studio light when no motion.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.motion_studio
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 3
+      seconds: 0
+  condition:
+  - condition: state
+    entity_id: input_boolean.studio_motion_lights
+    state: 'on'
+  - condition: state
+    entity_id: light.studio_lamp_light
+    state: 'on'
+  action:
+  - service: light.turn_off
+    data:
+      transition: 10
+    target:
+      entity_id: light.studio_lamp_light
+  mode: single
+- id: '1682069592795'
+  alias: 'Motion Light Toggle - Sunset turn on '
+  description: Turn on outside motion light toggles just before sunset
+  trigger:
+  - platform: sun
+    event: sunset
+    offset: -00:30:00
+  condition: []
+  action:
+  - service: homeassistant.turn_on
+    data: {}
+    target:
+      entity_id:
+      - input_boolean.front_motion_lights
+      - input_boolean.side_motion_lights
+      - input_boolean.patio_motion_lights
+      - input_boolean.ensuite_motion_lights
+      - input_boolean.bathroom_motion_lights
+      - input_boolean.guestroom_motion_lights
+      - input_boolean.entry_motion_lights
+  mode: single
+- id: '1682070122692'
+  alias: Motion Light Toggle - Sunsise turn off
+  description: Turn off motion light toggles just after sunrise
+  trigger:
+  - platform: sun
+    event: sunrise
+    offset: 01:00:00
+  condition: []
+  action:
+  - service: homeassistant.turn_off
+    data: {}
+    target:
+      entity_id:
+      - input_boolean.front_motion_lights
+      - input_boolean.side_motion_lights
+      - input_boolean.patio_motion_lights
+      - input_boolean.ensuite_motion_lights
+      - input_boolean.bathroom_motion_lights
+      - input_boolean.guestroom_motion_lights
+      - input_boolean.entry_motion_lights
+  mode: single
+- id: '1684991212368'
+  alias: Motion Lights - Guestroom turn on
+  description: Turn on guestroom light on motion.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.motion_6
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: input_boolean.guestroom_motion_lights
+    state: 'on'
+  - condition: state
+    entity_id: light.guestroom
+    state: 'off'
+  action:
+  - service: light.turn_on
+    data: {}
+    target:
+      entity_id: light.guestroom
+  mode: single
+- id: '1684991283058'
+  alias: Motion Lights - Guestroom turn off
+  description: Turn off guestroom light when no motion is detected.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.motion_6
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: light.guestroom
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.guestroom_motion_lights
+    state: 'on'
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id: light.guestroom
+  mode: single
+- id: '1702556278291'
+  alias: Xmas Lights (Front)
+  description: Turn on Red and Green theme lights in Front Courtyard
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.xmas_lights
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: light.turn_on
+    data:
+      brightness_pct: 100
+      rgb_color:
+      - 0
+      - 255
+      - 64
+    target:
+      device_id: 010fe0bc20c148edd6acd275225fbcd9
+  - service: light.turn_on
+    data:
+      brightness_pct: 100
+      rgb_color:
+      - 255
+      - 0
+      - 0
+    target:
+      device_id: 8f921c960a6b2ed225a5242237b37ac8
+  - service: light.turn_on
+    data:
+      brightness_pct: 100
+      rgb_color:
+      - 255
+      - 0
+      - 0
+    target:
+      device_id: 23b3ec2908b064f87c0a25d4906ba7ac
+  - service: light.turn_on
+    data:
+      brightness_pct: 100
+      rgb_color:
+      - 0
+      - 255
+      - 64
+    target:
+      device_id: e31ce31311d516cba998601ba1838d95
+  mode: single
+- id: '1705919080603'
+  alias: Wall Switch - Garden - Toggle backyard lights
+  description: Turn on all backyard lights when both buttons are pressed.
+  trigger:
+  - event_data:
+      entity_id: binary_sensor.wall_switch_garden_both
+    event_type: xiaomi_aqara.click
+    platform: event
+  condition: []
+  action:
+  - if:
+    - condition: state
+      entity_id: light.backyard_2
+      state: 'off'
+    then:
+    - service: scene.turn_on
+      metadata: {}
+      target:
+        entity_id: scene.backyard_bright
+    - service: light.turn_on
+      target:
+        entity_id:
+        - light.backyard_2
+      data: {}
+    else:
+    - service: light.turn_off
+      target:
+        entity_id: light.backyard_2
+      data: {}
+  mode: single
+- id: '1705925666556'
+  alias: Watchman - Flash when enabled or disabled
+  description: ''
+  triggers:
+  - entity_id:
+    - input_boolean.watchman
+    trigger: state
+  conditions: []
+  actions:
+  - target:
+      entity_id: light.den
+    data:
+      flash: short
+    action: light.turn_on
+  mode: single
+- id: '1706004696323'
+  alias: Wall Switch - Living Room - Toggle backyard lights
+  description: Turn on all backyard lights when both buttons are pressed.
+  trigger:
+  - event_data:
+      entity_id: binary_sensor.wall_switch_both_158d000424af41
+    event_type: xiaomi_aqara.click
+    platform: event
+  condition: []
+  action:
+  - if:
+    - condition: state
+      entity_id: light.backyard_2
+      state: 'off'
+    then:
+    - service: scene.turn_on
+      metadata: {}
+      target:
+        entity_id: scene.backyard_bright
+    - service: light.turn_on
+      target:
+        entity_id:
+        - light.backyard_2
+      data: {}
+    else:
+    - service: light.turn_off
+      target:
+        entity_id: light.backyard_2
+      data: {}
+  mode: single
+- id: '1706004825996'
+  alias: Wall Switch - Living Room - Cycle light scenes
+  description: Cycle garden light scenes when right button is clicked.
+  trigger:
+  - platform: event
+    event_type: xiaomi_aqara.click
+    event_data:
+      entity_id: binary_sensor.wall_switch_right_158d000424af41
+      click_type: single
+  condition: []
+  action:
+  - service: input_select.select_next
+    data: {}
+    target:
+      entity_id: input_select.garden_light_scenes
+  mode: single
+- id: '1706682616325'
+  alias: NFC - Set watchman
+  description: ''
+  trigger:
+  - platform: tag
+    tag_id: 5ae655d2-5ce0-4e9b-b757-056ae10589c6
+  condition: []
+  action:
+  - service: input_boolean.toggle
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.watchman
+  mode: single
+- id: '1706683867288'
+  alias: NFC - Toggle Den lights
+  description: ''
+  trigger:
+  - platform: tag
+    tag_id: 5630676b-b485-410d-aa6d-de0d4ea59fd0
+  condition: []
+  action:
+  - service: light.toggle
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.den
+  mode: single
+- id: '1706686373290'
+  alias: Scene - Casual Dining (On)
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.casual_dining
+    to: 'on'
+  condition: []
+  action:
+  - service: scene.turn_on
+    target:
+      entity_id: scene.casual_dining
+    data:
+      transition: 5
+  - service: input_boolean.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.movie_mode
+  - service: input_boolean.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.tv
+  mode: single
+- id: '1706693596074'
+  alias: NFC - Mads Bed lights
+  description: ''
+  trigger:
+  - platform: tag
+    tag_id: 245942e7-c314-429b-a156-93be13e3349d
+  condition: []
+  action:
+  - service: light.toggle
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.bedroom
+  mode: single
+- id: '1706787360375'
+  alias: Lighting - Front lights (on)
+  description: Transition front lights on just before sunset
+  triggers:
+  - event: sunset
+    offset: -00:15:00
+    trigger: sun
+  conditions: []
+  actions:
+  - metadata: {}
+    data:
+      transition: 60
+      brightness: 255
+      color_temp_kelvin: 3231
+    target:
+      entity_id: light.front_3
+    action: light.turn_on
+  mode: single
+- id: '1707125160124'
+  alias: Lighting - Front lights (off)
+  description: Turn off front lights at 12:30am
+  triggers:
+  - at: '23:59:00'
+    trigger: time
+  conditions: []
+  actions:
+  - data: {}
+    action: light.turn_off
+    target:
+      entity_id: light.front_3
+  mode: single
+- id: '1707125985994'
+  alias: Watchman - Level 1 Warning
+  description: Flash den floor lamp when motion is detected in bedroom or ensuite
+  triggers:
+  - entity_id:
+    - binary_sensor.motion_8
+    to: 'on'
+    trigger: state
+  - entity_id:
+    - binary_sensor.ensuite
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.watchman
+    state: 'on'
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      brightness_pct: 100
+      kelvin: 2984
+      flash: short
+    target:
+      entity_id:
+      - light.top_lamp
+      - light.bottom_lamp
+  mode: single
+- id: '1707386082210'
+  alias: TV - Scene on
+  description: Set lighting and volume for TV watching (and turn off Movie and Casual
+    Dining mode)
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.tv
+    to: 'on'
+  condition: []
+  action:
+  - target:
+      entity_id: scene.tv
+    data:
+      transition: 5
+    action: scene.turn_on
+  - data: {}
+    target:
+      entity_id: input_boolean.movie_mode
+    action: input_boolean.turn_off
+  - data: {}
+    target:
+      entity_id: input_boolean.casual_dining
+    action: input_boolean.turn_off
+  mode: single
+- id: '1707798765880'
+  alias: Motion Lights - Bathroom (turn on) lux
+  description: Turn on motion lights when lux reading falls below 25
+  trigger:
+  - platform: numeric_state
+    entity_id:
+    - sensor.lumi_lumi_sensor_motion_aq2_illuminance
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+    below: 25
+  condition:
+  - condition: state
+    entity_id: input_boolean.bathroom_motion_lights
+    state: 'off'
+  action:
+  - service: input_boolean.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.bathroom_motion_lights
+  mode: single
+- id: '1707798979339'
+  alias: Motion Lights - Bathroom (turn off) lux
+  description: Turn on motion lights when lux reading goes above 25
+  trigger:
+  - platform: numeric_state
+    entity_id:
+    - sensor.lumi_lumi_sensor_motion_aq2_illuminance
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+    above: 25
+  condition:
+  - condition: state
+    entity_id: input_boolean.bathroom_motion_lights
+    state: 'on'
+  - condition: state
+    entity_id: binary_sensor.motion_bathroom
+    state: 'off'
+    for:
+      hours: 0
+      minutes: 3
+      seconds: 0
+  action:
+  - service: input_boolean.turn_off
+    target:
+      entity_id:
+      - input_boolean.bathroom_motion_lights
+    data: {}
+  - service: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.bathroom
+  mode: single
+- id: '1707897609405'
+  alias: Entertainment - Soundbar Source
+  description: Ensure soundbar is on correct source when media plays.
+  trigger:
+  - platform: state
+    entity_id:
+    - media_player.living_room_tv_2_2
+    to: playing
+  condition: []
+  action:
+  - metadata: {}
+    data:
+      source: TV
+    action: media_player.select_source
+    target:
+      entity_id: media_player.ht_ct800
+  mode: single
+- id: '1708553266996'
+  alias: Motion Lights - Pantry turn on
+  description: Turn on pantry lights on motion.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.motion_6
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: input_boolean.pantry_auto_lights
+    state: 'on'
+  - condition: state
+    entity_id: switch.mains_pantry_switch_0
+    state: 'off'
+  action:
+  - service: switch.turn_on
+    target:
+      entity_id: switch.mains_pantry_switch_0
+    data: {}
+  mode: single
+- id: '1708553349202'
+  alias: Motion Lights - Pantry turn off
+  description: Turn off pantry lights on motion.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.motion_6
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: input_boolean.pantry_auto_lights
+    state: 'on'
+  - condition: state
+    entity_id: switch.mains_pantry_switch_0
+    state: 'on'
+  action:
+  - service: switch.turn_off
+    target:
+      entity_id:
+      - switch.mains_pantry_switch_0
+    data: {}
+  mode: single
+- id: '1709103337402'
+  alias: Shelly - Dining On
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.plus1pm_dining_input_0_input
+    to: 'on'
+  condition: []
+  action:
+  - service: light.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.dining
+  mode: single
+- id: '1709103374950'
+  alias: Shelly - Dining Off
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.plus1pm_dining_input_0_input
+    to: 'off'
+  condition: []
+  action:
+  - service: light.turn_off
+    target:
+      entity_id:
+      - light.dining
+    data: {}
+  mode: single
+- id: '1709104954022'
+  alias: Shelly Kitchen - Turn on
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.mains_living_room_kitchen_input_1_input
+    to: 'on'
+  condition: []
+  action:
+  - service: light.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.kitchen
+  mode: single
+- id: '1709104985225'
+  alias: Shelly Kitchen - Turn off
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.mains_living_room_kitchen_input_1_input
+    to: 'off'
+  condition: []
+  action:
+  - service: light.turn_off
+    target:
+      entity_id:
+      - light.kitchen
+    data: {}
+  mode: single
+- id: '1709106009420'
+  alias: Shelly - Front turn on
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.mains_front_courtyard_input_0_input
+    to: 'on'
+  condition: []
+  action:
+  - service: light.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.front_3
+  mode: single
+- id: '1709106051920'
+  alias: Shelly - Front turn off
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.mains_front_courtyard_input_0_input
+    to: 'off'
+  condition: []
+  action:
+  - service: light.turn_off
+    target:
+      entity_id:
+      - light.front_3
+    data: {}
+  mode: single
+- id: '1709115940318'
+  alias: Shelly - Side turn on
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.mains_garage_input_0_input
+    to: 'on'
+  condition: []
+  action:
+  - service: light.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.side
+  mode: single
+- id: '1709115979414'
+  alias: Shelly - Side turn off
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.mains_garage_input_0_input
+    to: 'off'
+  condition: []
+  action:
+  - service: light.turn_off
+    target:
+      entity_id:
+      - light.side
+    data: {}
+  mode: single
+- id: '1709116286664'
+  alias: Shelly - Rear turn on
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.mains_backyard_input_1_input
+    to: 'on'
+  condition: []
+  action:
+  - service: light.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.backyard
+  mode: single
+- id: '1709116326008'
+  alias: Shelly - Rear turn off
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.mains_backyard_input_1_input
+    to: 'off'
+  condition: []
+  action:
+  - service: light.turn_off
+    target:
+      entity_id:
+      - light.backyard
+    data: {}
+  mode: single
+- id: '1709116462012'
+  alias: Shelly - Floodlight turn off
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.mains_studio_input_0_input
+    to: 'off'
+  condition: []
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id: light.hue_discover_outdoor_wall_1
+  mode: single
+- id: '1709116500974'
+  alias: Shelly - Floodlight turn on
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.mains_studio_input_0_input
+    to: 'on'
+  condition: []
+  action:
+  - service: light.turn_on
+    target:
+      entity_id:
+      - light.hue_discover_outdoor_wall_1
+    data: {}
+  mode: single
+- id: '1709963095734'
+  alias: 'Dishwashing mode - Turn on '
+  description: Disable pantry auto lights when boolean is selected
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.dishwashing
+    to: 'on'
+  condition: []
+  action:
+  - service: input_boolean.turn_off
+    target:
+      entity_id:
+      - input_boolean.pantry_auto_lights
+    data: {}
+  - service: switch.turn_on
+    target:
+      entity_id: switch.mains_pantry_switch_0
+    data: {}
+  mode: single
+- id: '1709963137917'
+  alias: Dishwashing mode - Turn off
+  description: Enable pantry auto lights when boolean is turned off
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.dishwashing
+    to: 'off'
+  condition: []
+  action:
+  - service: input_boolean.turn_on
+    target:
+      entity_id:
+      - input_boolean.pantry_auto_lights
+    data: {}
+  - service: switch.turn_off
+    target:
+      entity_id: switch.mains_pantry_switch_0
+    data: {}
+  mode: single
+- id: '1709963410548'
+  alias: NFC - Dishwashing mode toggle
+  description: Toggle dishwashing mode boolean
+  trigger:
+  - platform: tag
+    tag_id: 946e2c6c-7cc1-41dd-a3bc-baace3c4e425
+  condition: []
+  action:
+  - service: input_boolean.toggle
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.dishwashing
+  mode: single
+- id: '1709963777444'
+  alias: Dishwashing mode - Auto turn off
+  description: Disable dishwashing mode if no movement is detected in pantry for 15
+    minutes
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.motion_6
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+  condition: []
+  action:
+  - data: {}
+    target:
+      entity_id: input_boolean.dishwashing
+    action: input_boolean.turn_off
+  - target:
+      entity_id: switch.mains_pantry_switch_0
+    data: {}
+    action: switch.turn_off
+  mode: single
+- id: '1724445344668'
+  alias: Cat Leaving House
+  description: Send notification when Mew-meow leaves the house
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.mew_meow
+    from: 'on'
+    to: 'off'
+  condition: []
+  action:
+  - action: notify.mobile_app_pixel_6
+    metadata: {}
+    data:
+      message: Mew-meow has left the house!
+      title: Cat Outside
+  mode: single
+- id: '1724625540156'
+  alias: 'Toggle Cat Location (Tag 1) '
+  description: Toggle cat location when tag is scanned.
+  trigger:
+  - platform: tag
+    tag_id: 6cd760d8-9568-4abf-afdc-55a88a02a91f
+  condition: []
+  action:
+  - action: script.toggle_cat_location
+    data: {}
+  mode: single
+- id: '1724626057116'
+  alias: Toggle Cat Location (Tag 2)
+  description: Toggle cat location when tag is scanned.
+  trigger:
+  - platform: tag
+    tag_id: 9366f9a4-35e3-4eeb-8662-fd0d4cabaf93
+  condition: []
+  action:
+  - action: script.toggle_cat_location
+    data: {}
+  mode: single
+- id: '1724795549005'
+  alias: Animal Activity Notification - Rear
+  description: Send alert when animal activity occurs in rear and cats location is
+    inside.
+  triggers:
+  - entity_id: binary_sensor.rear_pet
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.mew_meow
+    state: 'on'
+  actions:
+  - data:
+      filename: /config/www/rear-snapshot.jpg
+    action: camera.snapshot
+    target:
+      entity_id: camera.rear_fluent
+  - data:
+      message: Animal movement detected in backyard
+      data:
+        image: https://parkplace.duckdns.org:8123/local/rear-snapshot.jpg
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+      title: Animal Detected
+    action: notify.mobile_app_pixel_6
+  - action: notify.mobile_app_desktop_ha
+    data:
+      message: Testing the message
+      data:
+        image: https://parkplace.duckdns.org:8123/local/rear-snapshot.jpg
+- id: '1724799527232'
+  alias: CDS Alarm - Manual Triggers
+  description: Triggers the cat defense system of lights and sounds
+  trigger:
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: trigger_cds
+  - platform: state
+    entity_id:
+    - input_button.cat_defense_system
+  condition: []
+  action:
+  - action: script.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: script.cds_alarm_sequence
+- id: '1724816602239'
+  alias: Animal Detection Notification - Side
+  description: Send alert when animal activity occurs in side and cats location is
+    inside.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.side_pet
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.mew_meow
+    state: 'on'
+  action:
+  - data:
+      filename: /config/www/side-snapshot.jpg
+    action: camera.snapshot
+    target:
+      entity_id: camera.side_fluent
+  - data:
+      message: Animal movement detected in side walkway
+      data:
+        image: https://parkplace.duckdns.org:8123/local/side-snapshot.jpg
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+        - action: trigger_CDS
+          title: Trigger CDS
+      title: Animal Detected
+    action: notify.mobile_app_pixel_6
+  mode: single
+- id: '1724816900098'
+  alias: Animal Detection Notification - Patio
+  description: Send alert when animal activity occurs in patio and cats location is
+    inside.
+  triggers:
+  - entity_id:
+    - binary_sensor.camera1_pet_2
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.mew_meow
+    state: 'on'
+  actions:
+  - data:
+      filename: /config/www/patio-snapshot.jpg
+    action: camera.snapshot
+    target:
+      entity_id: camera.camera1_fluent_3
+  - data:
+      message: Animal movement detected in patio
+      data:
+        image: https://parkplace.duckdns.org:8123/local/patio-snapshot.jpg
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+        - action: trigger_CDS
+          title: Trigger CDS
+      title: Animal Detected
+    action: notify.mobile_app_pixel_6
+  mode: single
+- id: '1724817314626'
+  alias: CDS Alarm - Auto Trigger
+  description: Trigger CDS Alarm sequence when animal movement is detected on the
+    patio.
+  triggers:
+  - entity_id:
+    - binary_sensor.camera1_pet_2
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.cds_alarm
+    state: 'on'
+  actions:
+  - action: script.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: script.cds_alarm_sequence
+  mode: single
+- id: '1724817995299'
+  alias: CDS Alarm - Auto Enable (Cat Location)
+  description: Enable CDS toggle when cat is inside and doors have been closed for
+    3 minutes.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.mew_meow
+    to: 'on'
+  condition:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.door_sensor_7_iaszone
+      state: 'off'
+      for:
+        hours: 0
+        minutes: 3
+        seconds: 0
+    - condition: state
+      entity_id: binary_sensor.lumi_lumi_sensor_magnet_b586cf03_on_off
+      state: 'off'
+      for:
+        hours: 0
+        minutes: 3
+        seconds: 0
+    - condition: state
+      entity_id: binary_sensor.door_sensor_8_iaszone
+      state: 'off'
+      for:
+        hours: 0
+        minutes: 3
+        seconds: 0
+  action:
+  - action: input_boolean.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.cds_alarm
+  mode: single
+- id: '1724818295656'
+  alias: CDS Alarm - Auto Disable
+  description: Disable CDS toggle when cat is marked outside and rear doors have been
+    opened.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.mew_meow
+    to: 'off'
+  - platform: state
+    entity_id:
+    - binary_sensor.door_sensor_7_iaszone
+    to: 'on'
+  - platform: state
+    entity_id:
+    - binary_sensor.lumi_lumi_sensor_magnet_b586cf03_on_off
+    to: 'on'
+  - platform: state
+    entity_id:
+    - binary_sensor.door_sensor_8_iaszone
+    to: 'on'
+  condition: []
+  action:
+  - action: input_boolean.turn_off
+    target:
+      entity_id:
+      - input_boolean.cds_alarm
+    data: {}
+  mode: single
+- id: '1724828553650'
+  alias: Reset Cat Sensors at Midnight
+  description: ''
+  trigger:
+  - platform: time
+    at: 00:00:00
+  action:
+  - data:
+      entity_id: input_number.mew_meow_entries
+      value: 0
+    action: input_number.set_value
+  - data:
+      entity_id:
+      - sensor.mew_meow_duration_inside
+      - sensor.mew_meow_duration_outside
+      - sensor.mew_meow_entries
+    action: homeassistant.update_entity
+- id: '1724829165438'
+  alias: Increment Mew Meow Entries
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.mew_meow
+    from: 'off'
+    to: 'on'
+  action:
+  - target:
+      entity_id: input_number.mew_meow_entries
+    action: input_number.increment
+- id: '1724832680628'
+  alias: Cat Entering House
+  description: Send notification when Mew-meow enters the house
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.mew_meow
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - action: notify.mobile_app_pixel_6
+    metadata: {}
+    data:
+      message: Mew-meow has entered the house!
+      title: Cat Inside
+  mode: single
+- id: '1724994872773'
+  alias: CDS Alarm - Auto Enable (Doors)
+  description: Enable CDS Alarm when doors are closed and cat is inside.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.door_sensor_7_iaszone
+    to: 'off'
+  - platform: state
+    entity_id:
+    - binary_sensor.lumi_lumi_sensor_magnet_b586cf03_on_off
+    to: 'off'
+  - platform: state
+    entity_id:
+    - binary_sensor.door_sensor_8_iaszone
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.mew_meow
+    state: 'on'
+  action:
+  - action: input_boolean.turn_on
+    target:
+      entity_id:
+      - input_boolean.cds_alarm
+    data: {}
+  mode: single
+- id: '1724999985315'
+  alias: Notification - Front Gate
+  description: Send notification when front gate is opened.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.lumi_lumi_sensor_magnet_opening_2
+    to: 'on'
+  condition: []
+  action:
+  - data:
+      filename: /config/www/gate-snapshot.jpg
+    action: camera.snapshot
+    target:
+      entity_id: camera.front_door_fluent
+  - action: xiaomi_aqara.play_ringtone
+    metadata: {}
+    data:
+      gw_mac: 04cf8cf2fb95
+      ringtone_id: '10'
+      ringtone_vol: 60
+  - data:
+      message: Front gate has been opened.
+      data:
+        image: https://parkplace.duckdns.org:8123/local/gate-snapshot.jpg
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+      title: Gate Opened
+    action: notify.mobile_app_pixel_6
+  mode: single
+- id: '1725000093930'
+  alias: Notification - Doorbell
+  description: Send notification when someone rings the doorbell.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.doorbell_visitor
+    to: 'on'
+  condition: []
+  action:
+  - data:
+      filename: /config/www/doorbell-snapshot.jpg
+    action: camera.snapshot
+    target:
+      entity_id: camera.doorbell_fluent
+  - data:
+      message: Someone has rung the doorbell.
+      data:
+        image: https://parkplace.duckdns.org:8123/local/doorbell-snapshot.jpg
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+      title: Doorbell Pressed
+    action: notify.mobile_app_pixel_6
+  - action: notify.mobile_app_sm_a556e
+    data:
+      data:
+        image: https://parkplace.duckdns.org:8123/local/doorbell-snapshot.jpg
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: https://parkplace.duckdns.org:8123/lovelace/rear-camera
+      message: Someone has rung the doorbell.
+      title: Doorbell Pressed
+    enabled: true
+  mode: single
+- id: '1725000496475'
+  alias: Notification - Garage Door
+  description: Send notification when the garage is opened.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.lumi_lumi_sensor_magnet_opening_3
+    to: 'on'
+    from: 'off'
+  condition: []
+  action:
+  - action: xiaomi_aqara.play_ringtone
+    metadata: {}
+    data:
+      gw_mac: 04cf8cf2fb95
+      ringtone_id: '11'
+      ringtone_vol: 10
+  - sequence:
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 5
+        milliseconds: 0
+    - data:
+        filename: /config/www/garage-snapshot.jpg
+      action: camera.snapshot
+      target:
+        entity_id: camera.garage_fluent
+    - data:
+        message: The garage door has been opened.
+        data:
+          image: https://parkplace.duckdns.org:8123/local/garage-snapshot.jpg
+          actions:
+          - action: URI
+            title: View Live Feed
+            uri: app://com.mcu.reolink
+        title: Garage Opened.
+      action: notify.mobile_app_pixel_6
+  mode: single
+- id: '1725001027419'
+  alias: Notification - Garage Door Open
+  description: Send notification when the garage is left open and no motion is detected
+    for 5 minutes.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.motion_3
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  condition:
+  - condition: state
+    entity_id: binary_sensor.lumi_lumi_sensor_magnet_opening_3
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.excercise_mode
+    state: 'off'
+  action:
+  - sequence:
+    - data:
+        filename: /config/www/garage-snapshot.jpg
+      action: camera.snapshot
+      target:
+        entity_id: camera.garage_fluent
+    - data:
+        message: The garage door has been left open for 5 minutes.
+        data:
+          image: https://parkplace.duckdns.org:8123/local/garage-snapshot.jpg
+          actions:
+          - action: URI
+            title: View Live Feed
+            uri: app://com.mcu.reolink
+        title: Garage Door Open
+      action: notify.mobile_app_pixel_6
+    - action: notify.mobile_app_sm_a556e
+      metadata: {}
+      data:
+        data:
+          image: https://parkplace.duckdns.org:8123/local/garage-snapshot.jpg
+          actions:
+          - action: URI
+            title: View Live Feed
+            uri: app://com.mcu.reolink
+        title: Garage Door Open
+        message: The garage door has been left open for 5 minutes.
+  mode: single
+- id: '1725002642933'
+  alias: Bin Reminder - General, Glass & Green (12pm)
+  description: Send notification the day before waste collection at 12pm.
+  trigger:
+  - platform: calendar
+    event: start
+    offset: '-12:0:0'
+    entity_id: calendar.general_waste
+  condition: []
+  action:
+  - action: notify.mobile_app_pixel_6
+    data:
+      title: Reminder - Bins Out
+      message: General waste, glass and green waste are being collected tomorrow morning.
+      data:
+        icon: mdi:trash-can
+  - action: notify.mobile_app_sm_a556e
+    metadata: {}
+    data:
+      title: Reminder - Bins Out
+      message: General waste, glass and green waste are being collected tomorrow morning.
+      data:
+        icon: mdi:trash-can
+  mode: single
+- id: '1725002952592'
+  alias: Bin Reminder - General, Glass & Green (10pm)
+  description: Send notification the day before waste collection at 10pm.
+  trigger:
+  - platform: calendar
+    event: start
+    offset: '-2:0:0'
+    entity_id: calendar.general_waste
+  condition: []
+  action:
+  - action: notify.mobile_app_pixel_6
+    data:
+      title: Reminder - Bins Out
+      message: General waste, glass and green waste are being collected tomorrow morning.
+      data: {}
+  - action: notify.mobile_app_sm_a556e
+    metadata: {}
+    data:
+      title: Reminder - Bins Out
+      message: Reminder - Bins Out
+  mode: single
+- id: '1725003059041'
+  alias: Bin Reminder - Recycling & General (12pm)
+  description: Send notification the day before waste collection at 12pm.
+  trigger:
+  - platform: calendar
+    event: start
+    offset: '-12:0:0'
+    entity_id: calendar.recycling
+  condition: []
+  action:
+  - action: notify.mobile_app_pixel_6
+    data:
+      title: Reminder - Bins Out
+      message: Recycling and green waste are being collected tomorrow morning.
+      data: {}
+  - action: notify.mobile_app_sm_a556e
+    data:
+      title: Reminder - Bins Out
+      message: Recycling and green waste are being collected tomorrow morning.
+  mode: single
+- id: '1725003103150'
+  alias: Bin Reminder - Recycling & General (10pm)
+  description: Send notification the day before waste collection at 10pm.
+  trigger:
+  - platform: calendar
+    event: start
+    offset: '-2:0:0'
+    entity_id: calendar.recycling
+  condition: []
+  action:
+  - action: notify.mobile_app_pixel_6
+    data:
+      title: Reminder - Bins Out
+      message: Recycling and green waste are being collected tomorrow morning.
+      data: {}
+  - action: notify.mobile_app_sm_a556e
+    metadata: {}
+    data:
+      title: Reminder - Bins Out
+      message: Recycling and green waste are being collected tomorrow morning.
+  mode: single
+- id: '1725003588244'
+  alias: Event Reminder (2 weeks)
+  description: Send notification of an event 2 weeks prior.
+  trigger:
+  - platform: calendar
+    event: start
+    offset: '-336:0:0'
+    entity_id: calendar.personal_events
+  condition: []
+  action:
+  - action: notify.mobile_app_pixel_6
+    data:
+      message: '{{ state_attr(''calendar.personal_events'', ''message'') }}\n {{ as_timestamp(state_attr(''calendar.personal_events'',
+        ''start_time'')) | timestamp_custom(''%d %B'') }}\n {{ state_attr(''calendar.personal_events'',
+        ''description'') }}\n {{ as_timestamp(state_attr(''calendar.personal_events'',
+        ''start_time'')) | timestamp_custom(''%I:%M%p'') or ''No start time'' }} to
+        {{ as_timestamp(state_attr(''calendar.personal_events'', ''end_time'')) |
+        timestamp_custom(''%I:%M%p'') or ''No end time'' }} \n {{ state_attr(''calendar.personal_events'',
+        ''location'') }}\n
+
+        '
+      title: Upcoming Event Reminder
+      data:
+        icon: mdi:calendar
+  - action: notify.mobile_app_sm_a556e
+    data:
+      message: '{{ state_attr(''calendar.personal_events'', ''message'') }}\n {{ as_timestamp(state_attr(''calendar.personal_events'',
+        ''start_time'')) | timestamp_custom(''%d %B'') }}\n {{ state_attr(''calendar.personal_events'',
+        ''description'') }}\n {{ as_timestamp(state_attr(''calendar.personal_events'',
+        ''start_time'')) | timestamp_custom(''%I:%M%p'') or ''No start time'' }} to
+        {{ as_timestamp(state_attr(''calendar.personal_events'', ''end_time'')) |
+        timestamp_custom(''%I:%M%p'') or ''No end time'' }} \n {{ state_attr(''calendar.personal_events'',
+        ''location'') }}\n
+
+        '
+      title: Upcoming Event Reminder
+      data:
+        icon: mdi:calendar
+  mode: single
+- id: '1725064047190'
+  alias: CDS - Rear Camera Spotlight
+  description: Turn on camera spotlight when pet is detected in yard.
+  triggers:
+  - entity_id:
+    - binary_sensor.rear_pet
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.cds_alarm
+    state: 'on'
+  - condition: sun
+    before: sunset
+    before_offset: 00:15:00
+    after: sunrise
+    after_offset: 00:15:00
+  actions:
+  - sequence:
+    - action: light.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: light.rear_floodlight
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 45
+        milliseconds: 0
+    - action: light.turn_off
+      target:
+        entity_id:
+        - light.rear_floodlight
+      data: {}
+  mode: single
+- id: '1725064105192'
+  alias: CDS - Side Camera Floodlight
+  description: Turn on camera spotlight when pet is detected in side walkway.
+  triggers:
+  - entity_id:
+    - binary_sensor.side_pet
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.cds_alarm
+    state: 'on'
+  - condition: sun
+    before: sunrise
+    after: sunset
+    after_offset: 00:15:00
+  actions:
+  - sequence:
+    - action: light.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: light.side_floodlight
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 20
+        milliseconds: 0
+    - action: light.turn_off
+      data: {}
+      target:
+        entity_id: light.side_floodlight
+  mode: single
+- id: '1725065048968'
+  alias: Event Notification (2 Days)
+  description: Send notification of an event 2 days prior.
+  triggers:
+  - event: start
+    offset: '-48:0:0'
+    entity_id: calendar.personal_events
+    trigger: calendar
+  conditions: []
+  actions:
+  - data:
+      message: '{{ state_attr(''calendar.personal_events'', ''message'') }}\n {{ as_timestamp(state_attr(''calendar.personal_events'',
+        ''start_time'')) | timestamp_custom(''%d %B'') }}\n {{ state_attr(''calendar.personal_events'',
+        ''description'') }}\n {{ as_timestamp(state_attr(''calendar.personal_events'',
+        ''start_time'')) | timestamp_custom(''%I:%M%p'') or ''No start time'' }} to
+        {{ as_timestamp(state_attr(''calendar.personal_events'', ''end_time'')) |
+        timestamp_custom(''%I:%M%p'') or ''No end time'' }} \n {{ state_attr(''calendar.personal_events'',
+        ''location'') }}\n
+
+        '
+      title: Upcoming Event Reminder
+      data:
+        icon: mdi:calendar
+    action: notify.mobile_app_pixel_6
+  - data:
+      message: '{{ state_attr(''calendar.personal_events'', ''message'') }}\n {{ as_timestamp(state_attr(''calendar.personal_events'',
+        ''start_time'')) | timestamp_custom(''%d %B'') }}\n {{ state_attr(''calendar.personal_events'',
+        ''description'') }}\n {{ as_timestamp(state_attr(''calendar.personal_events'',
+        ''start_time'')) | timestamp_custom(''%I:%M%p'') or ''No start time'' }} to
+        {{ as_timestamp(state_attr(''calendar.personal_events'', ''end_time'')) |
+        timestamp_custom(''%I:%M%p'') or ''No end time'' }} \n {{ state_attr(''calendar.personal_events'',
+        ''location'') }}\n
+
+        '
+      title: Upcoming Event Reminder
+      data:
+        icon: mdi:calendar
+    action: notify.mobile_app_sm_a556e
+  mode: single
+- id: '1725065352723'
+  alias: CDS - E1 Supplemental Alarm
+  description: Trigger E1 Alarm when cat detected.
+  triggers:
+  - entity_id:
+    - binary_sensor.e1_pro_pet
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.cds_alarm
+    state: 'on'
+    for:
+      hours: 0
+      minutes: 3
+      seconds: 0
+  actions:
+  - data:
+      filename: /config/www/e1-snapshot.jpg
+    action: camera.snapshot
+    target:
+      entity_id:
+      - camera.e1_pro_fluent
+  - data:
+      message: Cat Attack!
+      data:
+        image: https://parkplace.duckdns.org:8123/local/e1-snapshot.jpg
+      title: You are under attack, all hands on deck
+    action: notify.mobile_app_pixel_6
+  - action: script.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: script.cds_alarm_sequence
+    enabled: true
+  - sequence:
+    - action: siren.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: siren.e1_pro_siren
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 10
+        milliseconds: 0
+    - action: siren.turn_off
+      metadata: {}
+      data: {}
+      target:
+        entity_id: siren.e1_pro_siren
+  mode: single
+- id: '1725082728437'
+  alias: Birthday Reminder Notification (2 weeks)
+  description: Send notification of a birthday 2 weeks prior.
+  trigger:
+  - platform: calendar
+    event: start
+    offset: '-336:10:0'
+    entity_id: calendar.birthdays
+  condition: []
+  action:
+  - data:
+      message: '{{ state_attr(''calendar.personal_events'', ''message'') }}\n {{ as_timestamp(state_attr(''calendar.personal_events'',
+        ''start_time'')) | timestamp_custom(''%d %B'') }}\n {{ state_attr(''calendar.personal_events'',
+        ''description'') }}\n {{ as_timestamp(state_attr(''calendar.personal_events'',
+        ''start_time'')) | timestamp_custom(''%I:%M%p'') or ''No start time'' }} to
+        {{ as_timestamp(state_attr(''calendar.personal_events'', ''end_time'')) |
+        timestamp_custom(''%I:%M%p'') or ''No end time'' }} \n {{ state_attr(''calendar.personal_events'',
+        ''location'') }}\n
+
+        '
+      title: Upcoming Birthday Reminder
+      data:
+        icon: mdi:calendar
+    action: notify.mobile_app_pixel_6
+  - data:
+      message: '{{ state_attr(''calendar.personal_events'', ''message'') }}\n {{ as_timestamp(state_attr(''calendar.personal_events'',
+        ''start_time'')) | timestamp_custom(''%d %B'') }}\n {{ state_attr(''calendar.personal_events'',
+        ''description'') }}\n {{ as_timestamp(state_attr(''calendar.personal_events'',
+        ''start_time'')) | timestamp_custom(''%I:%M%p'') or ''No start time'' }} to
+        {{ as_timestamp(state_attr(''calendar.personal_events'', ''end_time'')) |
+        timestamp_custom(''%I:%M%p'') or ''No end time'' }} \n {{ state_attr(''calendar.personal_events'',
+        ''location'') }}\n
+
+        '
+      title: Upcoming Birthday Reminder
+      data:
+        icon: mdi:calendar
+    action: notify.mobile_app_sm_a556e
+  mode: single
+- id: '1725082785665'
+  alias: Birthday Reminder Notification (2 days)
+  description: Send notification of a birthday 2 days prior.
+  trigger:
+  - platform: calendar
+    event: start
+    offset: '-48:10:0'
+    entity_id: calendar.birthdays
+  condition: []
+  action:
+  - data:
+      message: '{{ state_attr(''calendar.personal_events'', ''message'') }}\n {{ as_timestamp(state_attr(''calendar.personal_events'',
+        ''start_time'')) | timestamp_custom(''%d %B'') }}\n {{ state_attr(''calendar.personal_events'',
+        ''description'') }}\n {{ as_timestamp(state_attr(''calendar.personal_events'',
+        ''start_time'')) | timestamp_custom(''%I:%M%p'') or ''No start time'' }} to
+        {{ as_timestamp(state_attr(''calendar.personal_events'', ''end_time'')) |
+        timestamp_custom(''%I:%M%p'') or ''No end time'' }} \n {{ state_attr(''calendar.personal_events'',
+        ''location'') }}\n
+
+        '
+      title: Upcoming Birthday Reminder
+      data:
+        icon: mdi:calendar
+    action: notify.mobile_app_pixel_6
+  - data:
+      message: '{{ state_attr(''calendar.personal_events'', ''message'') }}\n {{ as_timestamp(state_attr(''calendar.personal_events'',
+        ''start_time'')) | timestamp_custom(''%d %B'') }}\n {{ state_attr(''calendar.personal_events'',
+        ''description'') }}\n {{ as_timestamp(state_attr(''calendar.personal_events'',
+        ''start_time'')) | timestamp_custom(''%I:%M%p'') or ''No start time'' }} to
+        {{ as_timestamp(state_attr(''calendar.personal_events'', ''end_time'')) |
+        timestamp_custom(''%I:%M%p'') or ''No end time'' }} \n {{ state_attr(''calendar.personal_events'',
+        ''location'') }}\n
+
+        '
+      title: Upcoming Birthday Reminder
+      data:
+        icon: mdi:calendar
+    action: notify.mobile_app_sm_a556e
+  mode: single
+- id: '1725164103284'
+  alias: Washing Machine - Clothes Finished Notification
+  description: Send a notification when washing machine finishes.
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.electrolux_washing_machine_appliancestate
+    to: 'Off'
+  condition: []
+  action:
+  - action: notify.mobile_app_pixel_6
+    metadata: {}
+    data:
+      title: Washing Machine Finished
+      message: Clothes have finished washing.
+  - action: input_boolean.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.laundry_removed
+  mode: single
+- id: '1725172141162'
+  alias: Laundry Removed
+  description: Set laundry_removed to on when the door is opened.
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.electrolux_washing_machine_doorstate
+    to: Open
+  condition: []
+  action:
+  - target:
+      entity_id: input_boolean.laundry_removed
+    action: input_boolean.turn_on
+  mode: single
+- id: '1725172208829'
+  alias: Persistent Laundry Notification
+  description: Send a persistent notification every hour until the laundry is removed.
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.electrolux_washing_machine_appliancestate
+    to: 'Off'
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
+    from: 'Running '
+  condition:
+  - condition: state
+    entity_id: input_boolean.laundry_removed
+    state: 'off'
+  action:
+  - repeat:
+      sequence:
+      - data:
+          title: Laundry Reminder
+          message: Please remove the laundry from the washing machine.
+        action: notify.mobile_app_pixel_6
+      - delay: 01:00:00
+      until:
+      - condition: state
+        entity_id: input_boolean.laundry_removed
+        state: 'on'
+  mode: single
+- id: '1725175927678'
+  alias: Handler Dismiss Laundry Notification
+  description: Handle the dismiss button press to stop further notifications.
+  trigger:
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: dismiss_laundry_notification
+  condition: []
+  action:
+  - action: script.dismiss_laundry_notification
+  mode: single
+- id: '1725250369322'
+  alias: CDS -  E1 Supplemental Alarm Enable
+  description: Turns on the E1 alarm at nightime
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.mew_meow
+    to: 'on'
+  condition:
+  - condition: time
+    after: '22:30:00'
+    before: 06:00:00
+  action:
+  - action: automation.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: automation.e1_cds_alarm
+  mode: single
+- id: '1725250435423'
+  alias: CDS - E1 Supplemental Alarm Disable
+  description: Turns off the E1 alarm in the morning.
+  trigger:
+  - platform: time
+    at: 06:15:00
+  condition: []
+  action:
+  - action: automation.turn_off
+    target:
+      entity_id:
+      - automation.e1_cds_alarm
+    data:
+      stop_actions: true
+  mode: single
+- id: '1725537548595'
+  alias: 'Entertainment - Turn off soundbar '
+  description: Turn off soundbar when chromecast is turned off
+  trigger:
+  - platform: state
+    entity_id:
+    - media_player.living_room_tv_2_2
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: media_player.ht_ct800
+    state: 'on'
+  action:
+  - action: media_player.turn_off
+    target:
+      device_id:
+      - f7d924134b72fe8858c47b5c43119235
+    data: {}
+  mode: single
+- id: '1725540635796'
+  alias: Movie - Scene turn off
+  description: Turn off Movie scene when media player is turned off.
+  trigger:
+  - platform: state
+    entity_id:
+    - media_player.living_room_tv_2_2
+    to: 'off'
+  condition: []
+  action:
+  - action: input_boolean.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.movie_mode
+  mode: single
+- id: '1725610723130'
+  alias: Mads Work Departure Alert
+  description: ''
+  trigger:
+  - platform: zone
+    entity_id: person.madeleine_moloney
+    zone: zone.work
+    event: leave
+  condition: []
+  action:
+  - action: notify.mobile_app_pixel_6
+    metadata: {}
+    data:
+      data: {}
+      title: Movement alert
+      message: Mads has left work zone
+  mode: single
+- id: '1725610856466'
+  alias: Mads Home Arrival Alert
+  description: ''
+  trigger:
+  - platform: zone
+    entity_id: person.madeleine_moloney
+    zone: zone.home
+    event: enter
+  condition: []
+  action:
+  - action: notify.mobile_app_pixel_6
+    metadata: {}
+    data:
+      data: {}
+      title: Movement alert
+      message: Mads has entered home zone
+  mode: single
+- id: '1725627831165'
+  alias: Pet Food Low Notification
+  description: Send notification when petfood is low.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.fresh_element_mini_food_level
+    to: 'on'
+  condition: []
+  action:
+  - action: notify.mobile_app_pixel_6
+    metadata: {}
+    data:
+      title: Cat Food Low
+      message: Replace the food for the fat cat!
+  - action: notify.mobile_app_sm_a556e
+    metadata: {}
+    data:
+      title: Cat Food Low
+      message: Replace the food for the fat cat!
+  mode: single
+- id: '1725853236866'
+  alias: Watchman - Level 2 Warning
+  description: Flash den play lights when motion is detected in kitchen or pantry
+  triggers:
+  - entity_id:
+    - binary_sensor.kitchen
+    to: 'on'
+    trigger: state
+  - entity_id:
+    - binary_sensor.motion_6
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.watchman
+    state: 'on'
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      rgb_color:
+      - 245
+      - 159
+      - 73
+      brightness_pct: 100
+      flash: short
+    target:
+      entity_id:
+      - light.hue_play_1
+      - light.hue_play_2
+  mode: single
+- id: '1725853332316'
+  alias: Watchman - Level 3 Warning
+  description: Flash den lights  when motion is detected in living room, dining room
+    or hallway
+  triggers:
+  - entity_id:
+    - binary_sensor.living_room
+    to: 'on'
+    trigger: state
+  - entity_id:
+    - binary_sensor.motion_dining
+    to: 'on'
+    trigger: state
+  - entity_id:
+    - binary_sensor.hallway_1
+    to: 'on'
+    trigger: state
+  - trigger: state
+    entity_id:
+    - binary_sensor.lumi_lumi_sensor_magnet_opening_2
+    from: 'off'
+    to: 'on'
+  - trigger: state
+    entity_id:
+    - binary_sensor.lumi_lumi_sensor_magnet_opening_3
+    from: 'off'
+    to: 'on'
+  conditions:
+  - condition: state
+    entity_id: input_boolean.watchman
+    state: 'on'
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      flash: short
+    target:
+      entity_id:
+      - light.hue_play_1
+      - light.hue_play_2
+      - light.top_lamp
+      - light.bottom_lamp
+  mode: single
+- id: '1727176981031'
+  alias: Guest Mode
+  description: Turn off inappropriate automatons when a guest is staying at the house
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.guest_mode
+    to: 'on'
+  condition: []
+  action:
+  - action: automation.turn_off
+    metadata: {}
+    data:
+      stop_actions: true
+    target:
+      entity_id:
+      - automation.pet_camera
+      - automation.e1_cds_alarm
+      - automation.cds_enable_e1_supplemental_alarm_at_night
+      - automation.cds_trigger
+      - automation.cds_alarm_auto_enable_doors
+      - automation.cds_side_camera_floodlight
+      - automation.cds_auto_disable
+      - automation.cds_e1_supplemental_alarm_disable
+      - automation.cds_auto_enable
+      - automation.cds_rear_camera_spotlight
+  mode: single
+- id: '1731409200955'
+  alias: CDS - Disable CDS (Morning)
+  description: Turn of CDS Alarm in morning
+  triggers:
+  - trigger: time
+    at: 06:15:00
+  conditions:
+  - condition: state
+    entity_id: input_boolean.cds_alarm
+    state: 'on'
+  actions:
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.cds_alarm
+    data: {}
+  mode: single
+- id: '1738639445280'
+  alias: Watchman - Flash on Toggle
+  description: ''
+  triggers:
+  - entity_id:
+    - automation.watchman_turn_on
+    - automation.watchman_turn_off
+    trigger: state
+  conditions: []
+  actions:
+  - target:
+      entity_id: light.den
+    data:
+      flash: short
+    action: light.turn_on
+  mode: single
+- id: '1738643431888'
+  alias: PC Notification - Doorbell Press
+  description: Send alert to PC when doorbell is pressed
+  triggers:
+  - entity_id:
+    - binary_sensor.doorbell_visitor
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: device_tracker.desktop_9qq42c7_2
+    state: 'on'
+  actions:
+  - data:
+      filename: /config/www/doorbell-snapshot.jpg
+    action: camera.snapshot
+    target:
+      entity_id: camera.doorbell_fluent
+  - action: notify.mobile_app_desktop_ha
+    data:
+      message: Testing the message
+      data:
+        image: https://parkplace.duckdns.org:8123/local/doorbell-snapshot.jpg
+  mode: single
+- id: '1738644620662'
+  alias: PC Notification - Front Gate
+  description: Send alert to PC when front gate is opened
+  triggers:
+  - entity_id:
+    - binary_sensor.lumi_lumi_sensor_magnet_opening_2
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: device_tracker.desktop_9qq42c7_2
+    state: 'on'
+  actions:
+  - data:
+      filename: /config/www/front-snapshot.jpg
+    action: camera.snapshot
+    target:
+      entity_id: camera.front_door_fluent
+  - action: notify.mobile_app_desktop_ha
+    data:
+      message: Testing the message
+      data:
+        image: https://parkplace.duckdns.org:8123/local/front-snapshot.jpg
+  mode: single
+- id: '1738644810681'
+  alias: PC Notification - Garage Door
+  description: Send alert to PC when garage is opened
+  triggers:
+  - entity_id:
+    - binary_sensor.lumi_lumi_sensor_magnet_opening_3
+    to: 'on'
+    trigger: state
+    from: 'off'
+    for:
+      hours: 0
+      minutes: 2
+      seconds: 0
+  conditions:
+  - condition: state
+    entity_id: device_tracker.desktop_9qq42c7_2
+    state: 'on'
+  actions:
+  - data:
+      filename: /config/www/garage-snapshot.jpg
+    action: camera.snapshot
+    target:
+      entity_id: camera.garage_fluent
+  - action: notify.mobile_app_desktop_ha
+    data:
+      message: Testing the message
+      data:
+        image: https://parkplace.duckdns.org:8123/local/garage-snapshot.jpg
+  mode: single
+- id: '1741760984962'
+  alias: Motion Lights - Laundry turn on
+  description: Turn on laundry lights on motion.
+  triggers:
+  - entity_id:
+    - binary_sensor.motion_1
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.laundry_auto_lights
+    state: 'on'
+  - condition: state
+    entity_id: switch.shellyplus2pm_e465b86040bc_switch_0
+    state: 'off'
+  actions:
+  - data: {}
+    action: switch.turn_on
+    target:
+      entity_id: switch.shellyplus2pm_e465b86040bc_switch_0
+  mode: single
+- id: '1741761091105'
+  alias: Motion Lights - Laundry turn off
+  description: Turn off laundry lights when no motion is detected.
+  triggers:
+  - entity_id:
+    - binary_sensor.motion_1
+    to: 'off'
+    trigger: state
+    for:
+      hours: 0
+      minutes: 3
+      seconds: 0
+  conditions:
+  - condition: state
+    entity_id: switch.shellyplus2pm_e465b86040bc_switch_0
+    state: 'on'
+  actions:
+  - data: {}
+    action: switch.turn_off
+    target:
+      entity_id: switch.shellyplus2pm_e465b86040bc_switch_0
+  mode: single
+- id: '1743590771656'
+  alias: Cat Alarm - Light on Animal Detection
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.side_pet
+    - binary_sensor.rear_pet
+    - binary_sensor.camera1_pet
+    - binary_sensor.camera1_pet_2
+    - binary_sensor.e1_pro_pet
+    to: 'on'
+  conditions:
+  - condition: state
+    entity_id: lock.flappy_locked_in
+    state: locked
+  - condition: state
+    entity_id: binary_sensor.mew_meow
+    state: 'on'
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      brightness_pct: 100
+      kelvin: 5547
+    target:
+      entity_id: light.hue_discover_outdoor_wall_1
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 3
+      milliseconds: 0
+  - action: light.turn_on
+    metadata: {}
+    data:
+      brightness_pct: 100
+      kelvin: 5446
+    target:
+      entity_id: light.garden
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 3
+      milliseconds: 0
+  - action: light.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.patio_light
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 3
+      milliseconds: 0
+  - action: switch.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.mains_patio_hallway_switch_0
+  - delay:
+      hours: 0
+      minutes: 1
+      seconds: 0
+      milliseconds: 0
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - light.hue_discover_outdoor_wall_1
+      - light.garden
+      - light.patio_light
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.mains_patio_hallway_switch_0
+  mode: single
+- id: '1743592741759'
+  alias: Rodret Dimmer 1
+  description: ''
+  use_blueprint:
+    path: damru/ikea_E1743-E2201-E2213_ZHA-Z2M_control-anything.yaml
+    input:
+      remote_devices:
+      - 21a14a5119420e36f842b1768aa76dec
+      on_press_action:
+      - action: light.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.bedroom
+      off_press_action:
+      - action: light.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.bedroom
+      on_hold_action:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          entity_id: light.bedroom
+          brightness_step: 25
+        target:
+          entity_id: light.bedroom
+      off_hold_action:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          brightness: "{% set current_brightness = state_attr('light.bedroom', 'brightness')
+            %} {% if current_brightness - 25 > 0 %}\n  {{ current_brightness - 25
+            }}\n{% else %}\n  1  \n{% endif %}\n"
+        target:
+          entity_id: light.bedroom
+      on_double_press_exposed: true
+      off_double_press_exposed: false
+      helper_hold_delay: 100
+- id: '1748292875557'
+  alias: Mads Closet light
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - switch.mains_front_balcony_closet_switch_1
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 20
+      seconds: 0
+  conditions: []
+  actions:
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.mains_front_balcony_closet_switch_1
+  mode: single
+- id: '1759904940965'
+  alias: Rocker 1 - Toggle Garden Lights
+  description: ''
+  triggers:
+  - device_id: 0df749c9c6e5de739492f8ee518ba9bc
+    domain: zha
+    type: remote_button_short_press
+    subtype: button_1
+    trigger: device
+  conditions: []
+  actions:
+  - action: light.toggle
+    metadata: {}
+    data:
+      color_temp_kelvin: 3358
+      brightness_pct: 100
+    target:
+      entity_id: light.garden
+  mode: single
+- id: '1759905216584'
+  alias: Rocker 1 - Toggle Cat Location
+  description: Toggle cat location on right button switch
+  triggers:
+  - device_id: 0df749c9c6e5de739492f8ee518ba9bc
+    domain: zha
+    type: remote_button_short_press
+    subtype: button_2
+    trigger: device
+  conditions: []
+  actions:
+  - action: script.toggle
+    metadata: {}
+    data: {}
+    target:
+      entity_id: script.toggle_cat_location
+  mode: single
+- id: '1759906236652'
+  alias: Garden Light Scene Cycler - Single Automation
+  description: Cycles through garden light scenes and activates them on button press
+  triggers:
+  - device_id: 0df749c9c6e5de739492f8ee518ba9bc
+    domain: zha
+    type: remote_button_double_press
+    subtype: button_1
+    trigger: device
+  conditions: []
+  actions:
+  - data:
+      cycle: true
+    target:
+      entity_id: input_select.garden_light_scenes
+    action: input_select.select_next
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_select.garden_light_scenes
+        state: Read
+      sequence:
+      - action: scene.turn_on
+        target:
+          entity_id: scene.garden_read
+        data: {}
+    - conditions:
+      - condition: state
+        entity_id: input_select.garden_light_scenes
+        state: Relax
+      sequence:
+      - target:
+          entity_id: scene.garden_relax
+        action: scene.turn_on
+        data: {}
+    - conditions:
+      - condition: state
+        entity_id: input_select.garden_light_scenes
+        state: Concentrate
+      sequence:
+      - action: scene.turn_on
+        data: {}
+        target:
+          entity_id: scene.garden_concentrate
+    - conditions:
+      - condition: state
+        entity_id: input_select.garden_light_scenes
+        state: Energize
+      sequence:
+      - action: scene.turn_on
+        data: {}
+        target:
+          entity_id: scene.garden_energize
+    - conditions:
+      - condition: state
+        entity_id: input_select.garden_light_scenes
+        state: Savanna sunset
+      sequence:
+      - action: scene.turn_on
+        data: {}
+        target:
+          entity_id: scene.garden_savanna_sunset
+    - conditions:
+      - condition: state
+        entity_id: input_select.garden_light_scenes
+        state: Arctic aurora
+      sequence:
+      - action: scene.turn_on
+        data: {}
+        target:
+          entity_id: scene.garden_arctic_aurora
+    - conditions:
+      - condition: state
+        entity_id: input_select.garden_light_scenes
+        state: Tropical twilight
+      sequence:
+      - action: scene.turn_on
+        target:
+          entity_id: scene.garden_tropical_twilight
+        data: {}
+    - conditions:
+      - condition: state
+        entity_id: input_select.garden_light_scenes
+        state: Spring blossom
+      sequence:
+      - action: scene.turn_on
+        target:
+          entity_id: scene.garden_spring_blossom
+        data: {}
+    - conditions:
+      - condition: state
+        entity_id: input_select.garden_light_scenes
+        state: Outdoor living
+      sequence:
+      - target:
+          entity_id:
+          - scene.garden_outdoor_living
+        action: scene.turn_on
+        data: {}
+  mode: single
+- id: '1760008352252'
+  alias: Cat Home Audio Confirmation
+  description: Play notification when the cat is checked in.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.mew_meow
+    from: 'on'
+    to: 'off'
+  conditions: []
+  actions:
+  - action: xiaomi_aqara.play_ringtone
+    metadata: {}
+    data:
+      gw_mac: 04cf8cf2fb95
+      ringtone_id: '12'
+      ringtone_vol: 5
+  - sequence:
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 5
+        milliseconds: 0
+    - data:
+        filename: /config/www/garage-snapshot.jpg
+      action: camera.snapshot
+      target:
+        entity_id: camera.garage_fluent
+    - data:
+        message: The garage door has been opened.
+        data:
+          image: https://parkplace.duckdns.org:8123/local/garage-snapshot.jpg
+          actions:
+          - action: URI
+            title: View Live Feed
+            uri: app://com.mcu.reolink
+        title: Garage Opened.
+      action: notify.mobile_app_pixel_6
+    enabled: false
+  mode: single
+- id: '1760237454256'
+  alias: Cat confirmation
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_boolean.cat_location
+    from: 'off'
+    to: 'on'
+  conditions: []
+  actions: []
+  mode: single

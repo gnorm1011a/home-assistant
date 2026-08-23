@@ -1,0 +1,70 @@
+# Secrets - NEVER commit
+secrets.yaml
+.google_fit.token
+*.token
+*.pem
+*.key
+
+# HA internal state (auto-generated, not source of truth)
+.storage/
+
+# Logs (can be huge - home-assistant.log.1 is 133GB)
+home-assistant.log*
+OZW_log.txt
+*.log
+*.log.*
+
+# Database
+home-assistant_v2.db*
+*.db
+*.db-shm
+*.db-wal
+zigbee.db*
+*.db-shm
+*.db-wal
+
+# Backups
+backups/
+*.tar
+*.tar.gz
+*.slug
+
+# Cache and temporary files
+deps/
+__pycache__/
+*.pyc
+*.pyo
+tts/
+image/
+.cache/
+
+# Lock files and runtime state
+.ha_run.lock
+*.lock
+
+# Cloud/remote keys and Nabu Casa certs
+home-assistant-*.json
+.cloud/
+.shopping_list.json
+
+# IP bans (auto-generated)
+ip_bans.yaml
+
+# Known devices (auto-generated, deprecated)
+known_devices.yaml
+
+# Frigate config (managed separately)
+frigate.yml
+
+# Fault files
+*.fault
+
+# HACS frontend (auto-generated, huge, reinstalled by HACS)
+custom_components/hacs/hacs_frontend/
+
+# HACS-managed lovelace cards (auto-installed by HACS, may contain embedded tokens)
+www/community/
+
+# OS-level
+.DS_Store
+Thumbs.db

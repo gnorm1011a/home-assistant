@@ -1,0 +1,488 @@
+- id: '1681289502475'
+  name: Motion Lights - Front bright on
+  entities:
+    light.front_3:
+      min_color_temp_kelvin: 2202
+      max_color_temp_kelvin: 4000
+      min_mireds: 250
+      max_mireds: 454
+      effect_list:
+      - colorloop
+      supported_color_modes:
+      - color_temp
+      - xy
+      entity_id:
+      - light.front
+      - light.front_2
+      icon: hue:wall-appear-group
+      friendly_name: Front
+      supported_features: 44
+      color_mode: color_temp
+      brightness: 254
+      color_temp_kelvin: 4000
+      color_temp: 250
+      hs_color:
+      - 26.812
+      - 34.87
+      rgb_color:
+      - 255
+      - 205
+      - 166
+      xy_color:
+      - 0.421
+      - 0.364
+      state: 'on'
+  icon: hue:scene-bright
+  metadata:
+    light.front_3:
+      entity_only: true
+- id: '1681349943951'
+  name: Motion Lights - Front bright off
+  entities:
+    light.front_3:
+      min_color_temp_kelvin: 2202
+      max_color_temp_kelvin: 4000
+      min_mireds: 250
+      max_mireds: 454
+      effect_list:
+      - colorloop
+      supported_color_modes:
+      - color_temp
+      - xy
+      entity_id:
+      - light.front
+      - light.front_2
+      icon: hue:wall-appear-group
+      friendly_name: Front
+      supported_features: 44
+      state: 'off'
+  icon: hue:scene-bright
+  metadata:
+    light.front_3:
+      entity_only: true
+- id: '1705923587158'
+  name: Backyard Bright
+  entities:
+    light.backyard_2:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: color_temp
+      brightness: 254
+      color_temp_kelvin: 6535
+      color_temp: 153
+      hs_color:
+      - 54.768
+      - 1.6
+      rgb_color:
+      - 255
+      - 254
+      - 250
+      xy_color:
+      - 0.326
+      - 0.333
+      effect:
+      entity_id:
+      - light.garden
+      - light.backyard
+      icon: mdi:lightbulb-group
+      friendly_name: Backyard
+      supported_features: 44
+      state: 'on'
+  icon: hue:scene-bright
+  metadata:
+    light.backyard_2:
+      entity_only: true
+- id: '1706686131092'
+  name: Casual Dining
+  entities:
+    light.upstairs_2:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: color_temp
+      brightness: 217
+      color_temp_kelvin: 3521
+      color_temp: 284
+      hs_color:
+      - 27.152
+      - 44.32
+      rgb_color:
+      - 255
+      - 193
+      - 141
+      xy_color:
+      - 0.453
+      - 0.374
+      entity_id:
+      - light.kitchen
+      - light.dining
+      - light.living_room
+      icon: mdi:lightbulb-group
+      friendly_name: Upstairs
+      supported_features: 40
+      state: 'on'
+    media_player.sony:
+      friendly_name: Sony
+      supported_features: 152461
+      state: 'off'
+    switch.living_room_tv:
+      friendly_name: Living Room TV - Test
+      state: 'on'
+    remote.living_room_tv_2:
+      activity_list:
+      current_activity: com.google.android.apps.tv.launcherx
+      friendly_name: Living room TV 2
+      supported_features: 4
+      state: 'on'
+  icon: mdi:food-drumstick
+  metadata:
+    light.upstairs_2:
+      entity_only: true
+    switch.living_room_tv:
+      entity_only: true
+    remote.living_room_tv_2:
+      entity_only: true
+- id: '1707385342168'
+  name: TV
+  entities:
+    media_player.sony:
+      friendly_name: Sony
+      supported_features: 152461
+      state: 'off'
+    switch.living_room_tv:
+      friendly_name: Living Room TV - Test
+      state: 'on'
+    remote.living_room_tv_2:
+      activity_list:
+      current_activity: com.google.android.apps.tv.launcherx
+      friendly_name: Living room TV 2
+      supported_features: 4
+      state: 'on'
+    light.living_room:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: color_temp
+      brightness: 171
+      color_temp_kelvin: 2906
+      color_temp: 344
+      hs_color:
+      - 27.987
+      - 59.51
+      rgb_color:
+      - 255
+      - 174
+      - 103
+      xy_color:
+      - 0.505
+      - 0.385
+      is_hue_group: true
+      hue_scenes:
+      - Starry Night
+      - Magneto
+      - Concentrate
+      - Dimmed
+      - Ruby glow
+      - Bright
+      - Relax
+      - Spring blossom
+      - Gold outback
+      - Pastel
+      - Read
+      - Rudolf the Red nosed reinder
+      - Lovebirds
+      - "Rainbow \U0001F308 \U0001F43B bear"
+      - Tropical twilight
+      - Energize
+      - "Rainbow \U0001F308"
+      - Arctic aurora
+      - Dusky sunset
+      - Savanna sunset
+      - Miro
+      - Dinner
+      - Shu
+      - Ivory
+      - Nightlight
+      - Tokyo
+      - "Pink Holiday \U0001F929"
+      hue_type: room
+      lights:
+      - Hue Go 2
+      - Lightstrip
+      - Hue Go 1
+      dynamics: false
+      icon: hue:bulb-group-classic-hung-3-alt
+      friendly_name: Living room
+      supported_features: 40
+      state: 'on'
+    light.kitchen:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: color_temp
+      brightness: 153
+      color_temp_kelvin: 2890
+      color_temp: 346
+      hs_color:
+      - 28.016
+      - 59.968
+      rgb_color:
+      - 255
+      - 173
+      - 102
+      xy_color:
+      - 0.507
+      - 0.384
+      is_hue_group: true
+      hue_scenes:
+      - Energize
+      - Concentrate
+      - Nightlight
+      - Cool bright
+      - Read
+      - First light
+      - Natural light
+      - Relax
+      - Bright
+      - Rest
+      hue_type: room
+      lights:
+      - Bar 1
+      - Bar 3
+      - Bar 2
+      dynamics: false
+      icon: hue:pendant-devote-three-solid
+      friendly_name: Kitchen
+      supported_features: 40
+      state: 'on'
+    light.dining:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode:
+      brightness:
+      color_temp_kelvin:
+      color_temp:
+      hs_color:
+      rgb_color:
+      xy_color:
+      is_hue_group: true
+      hue_scenes:
+      - Energize
+      - Concentrate
+      - Nightlight
+      - Natural light
+      - Read
+      - Relax
+      - Rest
+      hue_type: room
+      lights:
+      - Table 4
+      - Table 3
+      - Table 1
+      - Table 2
+      dynamics: false
+      icon: hue:pendant-devote-three-solid
+      friendly_name: Dining
+      supported_features: 40
+      state: 'off'
+  icon: mdi:television-ambient-light
+  metadata:
+    switch.living_room_tv:
+      entity_only: true
+    remote.living_room_tv_2:
+      entity_only: true
+    light.living_room:
+      entity_only: true
+    light.kitchen:
+      entity_only: true
+    light.dining:
+      entity_only: true
+- id: '1707385453557'
+  name: Movie
+  entities:
+    remote.living_room_tv_2:
+      activity_list: []
+      current_activity: com.google.android.youtube.tv
+      friendly_name: Living room TV 2
+      supported_features: 4
+      state: 'on'
+    light.living_room:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: color_temp
+      brightness: 38
+      color_temp_kelvin: 2000
+      color_temp: 500
+      hs_color:
+      - 30.601
+      - 94.547
+      rgb_color:
+      - 255
+      - 136
+      - 13
+      xy_color:
+      - 0.599
+      - 0.382
+      is_hue_group: true
+      hue_scenes:
+      - Dinner
+      - "Rainbow \U0001F308"
+      - Tropical twilight
+      - Arctic aurora
+      - Gold outback
+      - Pastel
+      - Ruby glow
+      - Rudolf the Red nosed reinder
+      - Tokyo
+      - Concentrate
+      - Miro
+      - Starry Night
+      - Lovebirds
+      - Shu
+      - Bright
+      - Savanna sunset
+      - Magneto
+      - Read
+      - Nightlight
+      - "Pink Holiday \U0001F929"
+      - Relax
+      - Energize
+      - Ivory
+      - "Rainbow \U0001F308 \U0001F43B bear"
+      - Spring blossom
+      - Dimmed
+      - Dusky sunset
+      hue_type: room
+      lights:
+      - Hue Go 2
+      - Lightstrip
+      - Hue Go 1
+      entity_id:
+      - light.tv_lightstrip
+      - light.go_light_1
+      - light.hue_go_1_2
+      dynamics: false
+      icon: hue:bulb-group-classic-hung-3-alt
+      friendly_name: Living room
+      supported_features: 40
+      state: 'on'
+    light.kitchen:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode:
+      brightness:
+      color_temp_kelvin:
+      color_temp:
+      hs_color:
+      rgb_color:
+      xy_color:
+      is_hue_group: true
+      hue_scenes:
+      - Energize
+      - Bright
+      - Cool bright
+      - Nightlight
+      - Read
+      - Rest
+      - Natural light
+      - First light
+      - Concentrate
+      - Relax
+      hue_type: room
+      lights:
+      - Bar 3
+      - Bar 1
+      - Bar 2
+      entity_id:
+      - light.bar_2
+      - light.bar_1
+      - light.bar_3
+      dynamics: false
+      icon: hue:pendant-devote-three-solid
+      friendly_name: Kitchen
+      supported_features: 40
+      state: 'off'
+    light.dining:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode:
+      brightness:
+      color_temp_kelvin:
+      color_temp:
+      hs_color:
+      rgb_color:
+      xy_color:
+      is_hue_group: true
+      hue_scenes:
+      - Energize
+      - Read
+      - Nightlight
+      - Rest
+      - Natural light
+      - Concentrate
+      - Relax
+      hue_type: room
+      lights:
+      - Table 2
+      - Table 4
+      - Table 1
+      - Table 3
+      entity_id:
+      - light.table_1
+      - light.table_2
+      - light.table_3
+      - light.table_4
+      dynamics: false
+      icon: hue:pendant-devote-three-solid
+      friendly_name: Dining
+      supported_features: 40
+      state: 'off'
+  icon: mdi:movie
+  metadata:
+    remote.living_room_tv_2:
+      entity_only: true
+    light.living_room:
+      entity_only: true
+    light.kitchen:
+      entity_only: true
+    light.dining:
+      entity_only: true

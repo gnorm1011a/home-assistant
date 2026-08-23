@@ -1,0 +1,657 @@
+#Switches
+
+switch.tv:
+  assumed_state: false
+  icon: mdi:television
+switch.living_room_ac:
+  assumed_state: false
+  icon: mdi:air-conditioner
+switch.living_room_heat:
+  assumed_state: false
+  icon: mdi:fire
+switch.bedroom_ac:
+  assumed_state: false
+  icon: mdi:air-conditioner
+switch.bedroom_heat:
+  assumed_state: false
+  icon: mdi:fire
+switch.plug_158d0001ded014:
+  friendly_name: Kitchen Light
+  icon: mdi:outlet
+  
+
+#Sensors  
+sensor.bom_melbourne_air_temp_c:
+  friendly_name: Air Temp
+sensor.bom_melbourne_dew_point_c:
+  friendly_name: Dew Point
+sensor.bom_melbourne_cloud:
+  friendly_name: Cloud Cover
+  icon: mdi:amazon-clouddrive
+sensor.bom_melbourne_pressure_mb:
+  friendly_name: Pressure
+sensor.bom_melbourne_delta_temp_c:
+  friendly_name: Delta Temp
+sensor.bom_melbourne_feels_like_c:
+  friendly_name: Feels Like
+sensor.bom_melbourne_rain_today:
+  friendly_name: Rain
+sensor.bom_melbourne_relative_humidity:
+  friendly_name: Humidity
+  icon: mdi:water-percent
+sensor.bom_melbourne_visability_km:
+  friendly_name: Visability
+sensor.bom_melbourne_wind_direction:
+  friendly_name: Wind Direction
+sensor.bom_melbourne_wind_gust_kmh:
+  friendly_name: Wind Gust
+  icon: mdi:weather-windy
+sensor.bom_melbourne_wind_speed_kmh:
+  friendly_name: Wind Speed
+  icon: mdi:weather-windy
+sensor.solax_a32b797b_today_s_energy:
+  state_class: total_increasing
+
+sensor.solax_a32b797b_month_s_energy:
+  state_class: total_increasing
+
+sensor.solax_a32b797b_grid_exported_energy:
+  state_class: total_increasing
+
+sensor.solax_a32b797b_grid_imported_energy:
+  state_class:
+##Power Sensors  
+sensor.solax_a32b797b_power_now:
+  state_class: measurement
+  device_class: energy
+sensor.energy_production_today:
+  state_class: total_increasing
+
+#Lights
+
+  
+#Light Scenes
+scene.bedroom_bright:
+  image: >-
+          https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fhuehomelighting.com%2Fwp-content%2Fuploads%2F2018%2F10%2Fbest-philips-hue-scenes.jpg&f=1&nofb=1&ipt=52ef05e8974aee054e00e285daa54dad54686048c045a643ffcd7b304349c85b&ipo=images
+scene.bedroom_concentrate:
+  entity_picture: /local/FN.jpg
+scene.bedroom_dimmed:
+  entity_picture: /local/generic.jpg  
+scene.bedroom_energize:
+  entity_picture: /local/generic.jpg
+scene.bedroom_natural_light:
+  entity_picture: /local/generic.jpg
+scene.bedroom_read:
+  entity_picture: /local/generic.jpg 
+scene.bedroom_relax:
+  entity_picture: /local/generic.jpg
+scene.bedroom_rest:
+  entity_picture: /local/generic.jpg   
+scene.bedroom_arctic_aurora:
+  entity_picture: /local/generic.jpg 
+scene.bedroom_chinatown:
+  entity_picture: /local/generic.jpg 
+scene.bedroom_daisy:
+  entity_picture: /local/generic.jpg  
+scene.bedroom_evening_cosy:
+  entity_picture: /local/generic.jpg   
+scene.bedroom_frosty_dawn:
+  entity_picture: /local/generic.jpg    
+scene.bedroom_galaxy:
+  entity_picture: /local/generic.jpg  
+scene.bedroom_golden_pond:
+  entity_picture: /local/generic.jpg    
+scene.bedroom_lake_mist:
+  entity_picture: /local/generic.jpg    
+scene.bedroom_moonlight:
+  entity_picture: /local/generic.jpg    
+scene.bedroom_motown:
+  entity_picture: /local/generic.jpg  
+scene.bedroom_pink_holiday:
+  entity_picture: /local/generic.jpg    
+scene.bedroom_ruby_glow:
+  entity_picture: /local/generic.jpg    
+scene.bedroom_savanna_sunset:
+  entity_picture: /local/generic.jpg
+scene.bedroom_soho:
+  entity_picture: /local/generic.jpg    
+scene.bedroom_spring_blossom:
+  entity_picture: /local/generic.jpg    
+scene.bedroom_tokyo:
+  entity_picture: /local/generic.jpg  
+scene.bedroom_tropical_twilight:
+  entity_picture: /local/generic.jpg    
+  
+  
+scene.den_cancun:
+  entity_picture: /local/Hue_scenes/cancun.jpg
+scene.den_miami:
+  entity_picture: /local/Hue_scenes/Miami2.jpg
+
+#Notifications
+automation.door_open:
+  icon: mdi:bell-outline
+automation.door_close:
+  icon: mdi:bell-outline
+automation.living_room_motion:
+  icon: mdi:bell-outline
+  
+#Input Selects
+input_select.house_mode:
+  icon: mdi:home-heart
+  
+#Media Controls
+switch.onoff:
+  assumed_state: false
+  icon: mdi:boombox
+script.stereo_play:
+  friendly_name: Play/Pause
+  icon: mdi:play
+script.stereo_fast_forward:
+  friendly_name: Fast Forward
+  icon: mdi:fast-forward-outline
+script.stereo_rewind:
+  friendly_name: Rewind
+  icon: mdi:rewind-outline
+script.stereo_mute:
+  friendly_name: Mute Stero
+  icon: mdi:volume-off
+script.stereo_volume_up:
+  friendly_name: Volume Up
+  icon: mdi:menu-up
+script.stereo_volume_down:
+  friendly_name: Volume Down
+  icon: mdi:menu-down
+script.stereo_stop:
+  friendly_name: Stop
+  icon: mdi:stop
+  
+
+#Fan Controls
+script.fan_on_speed:
+  friendly_name: On
+  icon: mdi:fan
+script.fan_off:
+  friendly_name: Off
+  icon: mdi:fan-off
+script.fan_swing:
+  friendly_name: Swing
+  icon: mdi:arrow-expand-horizontal
+script.fan_timer:
+  friendly_name: Timer
+  icon: mdi:av-timer
+  
+#AC Controls
+script.lr_ac_temp_up:
+  friendly_name: Temp Up
+  icon: mdi:menu-up
+script.lr_ac_temp_down:
+  friendly_name: Temp Down
+  icon: mdi:menu-down
+script.br_ac_temp_up:
+  friendly_name: Temp Up
+  icon: mdi:menu-up
+script.br_ac_temp_down:
+  friendly_name: Temp Down
+  icon: mdi:menu-down
+
+#TV Controls
+script.tv_mute:
+  friendly_name: Mute
+  icon: mdi:volume-off   
+script.tv_vol_up:
+  friendly_name: Volume Up
+  icon: mdi:menu-up
+script.tv_vol_down:
+  friendly_name: Volume Down
+  icon: mdi:menu-down
+script.tv_chan_up:
+  friendly_name: Channel Up
+  icon: mdi:menu-up
+script.tv_chan_down:
+  friendly_name: Channel Down
+  icon: mdi:menu-down
+
+
+#TV Channels
+script.tv_chan_food:
+  friendly_name: Food Network
+  entity_picture: /local/FN.jpg
+script.tv_chan_viceland:
+  friendly_name: Viceland
+  entity_picture: /local/viceland.jpg
+script.tv_chan_sbs:
+  friendly_name: SBS
+  entity_picture: /local/sbs.jpg
+script.tv_chan_abc:
+  friendly_name: ABC
+script.tv_chan_abc_news:
+  friendly_name: ABC News
+  entity_picture: /local/abc.jpg
+script.tv_chan_abc_comedy:
+  friendly_name: ABC Comedy
+script.tv_chan_abc_me:
+  friendly_name: ABC Me  
+script.tv_chan_9:
+  friendly_name: Nine
+  entity_picture: /local/nine.jpg  
+script.tv_chan_life:
+  friendly_name: Life
+  entity_picture: /local/life.jpg
+script.tv_chan_gem:
+  friendly_name: Gem
+  entity_picture: /local/gem.jpg
+script.tv_chan_go:
+  friendly_name: Go!
+  entity_picture: /local/9go.png
+script.tv_chan_7:
+  friendly_name: Seven 
+script.tv_chan_7_two:
+  friendly_name: Seven Two
+script.tv_chan_7_mate:
+  friendly_name: Seven Mate  
+script.tv_chan_7_flix:
+  friendly_name: Seven Flix
+script.tv_chan_11:
+  friendly_name: Eleven
+script.tv_chan_1:
+  friendly_name: One  
+script.tv_chan_nitv:
+  friendly_name: NITV
+  entity_picture: /local/nitv.jpg
+script.tv_chan_10:
+  friendly_name: Ten
+  entity_picture: /local/10.png
+script.tv_chan_31:
+  friendly_name: Channel 31
+  
+#TV Commands
+script.tv_netflix:
+  friendly_name: Netflix
+  entity_picture: /local/Netflix.png
+  
+#Custom TV Remote
+
+input_text.tv_remote:
+    custom_ui_state_card: state-card-tiles
+    config:
+      columns: 3
+      row_height: 24px
+      entities:
+
+        - entity: switch.tv
+          label: "Power"
+          icon: mdi:power
+          color: "#e74c3cato"
+          row_span: 2
+          column_span: 2
+        - entity: script.tv_mute
+          label: "Mute"
+          icon: mdi:volume-off
+          color: "#9b59b6"
+          row_span: 2
+          column_span: 1
+
+        - entity: script.tv_mute
+          #label: "Live TV"
+          icon: mdi:television-box
+          color: "#3498db"
+          row_span: 2
+        - entity: script.tv_settings
+          icon: mdi:cog
+          color: "#9b59b6"
+          row_span: 2
+        - entity: script.tv_mute
+          #label: Guide
+          icon: mdi:monitor-multiple
+          color: "#3498db"
+          row_span: 2
+
+        - entity: script.tv_mute
+          label: "History"
+          color: "#3498db"
+          row_span: 2
+        - entity: script.tv_up
+          icon: mdi:arrow-up
+          row_span: 2
+          color: "#bdc3c7"
+        - entity: script.tv_mute
+          label: "Apps"
+          color: "#3498db"
+
+          row_span: 2
+
+        - entity: script.tv_left
+          icon: mdi:arrow-left
+          column: 1
+          row_span: 2
+          color: "#bdc3c7"
+        - entity: script.tv_ok
+          #label: OK
+          icon: mdi:checkbox-marked-circle
+          color: "#2ecc71"
+          row_span: 2
+        - entity: script.tv_right
+          icon: mdi:arrow-right
+          row_span: 2
+          color: "#bdc3c7"
+
+
+        - entity: script.tv_vol_up
+          icon: mdi:volume-plus
+          color: "#8e44ad"
+          row_span: 2
+        - entity: script.tv_down
+          icon: mdi:arrow-down
+          row_span: 2
+          color: "#bdc3c7"
+        - entity: script.tv_chan_up
+          #label: "Chan Up"
+          icon: mdi:arrow-up-drop-circle
+          color: "#8e44ad"
+          row_span: 2
+
+        - entity: script.tv_vol_down
+          icon: mdi:volume-minus
+          color: "#8e44ad"
+
+          row_span: 2
+        - entity: script.tv_back
+          #label: Back
+          icon: mdi:keyboard-return
+          color: "#9b59b6"
+          row_span: 2
+        - entity: script.tv_chan_down
+          #label: chan down
+          icon: mdi:arrow-down-drop-circle
+          color: "#8e44ad"
+          row_span: 2
+
+
+        - entity: script.tv_num_1
+          icon: mdi:numeric-1-box
+          color: "#3498db"
+          row_span: 2
+        - entity: script.tv_num_2
+          icon: mdi:numeric-2-box
+          color: "#3498db"
+          row_span: 2
+        - entity: script.tv_num_3
+          icon: mdi:numeric-3-box
+          color: "#3498db"
+          row_span: 2
+
+        - entity: script.tv_num_4
+          icon: mdi:numeric-4-box
+          color: "#3498db"
+          row_span: 2
+        - entity: script.tv_num_5
+          icon: mdi:numeric-5-box
+          color: "#3498db"
+          row_span: 2
+        - entity: script.tv_num_6
+          icon: mdi:numeric-6-box
+          color: "#3498db"
+          row_span: 2
+
+        - entity: script.tv_num_7
+          icon: mdi:numeric-7-box
+          color: "#3498db"
+          row_span: 2
+        - entity: script.tv_num_8
+          icon: mdi:numeric-8-box
+          color: "#3498db"
+          row_span: 2
+        - entity: script.tv_num_9
+          icon: mdi:numeric-9-box
+          color: "#3498db"
+          row_span: 2
+
+        - entity: script.tv_mute
+          label: Blank
+          color: "#3498db"
+          row_span: 2
+        - entity: script.tv_num_0
+          icon: mdi:numeric-0-box
+          color: "#3498db"
+          row_span: 2
+        - entity: script.tv_mute
+          label: Blank
+          color: "#3498db"
+          row_span: 2
+
+#Custom UI Test
+
+input_text.tv_tiles:
+  custom_ui_state_card: state-card-tiles
+  config:
+    columns: 4
+    #column_width: 97px
+    row_height: 100px
+    gap: 8px
+    text_size: .8em
+    color: '#DDDDDD'
+    font_color: white
+    entities:
+      - entity: script.tv_chan_food
+        label: "Food"
+        color: "#33CC66"
+        row: 1
+      - entity: script.tv_chan_viceland
+        label: "Viceland"
+        color: "#FF9933"
+        row: 1
+      - entity: script.tv_chan_sbs
+        label: "SBS"
+        color: "#FFCC33"
+        row: 1
+      - entity: script.tv_chan_abc
+        label: "ABC"
+        color: "#FF3366"
+        row: 1
+      - entity: script.tv_chan_nitv
+        label: "NITV"
+        color: blue
+        row: 2
+      - entity: script.tv_chan_10
+        label: "Ten"
+        color: "#33CC66"
+        row: 2
+      - entity: script.tv_chan_abc_news
+        label: "ABC News"
+        color: "#FF9933"
+        row: 2
+      - entity: script.tv_chan_abc_comedy
+        label: "ABC Comedy"
+        color: "#FFCC33"
+        row: 2
+      - entity: script.tv_chan_abc_me
+        label: "ABC Me"
+        color: "#FF3366"
+        row: 3
+      - entity: script.tv_chan_9
+        label: "Nine"
+        color: "#ecf0f1"
+        image: /local/Nine.jpg
+        row: 3 
+      - entity: script.tv_chan_life
+        label: "Life"
+        color: "#33CC66"
+        row: 3
+      - entity: script.tv_chan_gem
+        label: "Gem"
+        color: "#FF9933"
+        row: 3
+      - entity: script.tv_chan_go
+        label: "Go!"
+        color: "#FFCC33"
+        row: 4
+      - entity: script.tv_chan_7
+        label: Seven
+        color: "#FF3366"
+        row: 4
+      - entity: script.tv_chan_7_two
+        label: "7 Two"
+        color: blue
+        row: 4
+      - entity: script.tv_chan_7_mate
+        label: "7 Mate"
+        color: "#33CC66"
+        row: 4
+      - entity: script.tv_chan_7_flix
+        label: "7 Flix"
+        color: "#FF9933"
+        row: 5
+      - entity: script.tv_chan_11
+        label: Eleven
+        color: "#FFCC33"
+        row: 5
+      - entity: script.tv_chan_1
+        label: "One"
+        color: "#FF3366"
+        row: 5
+      - entity: script.tv_chan_31
+        label: "Thirty One"
+        color: blue
+        row: 5
+
+# Custom Fan Remote Tiles
+
+input_text.fan_remote:
+  custom_ui_state_card: state-card-tiles
+  config:
+    columns: 4
+    #column_width: 97px
+    row_height: 55px
+    gap: 3px
+    text_size: .8em
+    color: '#DDDDDD'
+    font_color: white
+    entities:
+      - entity: script.fan_on_speed
+        label: "On"
+        icon: mdi:fan
+        color: "#85e085"
+        row: 1
+      - entity: script.fan_off
+        label: "Off"
+        icon: mdi:fan-off
+        color: "#ff8566"
+        row: 1
+      - entity: script.fan_swing
+        label: "Swing"
+        icon: mdi:arrow-expand-horizontal
+        color: "#333333"
+        row: 1
+      - entity: script.fan_timer
+        label: "Timer"
+        icon: mdi:av-timer
+        color: "#333333"
+        row: 1
+
+# Presence Detection
+
+input_text.presence_detection:
+  custom_ui_state_card: state-card-tiles
+  config:
+    columns: 2
+    #column_width: 97px
+    row_height: 150px
+    gap: 10px
+    text_size: 1.2em
+    color: '#DDDDDD'
+    font_color: white
+    entities:
+      - entity: device_tracker.androidef048ff46007d6b1
+        label_state: device_tracker.androidef048ff46007d6b1
+        image: /local/Adam2.jpg
+        color: "#85e085"
+        row: 1
+      - entity: device_tracker.samsunggalaxys7
+        label_state: device_tracker.samsunggalaxys7
+       # label: "Mads"
+        image: /local/Mads2.jpg
+        color: "#ff8566"
+        row: 1
+
+#Light Scenes
+scene.upstairs_crocus:
+  image: /local/sunset.jpg
+        
+#Custom Media Player Cards
+
+input_text.spotify:
+  friendly_name: Spotify
+  icon: mdi:cast
+  custom_ui_state_card: state-card-mini-media-player
+  config:
+    player: media_player.spotify
+
+input_text.sony_soundbar:
+  friendly_name: Sony ?
+  icon: mdi:cast
+  custom_ui_state_card: state-card-mini-media-player
+  config:
+    player: media_player.sony_2
+    
+input_text.google_home:
+  friendly_name: Living Room
+  icon: mdi:cast
+  custom_ui_state_card: state-card-mini-media-player
+  config:
+    player: media_player.living_room_speaker
+    
+input_text.kitch_google_mini:
+  friendly_name: Kitchen
+  icon: mdi:cast
+  custom_ui_state_card: state-card-mini-media-player
+  config:
+    player: media_player.kitchen_speaker_3
+    
+input_text.bedroom_google_mini:
+  friendly_name: Bedroom
+  icon: mdi:cast
+  custom_ui_state_card: state-card-mini-media-player
+  config:
+    player: media_player.bedroom_speaker_2
+
+input_text.whole_house:
+  icon: mdi:cast
+  custom_ui_state_card: state-card-mini-media-player
+  config:
+    player: media_player.whole_house
+    
+input_text.downstairs:
+  icon: mdi:cast
+  custom_ui_state_card: state-card-mini-media-player
+  config:
+    player: media_player.downstairs
+
+# Spotify
+
+script.spotify_music:
+  friendly_name: 'Play'
+  icon: mdi:play
+  
+# Custom Weather Card
+input_boolean.weather:
+  custom_ui_state_card: custom-weather-card
+  config:
+    weather: weather.yweather
+    sun: sun.sun
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

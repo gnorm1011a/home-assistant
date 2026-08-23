@@ -1,0 +1,156 @@
+### Template Sensors ###
+- sensor:
+    - name: General waste days
+      state: >-
+        {% set midnight = today_at() %}
+        {% set event = state_attr('calendar.general_waste', 'start_time') | as_datetime | as_local %}
+        {% set delta = event - midnight %}
+        {% if delta.days == 0 %}
+            Today
+        {% elif delta.days == 1 %}
+            Tomorrow
+        {% else %}
+            In {{ delta.days }} Days
+        {% endif %} 
+- sensor:
+    - name: Glass days
+      state: >-
+        {% set midnight = today_at() %}
+        {% set event = state_attr('calendar.glass', 'start_time') | as_datetime | as_local %}
+        {% set delta = event - midnight %}
+        {% if delta.days == 0 %}
+            Today
+        {% elif delta.days == 1 %}
+            Tomorrow
+        {% else %}
+            In {{ delta.days }} Days
+        {% endif %}    
+- sensor:
+    - name: Recycling days
+      state: >-
+        {% set midnight = today_at() %}
+        {% set event = state_attr('calendar.recycling', 'start_time') | as_datetime | as_local %}
+        {% set delta = event - midnight %}
+        {% if delta.days == 0 %}
+            Today
+        {% elif delta.days == 1 %}
+            Tomorrow
+        {% else %}
+            In {{ delta.days }} Days
+        {% endif %} 
+- sensor:
+    - name: Green waste days
+      state: >-
+        {% set midnight = today_at() %}
+        {% set event = state_attr('calendar.green_waste', 'start_time') | as_datetime | as_local %}
+        {% set delta = event - midnight %}
+        {% if delta.days == 0 %}
+            Today
+        {% elif delta.days == 1 %}
+            Tomorrow
+        {% else %}
+            In {{ delta.days }} Days
+        {% endif %}
+        
+### Cat sensors ###
+- sensor:
+    - name: "Mewy Location Info"
+      state: >
+        {% if is_state('binary_sensor.mew_meow', 'on') %}
+          Home (Inside for {{ relative_time(states.binary_sensor.mew_meow.last_changed) }})
+        {% else %}
+          Away (Outside for {{ relative_time(states.binary_sensor.mew_meow.last_changed) }})
+        {% endif %}
+
+- sensor:
+    - name: "Mew Meow Entries"
+      state: "{{ states('input_number.mew_meow_entries') }}"
+      
+- sensor:
+    - name: "Mew Meow Avg Time Outside"
+      state: >
+        {% set day1 = states('sensor.mew_meow_time_outside_day_1') | float(0) %}
+        {% set day2 = states('sensor.mew_meow_time_outside_day_2') | float(0) %}
+        {% set day3 = states('sensor.mew_meow_time_outside_day_3') | float(0) %}
+        {% set day4 = states('sensor.mew_meow_time_outside_day_4') | float(0) %}
+        {% set day5 = states('sensor.mew_meow_time_outside_day_5') | float(0) %}
+        {% set day6 = states('sensor.mew_meow_time_outside_day_6') | float(0) %}
+        {% set day7 = states('sensor.mew_meow_time_outside_day_7') | float(0) %}
+        {% set avg_time = (day1 + day2 + day3 + day4 + day5 + day6 + day7) / 7 %}
+        {{ avg_time | round(1) }}
+
+- sensor:
+    - name: "Avg Outside Formatted"
+      state: >
+        {% set hours = states('sensor.mew_meow_avg_time_outside') | float(0) %}
+        {% set minutes = (hours % 1) * 60 %}
+        {{ hours | int }}h {{ minutes | int }}m
+- sensor:
+    - name: "Duration Outside Formatted"
+      state: >
+        {% set hours = states('sensor.mew_meow_duration_outside') | float(0) %}
+        {% set minutes = (hours % 1) * 60 %}
+        {{ hours | int }}h {{ minutes | int }}m
+
+- sensor:
+    - name: "Duration Inside Formatted"
+      state: >
+        {% set hours = states('sensor.mew_meow_duration_inside') | float(0) %}
+        {% set minutes = (hours % 1) * 60 %}
+        {{ hours | int }}h {{ minutes | int }}m
+- sensor:
+    - name: "Duration Outside Formatted"
+      state: >
+        {% set hours = states('sensor.mew_meow_duration_outside') | float(0) %}
+        {% set minutes = (hours % 1) * 60 %}
+        {{ hours | int }}h {{ minutes | int }}m
+
+- sensor:
+    - name: "Alarm Sequence Last Triggered"
+      state: >
+        {% set last_triggered = state_attr('script.cds_alarm_sequence', 'last_triggered') %}
+        {% if last_triggered %}
+          {{ as_timestamp(last_triggered) | timestamp_custom('%Y-%m-%d %H:%M:%S') }}
+        {% else %}
+          Never
+        {% endif %}
+
+### Washing machine sensors ###
+- sensor:
+    - name: "washing_machine_time_remaining"
+      state: >
+        {% set time_left = states('sensor.electrolux_washing_machine_timetoend') | int %}
+        {% set hours = (time_left // 60) %}
+        {% set minutes = (time_left % 60) %}
+        {% if hours > 0 %}
+          {{ hours }} hour{{ 's' if hours > 1 else '' }} {{ minutes }} minute{{ 's' if minutes > 1 else '' }} remaining
+        {% else %}
+          {{ minutes }} minute{{ 's' if minutes > 1 else '' }} remaining
+        {% endif %}
+- sensor:
+    - name: "washing_machine_total_working_time_hours"
+      state: >
+        {% set total_minutes = states('sensor.electrolux_washing_machine_appliancetotalworkingtime') | int %}
+        {% set total_hours = total_minutes / 60 %}
+        {{ '%.2f' | format(total_hours) }} hours
+- sensor:
+    - name: "washing_machine_cycles_average_yearly"
+      state: >
+        {% set total_cycles = states('sensor.electrolux_washing_machine_totalcyclecounter') | int %}
+        {% set years = (now().year - 2024) + 1 %}
+        {{ (total_cycles / years) | round(2) }}
+      unit_of_measurement: "cycles/year"
+- sensor:
+    - name: "washing_machine_cycles_average_monthly"
+      state: >
+        {% set total_cycles = states('sensor.electrolux_washing_machine_totalcyclecounter') | int %}
+        {% set months = ((now().year - 2024) * 12) + now().month %}
+        {{ (total_cycles / months) | round(2) }}
+      unit_of_measurement: "cycles/month"
+- sensor:
+    - name: "washing_machine_cycles_average_weekly"
+      state: >
+        {% set total_cycles = states('sensor.electrolux_washing_machine_totalcyclecounter') | int %}
+        {% set weeks = ((now().year - 2024) * 52) + now().isocalendar()[1] %}
+        {{ (total_cycles / weeks) | round(2) }}
+      unit_of_measurement: "cycles/week"

@@ -1,0 +1,72 @@
+blueprint:
+  name: Trash Reminder
+  description: Send a notification the evening before trash pick up day.
+  domain: automation
+  input:
+    trash_calendar:
+      name: Trash calendar
+      description: Calendar containing all-day events when trash needs to be picked
+        up.
+      selector:
+        entity:
+          filter:
+          - domain:
+            - calendar
+          multiple: false
+    bin_put_outside_button:
+      name: Trash put outside button
+      description: Button that you press when trash is put outside.
+      selector:
+        entity:
+          filter:
+          - domain:
+            - input_button
+          multiple: false
+    notify_device:
+      name: Device to notify
+      selector:
+        device:
+          filter:
+          - integration: mobile_app
+          multiple: false
+  source_url: https://community.home-assistant.io/t/trash-pick-up-reminder/603767
+mode: single
+max_exceeded: silent
+trigger:
+  platform: calendar
+  event: start
+  offset: '-4:00:00'
+  entity_id: !input trash_calendar
+action:
+- variables:
+    bin_put_outside_button: !input bin_put_outside_button
+- repeat:
+    while: '{{ states(bin_put_outside_button) | as_datetime < this.last_updated |
+      as_datetime }}
+
+      '
+    sequence:
+    - domain: mobile_app
+      type: notify
+      device_id: !input notify_device
+      message: Put the trash outside
+      data:
+        actions:
+        - action: TRASH-DONE
+          title: Done
+    - wait_for_trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: TRASH-DONE
+      - platform: state
+        entity_id: !input bin_put_outside_button
+      timeout:
+        minutes: 30
+    - if: '{{ wait.trigger.platform == "event" }}'
+      alias: Handle notification action
+      then:
+        service: input_button.press
+        data: {}
+        target:
+          entity_id: !input bin_put_outside_button

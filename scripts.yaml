@@ -1,0 +1,268 @@
+fan_swing:
+  sequence:
+  - service: switch.broadlink_send_packet_192_168_0_15
+    data:
+      packet: JgCcACoOKwwPKCoNKw0NKg4pKg4OKA8pDygPAAEFKw0qDQ4pKg0rDBAoDikqDQ8pDigPKQ8AAQUqDSsNDikqDSoNDygPKCsNDygPKA8oDwABBSsNKg0PKCsNKg0PKA8pKg0PKA4pDygPAAEFKw0qDQ8oKg4qDQ8oDikqDQ8pDikOKQ8AAQUqDioNDikqDSsNDygOKSoNDygPKA8oDwANBQAAAAAAAAAAAAAAAA==
+fan_timer:
+  sequence:
+  - service: switch.broadlink_send_packet_192_168_0_15
+    data:
+      packet: JgBoACoNKg0PKCsNKg0PKA8oDSsoDw8oDSoNAAEHKw0qDQ8oKg0rDQ8oDikPKCsNDCsOKRAAAQQqDSsNDikqDSoNDykOKQwrKA8NKg0rDAABCCgPKA8NKygPKA8NKg0rDCsoDw0qDSoNAA0F==
+set_volume_of_den_speaker:
+  alias: CDS - Dog SFX Sequence
+  sequence:
+  - action: script.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: script.cast_media_with_no_chime
+  - target:
+      entity_id: input_number.den_previous_volume
+    data:
+      value: '{{ state_attr(''media_player.living_room_speaker'', ''volume_level'')
+        | float(0.5) }}'
+    action: input_number.set_value
+  - target:
+      entity_id: media_player.living_room_speaker
+    data:
+      volume_level: 0.8
+    action: media_player.volume_set
+  - target:
+      entity_id: media_player.living_room_speaker
+    data:
+      media:
+        media_content_id: https://parkplace.duckdns.org:8123/local/barking-dog.mp3
+        media_content_type: music
+        metadata: {}
+    action: media_player.play_media
+  - delay: 00:00:16
+  - target:
+      entity_id: media_player.living_room_speaker
+    data:
+      volume_level: '{{ states(''input_number.den_previous_volume'') | float }}'
+    action: media_player.volume_set
+  description: ''
+  icon: mdi:dog-side
+toggle_cat_location:
+  alias: Toggle Cat Location
+  sequence:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.mew_meow
+        state: 'on'
+      sequence:
+      - action: surepetcare.set_pet_location
+        data:
+          location: Outside
+          pet_name: Mew-Meow
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.mew_meow
+        state: 'off'
+      sequence:
+      - action: surepetcare.set_pet_location
+        data:
+          location: Inside
+          pet_name: Mew-Meow
+  description: Toggles the cats location between inside and outside
+  icon: mdi:cat
+cds_alarm_sequence:
+  alias: CDS Alarm Sequence
+  sequence:
+  - action: scene.create
+    metadata: {}
+    data:
+      scene_id: den_before_alarm
+      snapshot_entities:
+      - light.den
+      - media_player.living_room_speaker
+  - parallel:
+    - sequence:
+      - target:
+          entity_id: light.camera1_floodlight_2
+        action: light.turn_on
+        data: {}
+      - delay:
+          hours: 0
+          minutes: 2
+          seconds: 0
+          milliseconds: 0
+      - target:
+          entity_id: light.camera1_floodlight_2
+        action: light.turn_off
+        data: {}
+    - sequence:
+      - target:
+          entity_id: light.den
+        action: light.turn_on
+        data:
+          brightness_pct: 100
+          kelvin: 5578
+      - delay:
+          hours: 0
+          minutes: 3
+          seconds: 0
+          milliseconds: 0
+      - action: scene.turn_on
+        metadata: {}
+        target:
+          entity_id: scene.den_before_alarm
+      - target:
+          entity_id: light.den
+        action: light.turn_off
+        data: {}
+    - target:
+        entity_id: script.set_volume_of_den_speaker
+      action: script.turn_on
+      data: {}
+    - sequence:
+      - action: light.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.mains_patio_hallway_switch_0
+      - delay:
+          hours: 0
+          minutes: 2
+          seconds: 0
+          milliseconds: 0
+      - action: light.turn_off
+        target:
+          entity_id: switch.mains_patio_hallway_switch_0
+        data: {}
+    - sequence:
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 4
+          milliseconds: 0
+      - action: switch.turn_on
+        data: {}
+        target:
+          entity_id:
+          - switch.mains_patio_hallway_switch_1
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 5
+          milliseconds: 0
+      - action: switch.turn_on
+        target:
+          entity_id: switch.plus1pm_den_switch_0
+        data: {}
+      - delay:
+          hours: 0
+          minutes: 2
+          seconds: 0
+          milliseconds: 0
+      - action: switch.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.mains_patio_hallway_switch_1
+      - action: switch.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id:
+          - switch.plus1pm_den_switch_0
+    - sequence:
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 4
+          milliseconds: 0
+      - action: switch.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.lumi_lumi_plug_switch
+      - delay:
+          hours: 0
+          minutes: 4
+          seconds: 0
+          milliseconds: 0
+      - action: switch.turn_off
+        target:
+          entity_id:
+          - switch.lumi_lumi_plug_switch
+        data: {}
+  - action: scene.turn_on
+    metadata: {}
+    target:
+      entity_id: scene.den_before_alarm
+  description: ''
+  icon: mdi:alarm-light
+dismiss_persistent_laundry_notification:
+  alias: 'Dismiss Persistent Laundry Notification '
+  sequence:
+  - action: input_boolean.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.laundry_removed
+  description: Helper to dismiss the persistent laundry notification.
+  icon: hue:room-laundry
+zha_add_device:
+  sequence:
+  - action: zha.permit
+    data:
+      duration: 60
+  alias: ZHA - Add Device
+  description: ''
+cast_media_with_no_chime:
+  alias: "Cast Media with no Chime \U0001F515"
+  sequence:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ is_state(media_file.entity_id,''off'') }}'
+      sequence:
+      - target:
+          entity_id: '{{ media_file.entity_id }}'
+        data:
+          volume_level: 0
+        action: media_player.volume_set
+      - target:
+          entity_id: '{{ media_file.entity_id }}'
+        data: {}
+        action: media_player.turn_on
+      - if:
+        - condition: template
+          value_template: '{{ not is_state(media_file.entity_id, ''idle'') }}'
+        then:
+        - wait_template: '{{ is_state(media_file.entity_id, ''idle'') }}'
+          timeout: 0:00:05
+    - conditions:
+      - condition: template
+        value_template: '{{ is_state(media_file.entity_id, ''idle'') }}'
+      sequence: []
+  - target:
+      entity_id: '{{ media_file.entity_id }}'
+    data:
+      volume_level: '{{ volume }}'
+    action: media_player.volume_set
+  - target:
+      entity_id: '{{ media_file.entity_id }}'
+    data:
+      media_content_id: '{{ media_file.media_content_id }}'
+      media_content_type: '{{ media_file.media_content_type }}'
+    action: media_player.play_media
+  mode: single
+  fields:
+    media_file:
+      selector:
+        media: {}
+      name: Media File
+      required: true
+    volume:
+      selector:
+        number:
+          min: 0
+          max: 1
+          step: 0.05
+      name: Volume
+      default: 0.5
+      required: true
+  description: ''
