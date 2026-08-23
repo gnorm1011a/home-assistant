@@ -55,58 +55,6 @@ sensor.energy_production_today:
 scene.bedroom_bright:
   image: >-
           https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fhuehomelighting.com%2Fwp-content%2Fuploads%2F2018%2F10%2Fbest-philips-hue-scenes.jpg&f=1&nofb=1&ipt=52ef05e8974aee054e00e285daa54dad54686048c045a643ffcd7b304349c85b&ipo=images
-scene.bedroom_concentrate:
-  entity_picture: /local/FN.jpg
-scene.bedroom_dimmed:
-  entity_picture: /local/generic.jpg
-scene.bedroom_energize:
-  entity_picture: /local/generic.jpg
-scene.bedroom_natural_light:
-  entity_picture: /local/generic.jpg
-scene.bedroom_read:
-  entity_picture: /local/generic.jpg
-scene.bedroom_relax:
-  entity_picture: /local/generic.jpg
-scene.bedroom_rest:
-  entity_picture: /local/generic.jpg
-scene.bedroom_arctic_aurora:
-  entity_picture: /local/generic.jpg
-scene.bedroom_chinatown:
-  entity_picture: /local/generic.jpg
-scene.bedroom_daisy:
-  entity_picture: /local/generic.jpg
-scene.bedroom_evening_cosy:
-  entity_picture: /local/generic.jpg
-scene.bedroom_frosty_dawn:
-  entity_picture: /local/generic.jpg
-scene.bedroom_galaxy:
-  entity_picture: /local/generic.jpg
-scene.bedroom_golden_pond:
-  entity_picture: /local/generic.jpg
-scene.bedroom_lake_mist:
-  entity_picture: /local/generic.jpg
-scene.bedroom_moonlight:
-  entity_picture: /local/generic.jpg
-scene.bedroom_motown:
-  entity_picture: /local/generic.jpg
-scene.bedroom_pink_holiday:
-  entity_picture: /local/generic.jpg
-scene.bedroom_ruby_glow:
-  entity_picture: /local/generic.jpg
-scene.bedroom_savanna_sunset:
-  entity_picture: /local/generic.jpg
-scene.bedroom_soho:
-  entity_picture: /local/generic.jpg
-scene.bedroom_spring_blossom:
-  entity_picture: /local/generic.jpg
-scene.bedroom_tokyo:
-  entity_picture: /local/generic.jpg
-scene.bedroom_tropical_twilight:
-  entity_picture: /local/generic.jpg
-
-
-scene.den_cancun:
-  entity_picture: /local/Hue_scenes/cancun.jpg
 scene.den_miami:
   entity_picture: /local/Hue_scenes/Miami2.jpg
 
