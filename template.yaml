@@ -69,7 +69,7 @@
 - sensor:
     - name: "Avg Outside Formatted"
       state: >
-        {% set hours = states('sensor.mew_meow_avg_time_outside') | float(0) %}
+        {% set hours = states('sensor.mew_meow_avg_time_outside') | float(0) / 7 %}
         {% set minutes = (hours % 1) * 60 %}
         {{ hours | int }}h {{ minutes | int }}m
 - sensor:
