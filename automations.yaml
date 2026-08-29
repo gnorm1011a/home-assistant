@@ -226,22 +226,6 @@
     entity_id: input_select.bedroom_light_scenes
   initial_state: 'on'
   mode: single
-- id: a07e28582d174e78a8d3069383db9117
-  alias: Xiaomi Button - Toggle bedroom fan on long press
-  trigger:
-  - platform: event
-    event_type: xiaomi_aqara.click
-    event_data:
-      entity_id: binary_sensor.switch_158d0001bf611d
-      click_type: long_click_press
-  action:
-  - service: switch.toggle
-    data: {}
-    target:
-      entity_id:
-      - switch.bed_heat_power
-      - switch.fan
-  initial_state: 'on'
   mode: single
 - alias: Lighting - Trigger scene (Bedroom)
   initial_state: true
@@ -2089,7 +2073,7 @@
   trigger:
   - platform: state
     entity_id:
-    - binary_sensor.doorbell_visitor
+    - binary_sensor.doorbell_visitor_2
     to: 'on'
   condition: []
   action:
@@ -2097,7 +2081,7 @@
       filename: /config/www/doorbell-snapshot.jpg
     action: camera.snapshot
     target:
-      entity_id: camera.doorbell_fluent
+      entity_id: camera.doorbell_fluent_2
   - data:
       message: Someone has rung the doorbell.
       data:
@@ -2909,7 +2893,7 @@
   description: Send alert to PC when doorbell is pressed
   triggers:
   - entity_id:
-    - binary_sensor.doorbell_visitor
+    - binary_sensor.doorbell_visitor_2
     to: 'on'
     trigger: state
   conditions:
@@ -2921,7 +2905,7 @@
       filename: /config/www/doorbell-snapshot.jpg
     action: camera.snapshot
     target:
-      entity_id: camera.doorbell_fluent
+      entity_id: camera.doorbell_fluent_2
   - action: notify.mobile_app_desktop_ha
     data:
       message: Testing the message
