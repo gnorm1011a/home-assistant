@@ -3431,3 +3431,290 @@
         value_template: "{{ repeat.index >= 30 or state_attr('event.hue_smart_button_1_button_1',
           'event_type') not in ['long_press', 'repeat'] }}"
   mode: restart
+- id: 'battery_low_notification_2026'
+  alias: Battery Low Notification
+  description: Send notification to Pixel 6 when any remote sensor battery drops below 20%
+  trigger:
+  - platform: numeric_state
+    entity_id:
+    - sensor.bathroom_weather_sensor_battery
+    - sensor.bed_battery
+    - sensor.bedroom_door_sensor_battery
+    - sensor.den_sliding_door_battery
+    - sensor.ensuite_weather_sensor_battery
+    - sensor.garage_entry_door_battery
+    - sensor.garage_glass_door_battery
+    - sensor.guestroom_sliding_door_battery
+    - sensor.guestroom_weather_sensor_battery
+    - sensor.hue_outdoor_motion_sensor_1_battery
+    - sensor.hue_outdoor_motion_sensor_2_battery
+    - sensor.hue_smart_button_1_battery
+    - sensor.hue_smart_button_2_battery
+    - sensor.laundry_door_battery
+    - sensor.living_room_sliding_door_battery
+    - sensor.lumi_lumi_remote_b286acn01_battery
+    - sensor.lumi_lumi_sensor_magnet_b586cf03_power
+    - sensor.lumi_lumi_sensor_magnet_battery
+    - sensor.lumi_lumi_sensor_magnet_battery_2
+    - sensor.lumi_lumi_sensor_magnet_battery_3
+    - sensor.lumi_lumi_sensor_magnet_battery_4
+    - sensor.lumi_lumi_sensor_magnet_power
+    - sensor.lumi_lumi_sensor_motion_1ac4f902_power
+    - sensor.lumi_lumi_sensor_motion_742edc01_power
+    - sensor.lumi_lumi_sensor_motion_77c4f902_power
+    - sensor.lumi_lumi_sensor_motion_92551c03_power
+    - sensor.lumi_lumi_sensor_motion_aq2_battery
+    - sensor.lumi_lumi_sensor_motion_aq2_battery_10
+    - sensor.lumi_lumi_sensor_motion_aq2_battery_11
+    - sensor.lumi_lumi_sensor_motion_aq2_battery_12
+    - sensor.lumi_lumi_sensor_motion_aq2_battery_13
+    - sensor.lumi_lumi_sensor_motion_aq2_battery_2
+    - sensor.lumi_lumi_sensor_motion_aq2_battery_3
+    - sensor.lumi_lumi_sensor_motion_aq2_battery_4
+    - sensor.lumi_lumi_sensor_motion_aq2_battery_5
+    - sensor.lumi_lumi_sensor_motion_aq2_battery_6
+    - sensor.lumi_lumi_sensor_motion_aq2_battery_7
+    - sensor.lumi_lumi_sensor_motion_aq2_battery_8
+    - sensor.lumi_lumi_sensor_motion_aq2_battery_9
+    - sensor.lumi_lumi_sensor_motion_battery
+    - sensor.lumi_lumi_sensor_motion_power
+    - sensor.lumi_lumi_sensor_switch_battery
+    - sensor.lumi_lumi_weather_battery
+    - sensor.lumi_lumi_weather_battery_2
+    - sensor.lumi_lumi_weather_battery_3
+    - sensor.lumi_lumi_weather_battery_4
+    - sensor.lumi_lumi_weather_power
+    - sensor.outdoor_back_weather_sensor_battery
+    - sensor.pantry_weather_sensor_battery
+    - sensor.patio_weather_sensor_battery
+    - sensor.rodret_dimmer_1_battery
+    - sensor.sonoff_button_power
+    - sensor.studio_motion_sensor_battery
+    - sensor.studio_motion_sensor_power
+    - sensor.studio_weather_sensor_battery
+    - sensor.switch_double_rocker_1_battery
+    - sensor.weather_sensor_13_battery
+    below: 20
+  condition:
+  - condition: template
+    value_template: "{{ trigger.to_state.state | is_number }}"
+  action:
+  - service: notify.mobile_app_pixel_6
+    data:
+      title: Battery Low
+      message: "{{ trigger.to_state.attributes.friendly_name | replace(' Battery', '') | replace(' battery', '') | replace(' power', '') }} is at {{ trigger.to_state.state }}%"
+      data:
+        notification_importance: high
+  mode: single
+
+- id: 'sensor_offline_notification_2026'
+  alias: Sensor Offline Notification
+  description: >-
+    Check every 15 minutes for offline remote sensors and send a grouped notification.
+    Uses a helper boolean to avoid repeat notifications while sensors remain offline.
+  trigger:
+  - platform: time_pattern
+    minutes: '/15'
+  condition:
+  - condition: template
+    value_template: >-
+      {{ states | selectattr('entity_id', 'in', [
+        'sensor.bathroom_weather_sensor_battery',
+        'sensor.bed_battery',
+        'sensor.bedroom_door_sensor_battery',
+        'sensor.den_sliding_door_battery',
+        'sensor.ensuite_weather_sensor_battery',
+        'sensor.garage_entry_door_battery',
+        'sensor.garage_glass_door_battery',
+        'sensor.guestroom_sliding_door_battery',
+        'sensor.guestroom_weather_sensor_battery',
+        'sensor.hue_outdoor_motion_sensor_1_battery',
+        'sensor.hue_outdoor_motion_sensor_2_battery',
+        'sensor.hue_smart_button_1_battery',
+        'sensor.hue_smart_button_2_battery',
+        'sensor.laundry_door_battery',
+        'sensor.living_room_sliding_door_battery',
+        'sensor.lumi_lumi_remote_b286acn01_battery',
+        'sensor.lumi_lumi_sensor_magnet_b586cf03_power',
+        'sensor.lumi_lumi_sensor_magnet_battery',
+        'sensor.lumi_lumi_sensor_magnet_battery_2',
+        'sensor.lumi_lumi_sensor_magnet_battery_3',
+        'sensor.lumi_lumi_sensor_magnet_battery_4',
+        'sensor.lumi_lumi_sensor_magnet_power',
+        'sensor.lumi_lumi_sensor_motion_1ac4f902_power',
+        'sensor.lumi_lumi_sensor_motion_742edc01_power',
+        'sensor.lumi_lumi_sensor_motion_77c4f902_power',
+        'sensor.lumi_lumi_sensor_motion_92551c03_power',
+        'sensor.lumi_lumi_sensor_motion_aq2_battery',
+        'sensor.lumi_lumi_sensor_motion_aq2_battery_10',
+        'sensor.lumi_lumi_sensor_motion_aq2_battery_11',
+        'sensor.lumi_lumi_sensor_motion_aq2_battery_12',
+        'sensor.lumi_lumi_sensor_motion_aq2_battery_13',
+        'sensor.lumi_lumi_sensor_motion_aq2_battery_2',
+        'sensor.lumi_lumi_sensor_motion_aq2_battery_3',
+        'sensor.lumi_lumi_sensor_motion_aq2_battery_4',
+        'sensor.lumi_lumi_sensor_motion_aq2_battery_5',
+        'sensor.lumi_lumi_sensor_motion_aq2_battery_6',
+        'sensor.lumi_lumi_sensor_motion_aq2_battery_7',
+        'sensor.lumi_lumi_sensor_motion_aq2_battery_8',
+        'sensor.lumi_lumi_sensor_motion_aq2_battery_9',
+        'sensor.lumi_lumi_sensor_motion_battery',
+        'sensor.lumi_lumi_sensor_motion_power',
+        'sensor.lumi_lumi_sensor_switch_battery',
+        'sensor.lumi_lumi_weather_battery',
+        'sensor.lumi_lumi_weather_battery_2',
+        'sensor.lumi_lumi_weather_battery_3',
+        'sensor.lumi_lumi_weather_battery_4',
+        'sensor.lumi_lumi_weather_power',
+        'sensor.outdoor_back_weather_sensor_battery',
+        'sensor.pantry_weather_sensor_battery',
+        'sensor.patio_weather_sensor_battery',
+        'sensor.rodret_dimmer_1_battery',
+        'sensor.sonoff_button_power',
+        'sensor.studio_motion_sensor_battery',
+        'sensor.studio_motion_sensor_power',
+        'sensor.studio_weather_sensor_battery',
+        'sensor.switch_double_rocker_1_battery',
+        'sensor.weather_sensor_13_battery'
+      ]) | selectattr('state', 'in', ['unavailable', 'unknown']) | list | count > 0 }}
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.sensor_offline_notified
+        state: 'off'
+      sequence:
+      - service: notify.mobile_app_pixel_6
+        data:
+          title: Sensor Offline
+          message: >-
+            {{ states | selectattr('entity_id', 'in', [
+              'sensor.bathroom_weather_sensor_battery',
+              'sensor.bed_battery',
+              'sensor.bedroom_door_sensor_battery',
+              'sensor.den_sliding_door_battery',
+              'sensor.ensuite_weather_sensor_battery',
+              'sensor.garage_entry_door_battery',
+              'sensor.garage_glass_door_battery',
+              'sensor.guestroom_sliding_door_battery',
+              'sensor.guestroom_weather_sensor_battery',
+              'sensor.hue_outdoor_motion_sensor_1_battery',
+              'sensor.hue_outdoor_motion_sensor_2_battery',
+              'sensor.hue_smart_button_1_battery',
+              'sensor.hue_smart_button_2_battery',
+              'sensor.laundry_door_battery',
+              'sensor.living_room_sliding_door_battery',
+              'sensor.lumi_lumi_remote_b286acn01_battery',
+              'sensor.lumi_lumi_sensor_magnet_b586cf03_power',
+              'sensor.lumi_lumi_sensor_magnet_battery',
+              'sensor.lumi_lumi_sensor_magnet_battery_2',
+              'sensor.lumi_lumi_sensor_magnet_battery_3',
+              'sensor.lumi_lumi_sensor_magnet_battery_4',
+              'sensor.lumi_lumi_sensor_magnet_power',
+              'sensor.lumi_lumi_sensor_motion_1ac4f902_power',
+              'sensor.lumi_lumi_sensor_motion_742edc01_power',
+              'sensor.lumi_lumi_sensor_motion_77c4f902_power',
+              'sensor.lumi_lumi_sensor_motion_92551c03_power',
+              'sensor.lumi_lumi_sensor_motion_aq2_battery',
+              'sensor.lumi_lumi_sensor_motion_aq2_battery_10',
+              'sensor.lumi_lumi_sensor_motion_aq2_battery_11',
+              'sensor.lumi_lumi_sensor_motion_aq2_battery_12',
+              'sensor.lumi_lumi_sensor_motion_aq2_battery_13',
+              'sensor.lumi_lumi_sensor_motion_aq2_battery_2',
+              'sensor.lumi_lumi_sensor_motion_aq2_battery_3',
+              'sensor.lumi_lumi_sensor_motion_aq2_battery_4',
+              'sensor.lumi_lumi_sensor_motion_aq2_battery_5',
+              'sensor.lumi_lumi_sensor_motion_aq2_battery_6',
+              'sensor.lumi_lumi_sensor_motion_aq2_battery_7',
+              'sensor.lumi_lumi_sensor_motion_aq2_battery_8',
+              'sensor.lumi_lumi_sensor_motion_aq2_battery_9',
+              'sensor.lumi_lumi_sensor_motion_battery',
+              'sensor.lumi_lumi_sensor_motion_power',
+              'sensor.lumi_lumi_sensor_switch_battery',
+              'sensor.lumi_lumi_weather_battery',
+              'sensor.lumi_lumi_weather_battery_2',
+              'sensor.lumi_lumi_weather_battery_3',
+              'sensor.lumi_lumi_weather_battery_4',
+              'sensor.lumi_lumi_weather_power',
+              'sensor.outdoor_back_weather_sensor_battery',
+              'sensor.pantry_weather_sensor_battery',
+              'sensor.patio_weather_sensor_battery',
+              'sensor.rodret_dimmer_1_battery',
+              'sensor.sonoff_button_power',
+              'sensor.studio_motion_sensor_battery',
+              'sensor.studio_motion_sensor_power',
+              'sensor.studio_weather_sensor_battery',
+              'sensor.switch_double_rocker_1_battery',
+              'sensor.weather_sensor_13_battery'
+            ]) | selectattr('state', 'in', ['unavailable', 'unknown']) | map(attribute='attributes.friendly_name') | map('replace', ' Battery', '') | map('replace', ' battery', '') | map('replace', ' power', '') | join(', ') }}
+          data:
+            notification_importance: high
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.sensor_offline_notified
+    default:
+    - condition: template
+      value_template: >-
+        {{ states | selectattr('entity_id', 'in', [
+          'sensor.bathroom_weather_sensor_battery',
+          'sensor.bed_battery',
+          'sensor.bedroom_door_sensor_battery',
+          'sensor.den_sliding_door_battery',
+          'sensor.ensuite_weather_sensor_battery',
+          'sensor.garage_entry_door_battery',
+          'sensor.garage_glass_door_battery',
+          'sensor.guestroom_sliding_door_battery',
+          'sensor.guestroom_weather_sensor_battery',
+          'sensor.hue_outdoor_motion_sensor_1_battery',
+          'sensor.hue_outdoor_motion_sensor_2_battery',
+          'sensor.hue_smart_button_1_battery',
+          'sensor.hue_smart_button_2_battery',
+          'sensor.laundry_door_battery',
+          'sensor.living_room_sliding_door_battery',
+          'sensor.lumi_lumi_remote_b286acn01_battery',
+          'sensor.lumi_lumi_sensor_magnet_b586cf03_power',
+          'sensor.lumi_lumi_sensor_magnet_battery',
+          'sensor.lumi_lumi_sensor_magnet_battery_2',
+          'sensor.lumi_lumi_sensor_magnet_battery_3',
+          'sensor.lumi_lumi_sensor_magnet_battery_4',
+          'sensor.lumi_lumi_sensor_magnet_power',
+          'sensor.lumi_lumi_sensor_motion_1ac4f902_power',
+          'sensor.lumi_lumi_sensor_motion_742edc01_power',
+          'sensor.lumi_lumi_sensor_motion_77c4f902_power',
+          'sensor.lumi_lumi_sensor_motion_92551c03_power',
+          'sensor.lumi_lumi_sensor_motion_aq2_battery',
+          'sensor.lumi_lumi_sensor_motion_aq2_battery_10',
+          'sensor.lumi_lumi_sensor_motion_aq2_battery_11',
+          'sensor.lumi_lumi_sensor_motion_aq2_battery_12',
+          'sensor.lumi_lumi_sensor_motion_aq2_battery_13',
+          'sensor.lumi_lumi_sensor_motion_aq2_battery_2',
+          'sensor.lumi_lumi_sensor_motion_aq2_battery_3',
+          'sensor.lumi_lumi_sensor_motion_aq2_battery_4',
+          'sensor.lumi_lumi_sensor_motion_aq2_battery_5',
+          'sensor.lumi_lumi_sensor_motion_aq2_battery_6',
+          'sensor.lumi_lumi_sensor_motion_aq2_battery_7',
+          'sensor.lumi_lumi_sensor_motion_aq2_battery_8',
+          'sensor.lumi_lumi_sensor_motion_aq2_battery_9',
+          'sensor.lumi_lumi_sensor_motion_battery',
+          'sensor.lumi_lumi_sensor_motion_power',
+          'sensor.lumi_lumi_sensor_switch_battery',
+          'sensor.lumi_lumi_weather_battery',
+          'sensor.lumi_lumi_weather_battery_2',
+          'sensor.lumi_lumi_weather_battery_3',
+          'sensor.lumi_lumi_weather_battery_4',
+          'sensor.lumi_lumi_weather_power',
+          'sensor.outdoor_back_weather_sensor_battery',
+          'sensor.pantry_weather_sensor_battery',
+          'sensor.patio_weather_sensor_battery',
+          'sensor.rodret_dimmer_1_battery',
+          'sensor.sonoff_button_power',
+          'sensor.studio_motion_sensor_battery',
+          'sensor.studio_motion_sensor_power',
+          'sensor.studio_weather_sensor_battery',
+          'sensor.switch_double_rocker_1_battery',
+          'sensor.weather_sensor_13_battery'
+        ]) | selectattr('state', 'in', ['unavailable', 'unknown']) | list | count == 0 }}
+    - service: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.sensor_offline_notified
+  mode: single

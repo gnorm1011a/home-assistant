@@ -177,6 +177,10 @@ input_boolean:
     initial: true
     icon: mdi:brightness-6
 
+  sensor_offline_notified:
+    name: "Sensor Offline Notified"
+    initial: false
+    icon: mdi:bell-off
 input_select:
 
   guest_lamp_scene:
