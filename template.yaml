@@ -155,3 +155,21 @@
         {% set weeks = ((now().year - 2024) * 52) + now().isocalendar()[1] %}
         {{ (total_cycles / weeks) | round(2) }}
       unit_of_measurement: "cycles/week"
+
+- sensor:
+    - name: "Mew Meow Avg Entries Daily"
+      state: "{{ ((states('sensor.mew_meow_entries_weekly') | float(0)) / 7) | round(1) }}"
+      unit_of_measurement: "entries"
+      icon: "mdi:counter"
+      attributes:
+        weekly_total: "{{ states('sensor.mew_meow_entries_weekly') | float(0) | int }}"
+
+- sensor:
+    - name: "Mew Meow Avg Time Outside 30d"
+      state: >
+        {% set hours = states('sensor.mew_meow_time_outside_30d') | float(0) / 720 %}
+        {% set minutes = (hours % 1) * 60 %}
+        {{ hours | int }}h {{ minutes | int }}m
+      icon: "mdi:calendar-clock"
+      attributes:
+        total_hours: "{{ states('sensor.mew_meow_time_outside_30d') | float(0) | round(1) }}"

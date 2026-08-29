@@ -1,23 +1,12 @@
 #!/bin/sh
 # SurePetcare API sensor - queries the SurePetcare API for accurate cat flap data
 # Output: JSON for HA command_line sensor
-#
-# Data provided:
-#   - entries: cat entries today (direction=1)
-#   - exits: cat exits today (direction=0)
-#   - looked_through: times cat looked through flap (direction=2)
-#   - last_entry: timestamp of last entry
-#   - position: "inside" or "outside"
-#   - position_since: timestamp since current position
-#   - time_outside_today: total seconds outside today
-#   - time_outside_today_mins: total minutes outside today (rounded)
-#   - outside_trips_today: number of outside trips today
 
 USERNAME=$(cat /config/.storage/core.config_entries | jq -r '.data.entries[] | select(.domain == "surepetcare") | .data.username')
 PASSWORD=$(cat /config/.storage/core.config_entries | jq -r '.data.entries[] | select(.domain == "surepetcare") | .data.password')
 
 if [ -z "$USERNAME" ] || [ -z "$PASSWORD" ]; then
-  echo '{"entries": 0, "exits": 0, "looked_through": 0, "last_entry": "null", "position": "unknown", "position_since": "null", "time_outside_today": 0, "time_outside_today_mins": 0, "outside_trips_today": 0, "error": "no_credentials"}'
+  echo '{"entries": 0, "exits": 0, "looked_through": 0, "last_entry": "null", "position": "unknown", "position_since": "null", "time_outside_today": 0, "time_outside_today_mins": 0, "outside_trips_today": 0, "trips_today": [], "error": "no_credentials"}'
   exit 0
 fi
 
@@ -29,7 +18,7 @@ AUTH_RESP=$(curl -s -X POST "https://app-api.production.surehub.io/api/auth/logi
 TOKEN=$(echo "$AUTH_RESP" | jq -r '.data.token' 2>/dev/null)
 
 if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
-  echo '{"entries": 0, "exits": 0, "looked_through": 0, "last_entry": "null", "position": "unknown", "position_since": "null", "time_outside_today": 0, "time_outside_today_mins": 0, "outside_trips_today": 0, "error": "auth_failed"}'
+  echo '{"entries": 0, "exits": 0, "looked_through": 0, "last_entry": "null", "position": "unknown", "position_since": "null", "time_outside_today": 0, "time_outside_today_mins": 0, "outside_trips_today": 0, "trips_today": [], "error": "auth_failed"}'
   exit 0
 fi
 
@@ -45,7 +34,7 @@ PETS_RESP=$(curl -s "https://app-api.production.surehub.io/api/household/$HH_ID/
 PET_ID=$(echo "$PETS_RESP" | jq -r '.data[0].id' 2>/dev/null)
 
 if [ -z "$HH_ID" ] || [ "$HH_ID" = "null" ] || [ -z "$PET_ID" ] || [ "$PET_ID" = "null" ]; then
-  echo '{"entries": 0, "exits": 0, "looked_through": 0, "last_entry": "null", "position": "unknown", "position_since": "null", "time_outside_today": 0, "time_outside_today_mins": 0, "outside_trips_today": 0, "error": "no_household_or_pet"}'
+  echo '{"entries": 0, "exits": 0, "looked_through": 0, "last_entry": "null", "position": "unknown", "position_since": "null", "time_outside_today": 0, "time_outside_today_mins": 0, "outside_trips_today": 0, "trips_today": [], "error": "no_household_or_pet"}'
   exit 0
 fi
 
@@ -61,7 +50,6 @@ PET_RESP=$(curl -s "https://app-api.production.surehub.io/api/pet/$PET_ID" \
 WHERE=$(echo "$PET_RESP" | jq -r '.data.position.where' 2>/dev/null)
 POSITION_SINCE=$(echo "$PET_RESP" | jq -r '.data.position.since' 2>/dev/null)
 
-# where: 1=inside, 2=outside
 if [ "$WHERE" = "1" ]; then
   POSITION="inside"
 elif [ "$WHERE" = "2" ]; then
@@ -80,8 +68,7 @@ EXITS=$(echo "$TL_RESP" | jq -r --arg midnight "$MIDNIGHT_UTC" '[.data[] | selec
 LOOKED=$(echo "$TL_RESP" | jq -r --arg midnight "$MIDNIGHT_UTC" '[.data[] | select(.movements != null) | .movements[] | select(.direction == 2) | select(.created_at >= $midnight)] | length' 2>/dev/null)
 LAST_ENTRY=$(echo "$TL_RESP" | jq -r --arg midnight "$MIDNIGHT_UTC" '[.data[] | select(.movements != null) | .movements[] | select(.direction == 1) | select(.created_at >= $midnight)] | sort_by(.created_at) | last | .created_at' 2>/dev/null)
 
-# 3. Get aggregate report for time outside today
-# URL-encode the + in the timestamp
+# 3. Get aggregate report for time outside today + trip details
 MIDNIGHT_ENCODED=$(echo "$MIDNIGHT_UTC" | sed 's/+/%2B/g')
 NOW_ENCODED=$(date -u +"%Y-%m-%dT%H:%M:%S+00:00" | sed 's/+/%2B/g')
 
@@ -93,5 +80,20 @@ TIME_OUTSIDE=$(echo "$AGG_RESP" | jq -r '[.data.movement.datapoints[] | .duratio
 TIME_OUTSIDE_MINS=$(echo "$TIME_OUTSIDE" | awk '{printf "%d", $1 / 60}' 2>/dev/null)
 OUTSIDE_TRIPS=$(echo "$AGG_RESP" | jq -r '.data.movement.datapoints | length' 2>/dev/null)
 
-# Output JSON
-echo "{\"entries\": ${ENTRIES:-0}, \"exits\": ${EXITS:-0}, \"looked_through\": ${LOOKED:-0}, \"last_entry\": \"${LAST_ENTRY:-null}\", \"position\": \"${POSITION}\", \"position_since\": \"${POSITION_SINCE:-null}\", \"time_outside_today\": ${TIME_OUTSIDE:-0}, \"time_outside_today_mins\": ${TIME_OUTSIDE_MINS:-0}, \"outside_trips_today\": ${OUTSIDE_TRIPS:-0}, \"midnight_aest\": \"${MIDNIGHT_UTC}\"}"
+# Extract trip details as a JSON array
+TRIPS_TODAY=$(echo "$AGG_RESP" | jq -c '[.data.movement.datapoints[] | {from: .from, to: .to, duration: .duration, duration_mins: (.duration / 60 | floor)}]' 2>/dev/null)
+
+# Output JSON with trips_today as a nested array
+jq -n \
+  --argjson entries "${ENTRIES:-0}" \
+  --argjson exits "${EXITS:-0}" \
+  --argjson looked "${LOOKED:-0}" \
+  --arg last_entry "${LAST_ENTRY:-null}" \
+  --arg position "$POSITION" \
+  --arg position_since "${POSITION_SINCE:-null}" \
+  --argjson time_outside "${TIME_OUTSIDE:-0}" \
+  --argjson time_outside_mins "${TIME_OUTSIDE_MINS:-0}" \
+  --argjson outside_trips "${OUTSIDE_TRIPS:-0}" \
+  --argjson trips_today "${TRIPS_TODAY:-[]}" \
+  --arg midnight_aest "$MIDNIGHT_UTC" \
+  '{entries: $entries, exits: $exits, looked_through: $looked, last_entry: $last_entry, position: $position, position_since: $position_since, time_outside_today: $time_outside, time_outside_today_mins: $time_outside_mins, outside_trips_today: $outside_trips, trips_today: $trips_today, midnight_aest: $midnight_aest}'

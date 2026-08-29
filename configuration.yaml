@@ -67,6 +67,7 @@ command_line:
         - time_outside_today
         - time_outside_today_mins
         - outside_trips_today
+        - trips_today
         - midnight_aest
       unit_of_measurement: "entries"
       icon: "mdi:cat"
@@ -129,6 +130,22 @@ sensor:
     type: count
     start: '{{ now().replace(month=1, day=1, hour=0, minute=0, second=0) }}'
     end: '{{ now() }}'
+
+  - platform: history_stats
+    name: Mew Meow Entries Weekly
+    entity_id: sensor.mew_meow_position
+    state: "inside"
+    type: count
+    start: "{{ now() - timedelta(days=7) }}"
+    end: "{{ now() }}"
+
+  - platform: history_stats
+    name: Mew Meow Time Outside 30d
+    entity_id: binary_sensor.mew_meow
+    state: "off"
+    type: time
+    start: "{{ now() - timedelta(days=30) }}"
+    end: "{{ now() }}"
 
 #Motion statistics
   - platform: history_stats
@@ -262,6 +279,15 @@ input_select:
       - Bedroom
     initial: Whole House
     icon: mdi:speaker-wireless
+
+  cat_chart_range:
+    name: "Cat Chart Range"
+    options:
+      - "7 Days"
+      - "30 Days"
+      - "This Month"
+    initial: "7 Days"
+    icon: mdi:calendar-range
 
 input_text:
 
