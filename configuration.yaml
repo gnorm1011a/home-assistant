@@ -165,7 +165,25 @@ input_number:
     max: 1
     step: 0.05
 
+input_boolean:
+  guest_lamp_dim_up:
+    name: "Guest Lamp Dim Up"
+    initial: true
+    icon: mdi:brightness-6
+
 input_select:
+
+  guest_lamp_scene:
+    name: "Guest Lamp Scene"
+    options:
+      - "Read"
+      - "Relax"
+      - "Energise"
+      - "Purple"
+      - "Nightlight"
+      - "Off"
+    initial: "Off"
+    icon: mdi:palette
 
   house_mode:
     name: "House Mode"

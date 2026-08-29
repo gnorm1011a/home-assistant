@@ -307,3 +307,81 @@ cast_media_with_no_chime:
       default: 0.5
       required: true
   description: ''
+guest_lamp_apply_scene:
+  alias: Guest Lamp - Apply Scene
+  description: Applies the scene selected in input_select.guest_lamp_scene to light.guestroom.
+  sequence:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_select.guest_lamp_scene
+        state: "Read"
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.guestroom
+        data:
+          color_temp_kelvin: 2890
+          brightness_pct: 100
+          transition: 1
+    - conditions:
+      - condition: state
+        entity_id: input_select.guest_lamp_scene
+        state: "Relax"
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.guestroom
+        data:
+          color_temp_kelvin: 2237
+          brightness_pct: 56
+          transition: 1
+    - conditions:
+      - condition: state
+        entity_id: input_select.guest_lamp_scene
+        state: "Energise"
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.guestroom
+        data:
+          color_temp_kelvin: 6410
+          brightness_pct: 100
+          transition: 1
+    - conditions:
+      - condition: state
+        entity_id: input_select.guest_lamp_scene
+        state: "Purple"
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.guestroom
+        data:
+          hs_color:
+          - 275
+          - 85
+          brightness_pct: 70
+          transition: 1
+    - conditions:
+      - condition: state
+        entity_id: input_select.guest_lamp_scene
+        state: "Nightlight"
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.guestroom
+        data:
+          color_temp_kelvin: 2000
+          brightness_pct: 3
+          transition: 1
+    - conditions:
+      - condition: state
+        entity_id: input_select.guest_lamp_scene
+        state: "Off"
+      sequence:
+      - action: light.turn_off
+        target:
+          entity_id: light.guestroom
+        data:
+          transition: 1
+  mode: single
