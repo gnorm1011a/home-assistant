@@ -6,9 +6,19 @@ set_hue_scene:
     group:
       description: Group name (Bedroom, Upstairs, Garden)
       example: Bedroom
+      required: true
+      selector:
+        select:
+          options:
+            - Bedroom
+            - Upstairs
+            - Garden
     scene:
       description: Scene name
       example: Energize
+      required: true
+      selector:
+        text:
   sequence:
   - choose:
     - conditions:
