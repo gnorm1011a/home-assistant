@@ -165,6 +165,12 @@ input_number:
     max: 1
     step: 0.05
 
+input_datetime:
+  guest_lamp_last_press:
+    name: "Guest Lamp Last Press"
+    has_date: true
+    has_time: true
+
 input_boolean:
   guest_lamp_dim_up:
     name: "Guest Lamp Dim Up"
@@ -179,10 +185,9 @@ input_select:
       - "Read"
       - "Relax"
       - "Energise"
-      - "Purple"
       - "Nightlight"
-      - "Off"
-    initial: "Off"
+      - "Purple"
+    initial: "Read"
     icon: mdi:palette
 
   house_mode:

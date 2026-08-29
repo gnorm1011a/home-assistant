@@ -309,21 +309,9 @@ cast_media_with_no_chime:
   description: ''
 guest_lamp_apply_scene:
   alias: Guest Lamp - Apply Scene
-  description: Applies the scene selected in input_select.guest_lamp_scene to light.guestroom.
+  description: Turns on light.guestroom using the scene selected in input_select.guest_lamp_scene.
   sequence:
   - choose:
-    - conditions:
-      - condition: state
-        entity_id: input_select.guest_lamp_scene
-        state: "Read"
-      sequence:
-      - action: light.turn_on
-        target:
-          entity_id: light.guestroom
-        data:
-          color_temp_kelvin: 2890
-          brightness_pct: 100
-          transition: 1
     - conditions:
       - condition: state
         entity_id: input_select.guest_lamp_scene
@@ -351,20 +339,6 @@ guest_lamp_apply_scene:
     - conditions:
       - condition: state
         entity_id: input_select.guest_lamp_scene
-        state: "Purple"
-      sequence:
-      - action: light.turn_on
-        target:
-          entity_id: light.guestroom
-        data:
-          hs_color:
-          - 275
-          - 85
-          brightness_pct: 70
-          transition: 1
-    - conditions:
-      - condition: state
-        entity_id: input_select.guest_lamp_scene
         state: "Nightlight"
       sequence:
       - action: light.turn_on
@@ -377,11 +351,23 @@ guest_lamp_apply_scene:
     - conditions:
       - condition: state
         entity_id: input_select.guest_lamp_scene
-        state: "Off"
+        state: "Purple"
       sequence:
-      - action: light.turn_off
+      - action: light.turn_on
         target:
           entity_id: light.guestroom
         data:
+          hs_color:
+          - 275
+          - 85
+          brightness_pct: 70
           transition: 1
+    default:
+    - action: light.turn_on
+      target:
+        entity_id: light.guestroom
+      data:
+        color_temp_kelvin: 2890
+        brightness_pct: 100
+        transition: 1
   mode: single
