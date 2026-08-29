@@ -51,6 +51,22 @@ logger:
 template: !include template.yaml
 
 
+command_line:
+  - sensor:
+      name: "SurePetcare Flap Stats"
+      command: "sh /config/surepetcare_entries.sh"
+      scan_interval: 300
+      value_template: "{{ value_json.entries }}"
+      json_attributes:
+        - entries
+        - exits
+        - looked_through
+        - last_entry
+        - midnight_aest
+      unit_of_measurement: "entries"
+      icon: "mdi:cat"
+
+
 sensor:
   - platform: history_stats
     name: Mew Meow Avg Time Outside

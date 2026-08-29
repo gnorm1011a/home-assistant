@@ -64,7 +64,11 @@
 
 - sensor:
     - name: "Mew Meow Entries"
-      state: "{{ states('input_number.mew_meow_entries') }}"
+      state: "{{ states('sensor.surepetcare_flap_stats') }}"
+      attributes:
+        last_entry: "{{ state_attr('sensor.surepetcare_flap_stats', 'last_entry') }}"
+        exits: "{{ state_attr('sensor.surepetcare_flap_stats', 'exits') }}"
+        looked_through: "{{ state_attr('sensor.surepetcare_flap_stats', 'looked_through') }}"
 
 - sensor:
     - name: "Avg Outside Formatted"
