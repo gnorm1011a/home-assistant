@@ -1725,16 +1725,23 @@
   trigger:
   - platform: state
     entity_id:
-    - binary_sensor.mew_meow
-    from: 'on'
-    to: 'off'
+    - sensor.mew_meow_position
+    from: 'inside'
+    to: 'outside'
   condition: []
   action:
+  - data:
+      filename: /config/www/rear-snapshot.jpg
+    action: camera.snapshot
+    target:
+      entity_id: camera.rear_fluent
   - action: notify.mobile_app_pixel_6
     metadata: {}
     data:
       message: Mew-meow has left the house!
       title: Cat Outside
+      data:
+        image: https://parkplace.duckdns.org:8123/local/rear-snapshot.jpg
   mode: single
 - id: '1724625540156'
   alias: 'Toggle Cat Location (Tag 1) '
@@ -1768,8 +1775,8 @@
     trigger: state
   conditions:
   - condition: state
-    entity_id: binary_sensor.mew_meow
-    state: 'on'
+    entity_id: sensor.mew_meow_position
+    state: 'inside'
   actions:
   - data:
       filename: /config/www/rear-snapshot.jpg
@@ -1820,8 +1827,8 @@
     to: 'on'
   condition:
   - condition: state
-    entity_id: binary_sensor.mew_meow
-    state: 'on'
+    entity_id: sensor.mew_meow_position
+    state: 'inside'
   action:
   - data:
       filename: /config/www/side-snapshot.jpg
@@ -1852,8 +1859,8 @@
     trigger: state
   conditions:
   - condition: state
-    entity_id: binary_sensor.mew_meow
-    state: 'on'
+    entity_id: sensor.mew_meow_position
+    state: 'inside'
   actions:
   - data:
       filename: /config/www/patio-snapshot.jpg
@@ -1900,8 +1907,8 @@
   trigger:
   - platform: state
     entity_id:
-    - binary_sensor.mew_meow
-    to: 'on'
+    - sensor.mew_meow_position
+    to: 'inside'
   condition:
   - condition: or
     conditions:
@@ -1940,8 +1947,8 @@
   trigger:
   - platform: state
     entity_id:
-    - binary_sensor.mew_meow
-    to: 'off'
+    - sensor.mew_meow_position
+    to: 'outside'
   - platform: state
     entity_id:
     - binary_sensor.door_sensor_7_iaszone
@@ -1980,8 +1987,8 @@
     to: 'off'
   condition:
   - condition: state
-    entity_id: binary_sensor.mew_meow
-    state: 'on'
+    entity_id: sensor.mew_meow_position
+    state: 'inside'
   action:
   - action: input_boolean.turn_on
     target:
@@ -2591,8 +2598,8 @@
   trigger:
   - platform: state
     entity_id:
-    - binary_sensor.mew_meow
-    to: 'on'
+    - sensor.mew_meow_position
+    to: 'inside'
   condition:
   - condition: time
     after: '22:30:00'
@@ -2977,8 +2984,8 @@
     entity_id: lock.flappy_locked_in
     state: locked
   - condition: state
-    entity_id: binary_sensor.mew_meow
-    state: 'on'
+    entity_id: sensor.mew_meow_position
+    state: 'inside'
     for:
       hours: 0
       minutes: 10
@@ -3244,9 +3251,9 @@
   triggers:
   - trigger: state
     entity_id:
-    - binary_sensor.mew_meow
-    from: 'on'
-    to: 'off'
+    - sensor.mew_meow_position
+    from: 'inside'
+    to: 'outside'
   conditions: []
   actions:
   - action: xiaomi_aqara.play_ringtone
@@ -3289,4 +3296,21 @@
     to: 'on'
   conditions: []
   actions: []
+  mode: single
+- id: '1724832680628'
+  alias: Cat Entering House
+  description: Send notification when Mew-meow enters the house
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.mew_meow_position
+    from: 'outside'
+    to: 'inside'
+  condition: []
+  action:
+  - action: notify.mobile_app_pixel_6
+    metadata: {}
+    data:
+      message: Mew-meow has entered the house!
+      title: Cat Inside
   mode: single
