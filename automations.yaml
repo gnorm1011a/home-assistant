@@ -226,7 +226,6 @@
     entity_id: input_select.bedroom_light_scenes
   initial_state: 'on'
   mode: single
-  mode: single
 - alias: Lighting - Trigger scene (Bedroom)
   initial_state: true
   trigger:
@@ -1726,22 +1725,22 @@
   - platform: state
     entity_id:
     - sensor.mew_meow_position
-    from: 'inside'
-    to: 'outside'
+    from: inside
+    to: outside
   condition: []
   action:
   - data:
-      filename: /config/www/rear-snapshot.jpg
+      filename: /config/www/patio-snapshot.jpg
     action: camera.snapshot
     target:
-      entity_id: camera.rear_fluent
+      entity_id: camera.camera1_fluent_3
   - action: notify.mobile_app_pixel_6
     metadata: {}
     data:
       message: Mew-meow has left the house!
       title: Cat Outside
       data:
-        image: https://parkplace.duckdns.org:8123/local/rear-snapshot.jpg
+        image: https://parkplace.duckdns.org:8123/local/patio-snapshot.jpg
   mode: single
 - id: '1724625540156'
   alias: 'Toggle Cat Location (Tag 1) '
@@ -1776,7 +1775,7 @@
   conditions:
   - condition: state
     entity_id: sensor.mew_meow_position
-    state: 'inside'
+    state: inside
   actions:
   - data:
       filename: /config/www/rear-snapshot.jpg
@@ -1797,7 +1796,7 @@
     data:
       message: Testing the message
       data:
-        image: https://parkplace.duckdns.org:8123/local/rear-snapshot.jpg
+        image: https://parkplace.duckdns.org:8123/local/patio-snapshot.jpg
 - id: '1724799527232'
   alias: CDS Alarm - Manual Triggers
   description: Triggers the cat defense system of lights and sounds
@@ -1828,7 +1827,7 @@
   condition:
   - condition: state
     entity_id: sensor.mew_meow_position
-    state: 'inside'
+    state: inside
   action:
   - data:
       filename: /config/www/side-snapshot.jpg
@@ -1860,7 +1859,7 @@
   conditions:
   - condition: state
     entity_id: sensor.mew_meow_position
-    state: 'inside'
+    state: inside
   actions:
   - data:
       filename: /config/www/patio-snapshot.jpg
@@ -1908,7 +1907,7 @@
   - platform: state
     entity_id:
     - sensor.mew_meow_position
-    to: 'inside'
+    to: inside
   condition:
   - condition: or
     conditions:
@@ -1948,7 +1947,7 @@
   - platform: state
     entity_id:
     - sensor.mew_meow_position
-    to: 'outside'
+    to: outside
   - platform: state
     entity_id:
     - binary_sensor.door_sensor_7_iaszone
@@ -1988,7 +1987,7 @@
   condition:
   - condition: state
     entity_id: sensor.mew_meow_position
-    state: 'inside'
+    state: inside
   action:
   - action: input_boolean.turn_on
     target:
@@ -2599,7 +2598,7 @@
   - platform: state
     entity_id:
     - sensor.mew_meow_position
-    to: 'inside'
+    to: inside
   condition:
   - condition: time
     after: '22:30:00'
@@ -2985,7 +2984,7 @@
     state: locked
   - condition: state
     entity_id: sensor.mew_meow_position
-    state: 'inside'
+    state: inside
     for:
       hours: 0
       minutes: 10
@@ -3252,8 +3251,8 @@
   - trigger: state
     entity_id:
     - sensor.mew_meow_position
-    from: 'inside'
-    to: 'outside'
+    from: inside
+    to: outside
   conditions: []
   actions:
   - action: xiaomi_aqara.play_ringtone
@@ -3283,7 +3282,7 @@
             uri: app://com.mcu.reolink
         title: Garage Opened.
       action: notify.mobile_app_pixel_6
-    enabled: false
+    enabled: true
   mode: single
 - id: '1760237454256'
   alias: Cat confirmation
@@ -3304,8 +3303,8 @@
   - platform: state
     entity_id:
     - sensor.mew_meow_position
-    from: 'outside'
-    to: 'inside'
+    from: outside
+    to: inside
   condition: []
   action:
   - action: notify.mobile_app_pixel_6
