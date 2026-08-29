@@ -1487,7 +1487,9 @@
     entity_id:
     - binary_sensor.plus1pm_dining_input_0_input
     to: 'on'
-  condition: []
+  condition:
+  - condition: template
+    value_template: "{{ trigger.from_state.state not in ['unavailable', 'unknown', none] }}"
   action:
   - service: light.turn_on
     metadata: {}
@@ -1519,7 +1521,9 @@
     entity_id:
     - binary_sensor.mains_living_room_kitchen_input_1_input
     to: 'on'
-  condition: []
+  condition:
+  - condition: template
+    value_template: "{{ trigger.from_state.state not in ['unavailable', 'unknown', none] }}"
   action:
   - service: light.turn_on
     metadata: {}
@@ -1551,7 +1555,9 @@
     entity_id:
     - binary_sensor.mains_front_courtyard_input_0_input
     to: 'on'
-  condition: []
+  condition:
+  - condition: template
+    value_template: "{{ trigger.from_state.state not in ['unavailable', 'unknown', none] }}"
   action:
   - service: light.turn_on
     metadata: {}
@@ -1583,7 +1589,9 @@
     entity_id:
     - binary_sensor.mains_garage_input_0_input
     to: 'on'
-  condition: []
+  condition:
+  - condition: template
+    value_template: "{{ trigger.from_state.state not in ['unavailable', 'unknown', none] }}"
   action:
   - service: light.turn_on
     metadata: {}
@@ -1615,7 +1623,9 @@
     entity_id:
     - binary_sensor.mains_backyard_input_1_input
     to: 'on'
-  condition: []
+  condition:
+  - condition: template
+    value_template: "{{ trigger.from_state.state not in ['unavailable', 'unknown', none] }}"
   action:
   - service: light.turn_on
     metadata: {}
@@ -1662,7 +1672,9 @@
     entity_id:
     - binary_sensor.mains_studio_input_0_input
     to: 'on'
-  condition: []
+  condition:
+  - condition: template
+    value_template: "{{ trigger.from_state.state not in ['unavailable', 'unknown', none] }}"
   action:
   - service: light.turn_on
     target:
