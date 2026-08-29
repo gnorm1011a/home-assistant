@@ -71,6 +71,22 @@
         looked_through: "{{ state_attr('sensor.surepetcare_flap_stats', 'looked_through') }}"
 
 - sensor:
+    - name: "Mew Meow Position"
+      state: "{{ state_attr('sensor.surepetcare_flap_stats', 'position') }}"
+      attributes:
+        since: "{{ state_attr('sensor.surepetcare_flap_stats', 'position_since') }}"
+      icon: "mdi:cat"
+
+- sensor:
+    - name: "Mew Meow Time Outside Today"
+      state: "{{ state_attr('sensor.surepetcare_flap_stats', 'time_outside_today_mins') }}"
+      unit_of_measurement: "min"
+      device_class: duration
+      attributes:
+        outside_trips: "{{ state_attr('sensor.surepetcare_flap_stats', 'outside_trips_today') }}"
+        time_outside_seconds: "{{ state_attr('sensor.surepetcare_flap_stats', 'time_outside_today') }}"
+      icon: "mdi:clock-outline"
+
     - name: "Avg Outside Formatted"
       state: >
         {% set hours = states('sensor.mew_meow_avg_time_outside') | float(0) / 7 %}

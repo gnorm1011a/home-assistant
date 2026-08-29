@@ -55,13 +55,18 @@ command_line:
   - sensor:
       name: "SurePetcare Flap Stats"
       command: "sh /config/surepetcare_entries.sh"
-      scan_interval: 300
+      scan_interval: 60
       value_template: "{{ value_json.entries }}"
       json_attributes:
         - entries
         - exits
         - looked_through
         - last_entry
+        - position
+        - position_since
+        - time_outside_today
+        - time_outside_today_mins
+        - outside_trips_today
         - midnight_aest
       unit_of_measurement: "entries"
       icon: "mdi:cat"
