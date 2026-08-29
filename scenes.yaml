@@ -136,9 +136,6 @@
       friendly_name: Sony
       supported_features: 152461
       state: 'off'
-    switch.living_room_tv:
-      friendly_name: Living Room TV - Test
-      state: 'on'
     remote.living_room_tv_2:
       activity_list:
       current_activity: com.google.android.apps.tv.launcherx
@@ -149,20 +146,6 @@
   metadata:
     light.upstairs_2:
       entity_only: true
-    switch.living_room_tv:
-      entity_only: true
-    remote.living_room_tv_2:
-      entity_only: true
-- id: '1707385342168'
-  name: TV
-  entities:
-    media_player.sony:
-      friendly_name: Sony
-      supported_features: 152461
-      state: 'off'
-    switch.living_room_tv:
-      friendly_name: Living Room TV - Test
-      state: 'on'
     remote.living_room_tv_2:
       activity_list:
       current_activity: com.google.android.apps.tv.launcherx
@@ -311,25 +294,6 @@
       state: 'off'
   icon: mdi:television-ambient-light
   metadata:
-    switch.living_room_tv:
-      entity_only: true
-    remote.living_room_tv_2:
-      entity_only: true
-    light.living_room:
-      entity_only: true
-    light.kitchen:
-      entity_only: true
-    light.dining:
-      entity_only: true
-- id: '1707385453557'
-  name: Movie
-  entities:
-    remote.living_room_tv_2:
-      activity_list: []
-      current_activity: com.google.android.youtube.tv
-      friendly_name: Living room TV 2
-      supported_features: 4
-      state: 'on'
     light.living_room:
       min_color_temp_kelvin: 2000
       max_color_temp_kelvin: 6535

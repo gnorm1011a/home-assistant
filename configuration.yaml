@@ -50,18 +50,14 @@ logger:
 # tts: configured via UI
 
 # Broadlink IR - Fan only (bedroom)
+# Configured via UI integration as remote.broadlink_rm_pro_remote
+# Fan swing/timer commands sent via script.fan_swing and script.fan_timer
 # Other Broadlink devices removed during cleanup:
 #   34:EA:34:8E:F8:53 (Living Room - AC/Heat/TV)
 #   A0:43:B0:07:E9:E0 (Den - AC/Heat/Stereo)
 #   24:DF:A7:DF:09:EE (Guestroom - AC/Heat)
-switch:
-  - platform: broadlink
-    mac: '34:EA:34:58:9E:0A'
-    switches:
-      - name: Fan
-        command_on: 'JgCcACoNKg0PKSoNKA8NKg8pDygOKQ8oKw0MAAEIKg0oDw0qKw0oDw0qDygPKQ4pDikqDQ0AAQcrDSoNDygqDSsNDikOKQ8oDygNKyoNDwABBSgPKw0PKCgPKwwPKA0rDCsNKg0qKQ8PAAEFKg0rDA8oKw0qDQ8oDygPKQ4pDygqDQ4AAQYrDSgPDSoqDSsNDikOKQ8oDykOKSoNDgANBQAAAAAAAAAAAAAAAA=='
-        command_off: 'JgDyACoNKwwPKCsNKg0PKA8oDykPKA8oDygr6CwNKg0PKCsMKw0PKA8oDygPKQ8oDygr6SsMKw0PKCsNKg0PKA8oDygPKQ4pDygq6ioNKwwPKSsMKg0PKQ8oDygPKA8pDikq6ioNKg0PKSoNKg0PKA8pDygOKQ8oDykq6SsNKg0PKCsMKwwQKA8oDygPKQ8oDygr6SsMKwwQKCoNKwwPKQ4pDygPKQ4pDikr6SsMKwwPKSoNKwwPKQ4oECgPKA8oDygr6SsNKg0PKSoMKw0PKA8pDikPKA8oDygr5y0MKw0PKCsMKwwPKQ8oDygPKA8pDikqAA0FAAAAAAAA=='
 
+template: !include template.yaml
 template: !include template.yaml
 
 

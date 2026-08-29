@@ -1,6 +1,7 @@
 set_hue_scene:
   alias: Set Hue Scene
   description: Activate a Hue scene for a given group and scene name
+  mode: single
   fields:
     group:
       description: Group name (Bedroom, Upstairs, Garden)
@@ -17,7 +18,7 @@ set_hue_scene:
       - action: scene.turn_on
         target:
           entity_id: scene.upstairs_crocus
-  - default:
+    default:
     - action: scene.turn_on
       target:
         entity_id: >-
@@ -26,14 +27,18 @@ set_hue_scene:
           scene.{{ group_map[group] }}_{{ scene_slug }}
 fan_swing:
   sequence:
-  - service: switch.broadlink_send_packet_192_168_0_15
+  - action: remote.send_command
+    target:
+      entity_id: remote.broadlink_rm_pro_remote
     data:
-      packet: JgCcACoOKwwPKCoNKw0NKg4pKg4OKA8pDygPAAEFKw0qDQ4pKg0rDBAoDikqDQ8pDigPKQ8AAQUqDSsNDikqDSoNDygPKCsNDygPKA8oDwABBSsNKg0PKCsNKg0PKA8pKg0PKA4pDygPAAEFKw0qDQ8oKg4qDQ8oDikqDQ8pDikOKQ8AAQUqDioNDikqDSsNDygOKSoNDygPKA8oDwANBQAAAAAAAAAAAAAAAA==
+      command: JgCcACoOKwwPKCoNKw0NKg4pKg4OKA8pDygPAAEFKw0qDQ4pKg0rDBAoDikqDQ8pDigPKQ8AAQUqDSsNDikqDSoNDygPKCsNDygPKA8oDwABBSsNKg0PKCsNKg0PKA8pKg0PKA4pDygPAAEFKw0qDQ8oKg4qDQ8oDikqDQ8pDikOKQ8AAQUqDioNDikqDSsNDygOKSoNDygPKA8oDwANBQAAAAAAAAAAAAAAAA==
 fan_timer:
   sequence:
-  - service: switch.broadlink_send_packet_192_168_0_15
+  - action: remote.send_command
+    target:
+      entity_id: remote.broadlink_rm_pro_remote
     data:
-      packet: JgBoACoNKg0PKCsNKg0PKA8oDSsoDw8oDSoNAAEHKw0qDQ8oKg0rDQ8oDikPKCsNDCsOKRAAAQQqDSsNDikqDSoNDykOKQwrKA8NKg0rDAABCCgPKA8NKygPKA8NKg0rDCsoDw0qDSoNAA0F==
+      command: JgBoACoNKg0PKCsNKg0PKA8oDSsoDw8oDSoNAAEHKw0qDQ8oKg0rDQ8oDikPKCsNDCsOKRAAAQQqDSsNDikqDSoNDykOKQwrKA8NKg0rDAABCCgPKA8NKygPKA8NKg0rDCsoDw0qDSoNAA0F==
 set_volume_of_den_speaker:
   alias: CDS - Dog SFX Sequence
   sequence:

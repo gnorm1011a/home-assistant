@@ -253,8 +253,8 @@
     value_template: '{{ not is_state(''input_select.bedroom_light_scenes'' ,''Select'')
       }}'
   action:
-    service: script.set_hue_scene
-    data_template:
+  - action: script.set_hue_scene
+    data:
       group: Bedroom
       scene: '{{ states.input_select.bedroom_light_scenes.state }}'
   id: bb27eee2653f4f82b4e82af6a7170a75
@@ -269,8 +269,8 @@
     value_template: '{{ not is_state(''input_select.upstairs_light_scenes'' ,''Select'')
       }}'
   action:
-  - service: script.set_hue_scene
-    data_template:
+  - action: script.set_hue_scene
+    data:
       group: Upstairs
       scene: '{{ states.input_select.upstairs_light_scenes.state }}'
   initial_state: true
@@ -284,8 +284,8 @@
     value_template: '{{ not is_state(''input_select.garden_light_scenes'' ,''Select'')
       }}'
   action:
-    service: script.set_hue_scene
-    data_template:
+  - action: script.set_hue_scene
+    data:
       group: Garden
       scene: '{{ states.input_select.garden_light_scenes.state }}'
   id: 0a9f391f276841109cbfa681e7178c41
