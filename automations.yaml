@@ -847,11 +847,41 @@
     entity_id: light.front_3
     state: 'on'
   actions:
-  - data:
-      transition: 30
-    target:
-      entity_id: scene.motion_lights_front_before
-    action: scene.turn_on
+  - choose:
+    - alias: Scheduled ON fired during this motion event - snapshot is stale
+      conditions:
+      - condition: template
+        value_template: >
+          {% set m = state_attr('automation.motion_lights_front_turn_on', 'last_triggered') %}
+          {% set s = state_attr('automation.lighting_front_lights_on', 'last_triggered') %}
+          {{ m is not none and s is not none and s > m }}
+      sequence:
+      - data:
+          transition: 30
+          brightness: 255
+          color_temp_kelvin: 3231
+        target:
+          entity_id: light.front_3
+        action: light.turn_on
+    - alias: Scheduled OFF fired during this motion event - snapshot is stale
+      conditions:
+      - condition: template
+        value_template: >
+          {% set m = state_attr('automation.motion_lights_front_turn_on', 'last_triggered') %}
+          {% set s = state_attr('automation.lighting_front_lights_off', 'last_triggered') %}
+          {{ m is not none and s is not none and s > m }}
+      sequence:
+      - data:
+          transition: 30
+        target:
+          entity_id: light.front_3
+        action: light.turn_off
+    default:
+    - data:
+        transition: 30
+      target:
+        entity_id: scene.motion_lights_front_before
+      action: scene.turn_on
   mode: single
 - id: '1680846655381'
   alias: Motion Lights - Side turn on
@@ -3283,18 +3313,6 @@
         title: Garage Opened.
       action: notify.mobile_app_pixel_6
     enabled: true
-  mode: single
-- id: '1760237454256'
-  alias: Cat confirmation
-  description: ''
-  triggers:
-  - trigger: state
-    entity_id:
-    - input_boolean.cat_location
-    from: 'off'
-    to: 'on'
-  conditions: []
-  actions: []
   mode: single
 - id: '1724832680628'
   alias: Cat Entering House
