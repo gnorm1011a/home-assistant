@@ -131,22 +131,6 @@ sensor:
     start: '{{ now().replace(month=1, day=1, hour=0, minute=0, second=0) }}'
     end: '{{ now() }}'
 
-  - platform: history_stats
-    name: Mew Meow Entries Weekly
-    entity_id: sensor.mew_meow_position
-    state: "inside"
-    type: count
-    start: "{{ now() - timedelta(days=7) }}"
-    end: "{{ now() }}"
-
-  - platform: history_stats
-    name: Mew Meow Time Outside 30d
-    entity_id: binary_sensor.mew_meow
-    state: "off"
-    type: time
-    start: "{{ now() - timedelta(days=30) }}"
-    end: "{{ now() }}"
-
 #Motion statistics
   - platform: history_stats
     name: "Daily Person Count"
@@ -285,7 +269,7 @@ input_select:
     options:
       - "7 Days"
       - "30 Days"
-      - "This Month"
+      - "By Month"
     initial: "7 Days"
     icon: mdi:calendar-range
 
