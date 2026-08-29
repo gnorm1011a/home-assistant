@@ -4,15 +4,6 @@ homeassistant:
   - /config/www/snapshots
 
 # Enables the frontend
-http:
-  ssl_certificate: /ssl/fullchain.pem
-  ssl_key: /ssl/privkey.pem
-  cors_allowed_origins:
-    - https://google.com
-    - https://www.home-assistant.io
-    - https://keitetran.github.io/BroadlinkIRTools/dist/#/
-  ip_ban_enabled: false
-  login_attempts_threshold: 5
 
 system_health:
 
@@ -57,7 +48,6 @@ logger:
 #   A0:43:B0:07:E9:E0 (Den - AC/Heat/Stereo)
 #   24:DF:A7:DF:09:EE (Guestroom - AC/Heat)
 
-template: !include template.yaml
 template: !include template.yaml
 
 
