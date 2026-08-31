@@ -450,3 +450,27 @@
       entity_only: true
     light.dining:
       entity_only: true
+- id: '1707385453557'
+  name: Movie
+  entities:
+    remote.living_room_tv_2:
+      state: 'on'
+    light.living_room:
+      color_mode: color_temp
+      brightness: 38
+      color_temp_kelvin: 2000
+      state: 'on'
+    light.kitchen:
+      state: 'off'
+    light.dining:
+      state: 'off'
+  icon: mdi:movie
+  metadata:
+    remote.living_room_tv_2:
+      entity_only: true
+    light.living_room:
+      entity_only: true
+    light.kitchen:
+      entity_only: true
+    light.dining:
+      entity_only: true
