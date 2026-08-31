@@ -1,38 +1,4 @@
-#Switches
-
-switch.plug_158d0001ded014:
-  friendly_name: Kitchen Light
-  icon: mdi:outlet
-
 #Sensors
-sensor.bom_melbourne_air_temp_c:
-  friendly_name: Air Temp
-sensor.bom_melbourne_dew_point_c:
-  friendly_name: Dew Point
-sensor.bom_melbourne_cloud:
-  friendly_name: Cloud Cover
-  icon: mdi:amazon-clouddrive
-sensor.bom_melbourne_pressure_mb:
-  friendly_name: Pressure
-sensor.bom_melbourne_delta_temp_c:
-  friendly_name: Delta Temp
-sensor.bom_melbourne_feels_like_c:
-  friendly_name: Feels Like
-sensor.bom_melbourne_rain_today:
-  friendly_name: Rain
-sensor.bom_melbourne_relative_humidity:
-  friendly_name: Humidity
-  icon: mdi:water-percent
-sensor.bom_melbourne_visability_km:
-  friendly_name: Visability
-sensor.bom_melbourne_wind_direction:
-  friendly_name: Wind Direction
-sensor.bom_melbourne_wind_gust_kmh:
-  friendly_name: Wind Gust
-  icon: mdi:weather-windy
-sensor.bom_melbourne_wind_speed_kmh:
-  friendly_name: Wind Speed
-  icon: mdi:weather-windy
 sensor.solax_a32b797b_today_s_energy:
   state_class: total_increasing
 
@@ -44,12 +10,11 @@ sensor.solax_a32b797b_grid_exported_energy:
 
 sensor.solax_a32b797b_grid_imported_energy:
   state_class:
+
 ##Power Sensors
 sensor.solax_a32b797b_power_now:
   state_class: measurement
   device_class: energy
-sensor.energy_production_today:
-  state_class: total_increasing
 
 #Light Scenes
 scene.bedroom_bright:
@@ -57,14 +22,6 @@ scene.bedroom_bright:
           https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fhuehomelighting.com%2Fwp-content%2Fuploads%2F2018%2F10%2Fbest-philips-hue-scenes.jpg&f=1&nofb=1&ipt=52ef05e8974aee054e00e285daa54dad54686048c045a643ffcd7b304349c85b&ipo=images
 scene.den_miami:
   entity_picture: /local/Hue_scenes/Miami2.jpg
-
-#Notifications
-automation.door_open:
-  icon: mdi:bell-outline
-automation.door_close:
-  icon: mdi:bell-outline
-automation.living_room_motion:
-  icon: mdi:bell-outline
 
 #Input Selects
 input_select.house_mode:
