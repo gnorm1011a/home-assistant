@@ -474,3 +474,30 @@
       entity_only: true
     light.dining:
       entity_only: true
+- id: '1707385342168'
+  name: TV
+  entities:
+    remote.living_room_tv_2:
+      state: 'on'
+    light.living_room:
+      color_mode: color_temp
+      brightness: 171
+      color_temp_kelvin: 2890
+      state: 'on'
+    light.kitchen:
+      color_mode: color_temp
+      brightness: 153
+      color_temp_kelvin: 2890
+      state: 'on'
+    light.dining:
+      state: 'off'
+  icon: mdi:television-ambient-light
+  metadata:
+    remote.living_room_tv_2:
+      entity_only: true
+    light.living_room:
+      entity_only: true
+    light.kitchen:
+      entity_only: true
+    light.dining:
+      entity_only: true

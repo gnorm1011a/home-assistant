@@ -2691,7 +2691,7 @@
   trigger:
   - platform: state
     entity_id:
-    - media_player.living_room_tv_2_2
+    - media_player.living_room_tv_2
     to: 'off'
   condition: []
   action:
@@ -2700,6 +2700,22 @@
     data: {}
     target:
       entity_id: input_boolean.movie_mode
+  mode: single
+- id: '1707385453558'
+  alias: TV - Scene turn off
+  description: Turn off TV scene when Chromecast is turned off.
+  trigger:
+  - platform: state
+    entity_id:
+    - media_player.living_room_tv_2
+    to: 'off'
+  condition: []
+  action:
+  - action: input_boolean.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.tv
   mode: single
 - id: '1725610723130'
   alias: Mads Work Departure Alert
