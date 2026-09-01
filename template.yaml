@@ -169,7 +169,7 @@
 - sensor:
     - name: "Solar Power kW"
       state: >
-        {{ (states('sensor.solax_a32b797b_power_now') | float(0) / 1000) | round(2) }}
+        {{ (states('sensor.solar_power') | float(0) / 1000) | round(2) }}
       unit_of_measurement: "kW"
       device_class: power
       availability_template: >
