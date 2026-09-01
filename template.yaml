@@ -164,7 +164,7 @@
         {{ (states('sensor.mains_power_power') | float(0) / 1000) | round(2) }}
       unit_of_measurement: "kW"
       device_class: power
-      availability_template: >
+      availability: >
         {{ states('sensor.mains_power_power') not in ['unavailable', 'unknown', 'none'] }}
 - sensor:
     - name: "Solar Power kW"
@@ -172,7 +172,7 @@
         {{ (states('sensor.solar_power') | float(0) / 1000) | round(2) }}
       unit_of_measurement: "kW"
       device_class: power
-      availability_template: >
+      availability: >
         {{ states('sensor.solar_power') not in ['unavailable', 'unknown', 'none'] }}
 
 ### Energy monitoring corrections ###
@@ -186,7 +186,7 @@
       unit_of_measurement: "W"
       device_class: power
       state_class: measurement
-      availability_template: >
+      availability: >
         {{ states('sensor.hot_water_heater_power') not in ['unavailable', 'unknown', 'none'] }}
       icon: "mdi:water-boiler"
 
@@ -198,7 +198,7 @@
         {{ ((states('sensor.hot_water_heater_power') | float(0) * -1) / 1000) | round(2) }}
       unit_of_measurement: "kW"
       device_class: power
-      availability_template: >
+      availability: >
         {{ states('sensor.hot_water_heater_power') not in ['unavailable', 'unknown', 'none'] }}
       icon: "mdi:water-boiler"
 
@@ -215,7 +215,7 @@
       unit_of_measurement: "kWh"
       device_class: energy
       state_class: total_increasing
-      availability_template: >
+      availability: >
         {{ states('sensor.hot_water_heater_energy_returned') not in ['unavailable', 'unknown', 'none'] }}
       icon: "mdi:water-boiler"
 
@@ -229,7 +229,7 @@
       unit_of_measurement: "W"
       device_class: power
       state_class: measurement
-      availability_template: >
+      availability: >
         {{ states('sensor.solax_a32b797b_pv1_power') not in ['unavailable', 'unknown', 'none'] }}
       icon: "mdi:solar-power"
 
@@ -243,7 +243,7 @@
       unit_of_measurement: "W"
       device_class: power
       state_class: measurement
-      availability_template: >
+      availability: >
         {{ states('sensor.mains_power_power') not in ['unavailable', 'unknown', 'none'] }}
       icon: "mdi:transmission-tower"
 
@@ -259,7 +259,7 @@
       unit_of_measurement: "W"
       device_class: power
       state_class: measurement
-      availability_template: >
+      availability: >
         {{ states('sensor.mains_power_power') not in ['unavailable', 'unknown', 'none'] and
            states('sensor.solax_a32b797b_pv1_power') not in ['unavailable', 'unknown', 'none'] }}
       icon: "mdi:home-lightning-bolt"
