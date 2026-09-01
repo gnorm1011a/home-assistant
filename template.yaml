@@ -173,4 +173,93 @@
       unit_of_measurement: "kW"
       device_class: power
       availability_template: >
-        {{ states('sensor.solax_a32b797b_power_now') not in ['unavailable', 'unknown', 'none'] }}
+        {{ states('sensor.solar_power') not in ['unavailable', 'unknown', 'none'] }}
+
+### Energy monitoring corrections ###
+
+# Hot water booster power - corrected (CT clamp is reversed, so negate the reading)
+- sensor:
+    - name: "Hot Water Booster Power"
+      unique_id: hot_water_booster_power_corrected
+      state: >
+        {{ (states('sensor.hot_water_heater_power') | float(0) * -1) | round(0) }}
+      unit_of_measurement: "W"
+      device_class: power
+      state_class: measurement
+      availability_template: >
+        {{ states('sensor.hot_water_heater_power') not in ['unavailable', 'unknown', 'none'] }}
+      icon: "mdi:water-boiler"
+
+# Hot water booster power in kW
+- sensor:
+    - name: "Hot Water Booster Power kW"
+      unique_id: hot_water_booster_power_kw
+      state: >
+        {{ ((states('sensor.hot_water_heater_power') | float(0) * -1) / 1000) | round(2) }}
+      unit_of_measurement: "kW"
+      device_class: power
+      availability_template: >
+        {{ states('sensor.hot_water_heater_power') not in ['unavailable', 'unknown', 'none'] }}
+      icon: "mdi:water-boiler"
+
+# Hot water booster energy - the CT clamp is reversed so consumption is being
+# recorded in energy_returned instead of energy. This template mirrors
+# energy_returned as the actual consumption counter.
+# NOTE: This should be replaced with the real energy counter once the CT clamp
+# is physically reversed by an electrician.
+- sensor:
+    - name: "Hot Water Booster Energy"
+      unique_id: hot_water_booster_energy_corrected
+      state: >
+        {{ states('sensor.hot_water_heater_energy_returned') | float(0) | round(4) }}
+      unit_of_measurement: "kWh"
+      device_class: energy
+      state_class: total_increasing
+      availability_template: >
+        {{ states('sensor.hot_water_heater_energy_returned') not in ['unavailable', 'unknown', 'none'] }}
+      icon: "mdi:water-boiler"
+
+# Solar power - corrected to use PV1 + PV2 instead of power_now which has
+# phantom nighttime readings
+- sensor:
+    - name: "Solar Power"
+      unique_id: solar_power_corrected
+      state: >
+        {{ (states('sensor.solax_a32b797b_pv1_power') | float(0) + states('sensor.solax_a32b797b_pv2_power') | float(0)) | round(0) }}
+      unit_of_measurement: "W"
+      device_class: power
+      state_class: measurement
+      availability_template: >
+        {{ states('sensor.solax_a32b797b_pv1_power') not in ['unavailable', 'unknown', 'none'] }}
+      icon: "mdi:solar-power"
+
+# Net power flow - positive = importing from grid, negative = exporting to grid
+# Uses mains_power_power which has correct sign convention (positive = import)
+- sensor:
+    - name: "Net Grid Power"
+      unique_id: net_grid_power
+      state: >
+        {{ states('sensor.mains_power_power') | float(0) | round(0) }}
+      unit_of_measurement: "W"
+      device_class: power
+      state_class: measurement
+      availability_template: >
+        {{ states('sensor.mains_power_power') not in ['unavailable', 'unknown', 'none'] }}
+      icon: "mdi:transmission-tower"
+
+# Home consumption power = grid import + solar generation (when importing)
+# or = solar generation - grid export (when exporting)
+- sensor:
+    - name: "Home Consumption Power"
+      unique_id: home_consumption_power
+      state: >
+        {% set grid = states('sensor.mains_power_power') | float(0) %}
+        {% set solar = (states('sensor.solax_a32b797b_pv1_power') | float(0) + states('sensor.solax_a32b797b_pv2_power') | float(0)) %}
+        {{ (grid + solar) | round(0) }}
+      unit_of_measurement: "W"
+      device_class: power
+      state_class: measurement
+      availability_template: >
+        {{ states('sensor.mains_power_power') not in ['unavailable', 'unknown', 'none'] and
+           states('sensor.solax_a32b797b_pv1_power') not in ['unavailable', 'unknown', 'none'] }}
+      icon: "mdi:home-lightning-bolt"
