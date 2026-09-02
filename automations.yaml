@@ -68,22 +68,47 @@
       option: Home
   mode: single
 - id: 1514e71b983c471e8a1326c33f5be956
-  alias: Presence Detection - Set house mode to 'Holiday'
-  trigger:
-  - platform: state
-    entity_id: person.adam_smith
+- id: 1514e71b983c471e8a1326c33f5be956
+  alias: Presence Detection - Holiday mode prompt
+  description: Send actionable notification after 12h away prompting to enable Holiday mode
+  triggers:
+  - entity_id: person.adam_smith
     to: not_home
     for: '12:00:00'
-  condition:
+    trigger: state
+  conditions:
   - condition: state
     entity_id: person.madeleine_moloney
     state: not_home
     for: '12:00:00'
-  action:
-  - service: input_select.select_option
-    data:
-      entity_id: input_select.house_mode
-      option: Holiday
+  - condition: state
+    entity_id: input_select.house_mode
+    state: Away
+  actions:
+  - data:
+      title: Extended absence detected
+      message: You've both been away for 12 hours. Enable Holiday mode?
+      data:
+        actions:
+        - action: enable_holiday_mode
+          title: Enable Holiday
+        - action: housesitter_staying
+          title: Housesitter staying
+        - action: dismiss_holiday_prompt
+          title: Dismiss
+    action: notify.pixel_6
+  - data:
+      title: Extended absence detected
+      message: You've both been away for 12 hours. Enable Holiday mode?
+      data:
+        actions:
+        - action: enable_holiday_mode
+          title: Enable Holiday
+        - action: housesitter_staying
+          title: Housesitter staying
+        - action: dismiss_holiday_prompt
+          title: Dismiss
+    action: notify.sm_a556e
   mode: single
 - id: c7a9d6ad319e4ee1b99eec9336dcf168
   alias: Notification - Mads arrival
@@ -1298,7 +1323,12 @@
   triggers:
   - at: '23:59:00'
     trigger: time
-  conditions: []
+  conditions:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: input_select.house_mode
+      state: Holiday
   actions:
   - data: {}
     action: light.turn_off
@@ -3835,4 +3865,186 @@
     data: {}
     target:
       entity_id: light.guestroom
+  mode: single
+
+# === Phase 2: Holiday Mode Improvements ===
+- id: 'phase2_holiday_prompt_enable'
+  alias: Holiday Prompt - Enable Holiday mode
+  description: Handle Enable Holiday button from absence notification
+  triggers:
+  - event: mobile_app_notification_action
+    event_data:
+      action: enable_holiday_mode
+    trigger: event
+  conditions: []
+  actions:
+  - action: input_select.select_option
+    data:
+      option: Holiday
+    target:
+      entity_id: input_select.house_mode
+  mode: single
+- id: 'phase2_holiday_prompt_dismiss'
+  alias: Holiday Prompt - Dismiss
+  description: Handle Dismiss button from absence notification
+  triggers:
+  - event: mobile_app_notification_action
+    event_data:
+      action: dismiss_holiday_prompt
+    trigger: event
+  conditions: []
+  actions: []
+  mode: single
+- id: 'phase2_holiday_front_light_on'
+  alias: Holiday - Front light on at sunset
+  description: Turn on front light at sunset when in Holiday mode (stays on all night)
+  triggers:
+  - event: sunset
+    offset: -00:15:00
+    trigger: sun
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state: Holiday
+  actions:
+  - metadata: {}
+    data:
+      transition: 60
+      brightness: 255
+      color_temp_kelvin: 3231
+    target:
+      entity_id: light.front_3
+    action: light.turn_on
+  mode: single
+- id: 'phase2_holiday_front_light_off'
+  alias: Holiday - Front light off at sunrise
+  description: Turn off front light at sunrise when in Holiday mode
+  triggers:
+  - event: sunrise
+    offset: 00:15:00
+    trigger: sun
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state: Holiday
+  actions:
+  - data:
+      transition: 60
+    target:
+      entity_id: light.front_3
+    action: light.turn_off
+  mode: single
+- id: 'phase2_holiday_light_sim_evening'
+  alias: Holiday - Light simulation evening on
+  description: Turn on random interior lights in the evening to simulate occupancy
+  triggers:
+  - at: '18:00:00'
+    trigger: time
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state: Holiday
+  actions:
+  - choose:
+    - alias: Random selection 1 - Living room lights
+      conditions:
+      - condition: template
+        value_template: '{{ range(1, 4) | random == 1 }}'
+      sequence:
+      - action: light.turn_on
+        data:
+          brightness_pct: 60
+          transition: 5
+        target:
+          entity_id: light.living_room
+      - delay:
+          hours: '{{ range(1, 3) | random }}'
+          minutes: 0
+          seconds: 0
+      - action: light.turn_off
+        data:
+          transition: 5
+        target:
+          entity_id: light.living_room
+    - alias: Random selection 2 - Den lights
+      conditions:
+      - condition: template
+        value_template: '{{ range(1, 4) | random == 1 }}'
+      sequence:
+      - action: light.turn_on
+        data:
+          brightness_pct: 70
+          transition: 5
+        target:
+          entity_id: light.den
+      - delay:
+          hours: '{{ range(1, 3) | random }}'
+          minutes: 0
+          seconds: 0
+      - action: light.turn_off
+        data:
+          transition: 5
+        target:
+          entity_id: light.den
+    - alias: Random selection 3 - Kitchen lights
+      conditions:
+      - condition: template
+        value_template: '{{ range(1, 4) | random == 1 }}'
+      sequence:
+      - action: light.turn_on
+        data:
+          brightness_pct: 80
+          transition: 5
+        target:
+          entity_id: light.kitchen
+      - delay:
+          hours: '{{ range(1, 3) | random }}'
+          minutes: 0
+          seconds: 0
+      - action: light.turn_off
+        data:
+          transition: 5
+        target:
+          entity_id: light.kitchen
+    - alias: Random selection 4 - Hallway light
+      conditions:
+      - condition: template
+        value_template: '{{ range(1, 4) | random == 1 }}'
+      sequence:
+      - action: light.turn_on
+        data:
+          brightness_pct: 50
+          transition: 5
+        target:
+          entity_id: light.hallway
+      - delay:
+          hours: '{{ range(1, 2) | random }}'
+          minutes: 0
+          seconds: 0
+      - action: light.turn_off
+        data:
+          transition: 5
+        target:
+          entity_id: light.hallway
+  mode: single
+- id: 'phase2_holiday_light_sim_off'
+  alias: Holiday - Light simulation off at 10pm
+  description: Turn off all simulation lights at 10pm
+  triggers:
+  - at: '22:00:00'
+    trigger: time
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state: Holiday
+  actions:
+  - action: light.turn_off
+    data:
+      transition: 30
+    target:
+      entity_id:
+      - light.living_room
+      - light.den
+      - light.kitchen
+      - light.hallway
   mode: single
