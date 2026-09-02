@@ -28,7 +28,10 @@
   triggers:
   - entity_id: input_select.house_mode
     to: Holiday
-    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.housesitter_mode
+    state: 'off'
   actions:
   - action: alarm_control_panel.alarm_arm_away
     data: {}
@@ -3904,6 +3907,9 @@
     trigger: sun
   conditions:
   - condition: state
+  - condition: state
+    entity_id: input_boolean.housesitter_mode
+    state: 'off'
     entity_id: input_select.house_mode
     state: Holiday
   actions:
@@ -3925,6 +3931,9 @@
     trigger: sun
   conditions:
   - condition: state
+  - condition: state
+    entity_id: input_boolean.housesitter_mode
+    state: 'off'
     entity_id: input_select.house_mode
     state: Holiday
   actions:
@@ -3944,6 +3953,9 @@
   - condition: state
     entity_id: input_select.house_mode
     state: Holiday
+  - condition: state
+    entity_id: input_boolean.housesitter_mode
+    state: 'off'
   actions:
   - choose:
     - alias: Random selection 1 - Living room lights
@@ -4037,6 +4049,9 @@
   - condition: state
     entity_id: input_select.house_mode
     state: Holiday
+  - condition: state
+    entity_id: input_boolean.housesitter_mode
+    state: 'off'
   actions:
   - action: light.turn_off
     data:
@@ -4047,4 +4062,80 @@
       - light.den
       - light.kitchen
       - light.hallway
+  mode: single
+
+# === Phase 3: Housesitter Mode ===
+- id: 'phase3_housesitter_prompt'
+  alias: Holiday Prompt - Housesitter staying
+  description: Handle Housesitter staying button from absence notification
+  triggers:
+  - event: mobile_app_notification_action
+    event_data:
+      action: housesitter_staying
+    trigger: event
+  conditions: []
+  actions:
+  - action: input_boolean.turn_on
+    data: {}
+    target:
+      entity_id: input_boolean.housesitter_mode
+  - action: input_select.select_option
+    data:
+      option: Holiday
+    target:
+      entity_id: input_select.house_mode
+  mode: single
+- id: 'phase3_housesitter_mode_on'
+  alias: Housesitter - Mode enabled
+  description: Adjust house behavior when housesitter mode is turned on during Holiday
+  triggers:
+  - entity_id: input_boolean.housesitter_mode
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state: Holiday
+  actions:
+  - action: alarm_control_panel.alarm_disarm
+    data: {}
+    target:
+      entity_id: alarm_control_panel.alarmo
+  - action: input_boolean.turn_on
+    data: {}
+    target:
+      entity_id: input_boolean.guestroom_motion_lights
+  - action: input_boolean.turn_on
+    data: {}
+    target:
+      entity_id: input_boolean.guest_mode
+  mode: single
+- id: 'phase3_housesitter_mode_off'
+  alias: Housesitter - Mode disabled
+  description: Restore Holiday security when housesitter mode is turned off
+  triggers:
+  - entity_id: input_boolean.housesitter_mode
+    to: 'off'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state: Holiday
+  actions:
+  - action: alarm_control_panel.alarm_arm_away
+    data: {}
+    target:
+      entity_id: alarm_control_panel.alarmo
+  - action: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.guest_mode
+  - action: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.guestroom_motion_lights
+  - action: light.turn_off
+    data: {}
+    target:
+      entity_id: light.guestroom
   mode: single
