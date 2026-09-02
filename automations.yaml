@@ -3908,11 +3908,11 @@
     trigger: sun
   conditions:
   - condition: state
+    entity_id: input_select.house_mode
+    state: Holiday
   - condition: state
     entity_id: input_boolean.housesitter_mode
     state: 'off'
-    entity_id: input_select.house_mode
-    state: Holiday
   actions:
   - metadata: {}
     data:
@@ -3932,11 +3932,11 @@
     trigger: sun
   conditions:
   - condition: state
+    entity_id: input_select.house_mode
+    state: Holiday
   - condition: state
     entity_id: input_boolean.housesitter_mode
     state: 'off'
-    entity_id: input_select.house_mode
-    state: Holiday
   actions:
   - data:
       transition: 60
