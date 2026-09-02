@@ -28,6 +28,7 @@
   triggers:
   - entity_id: input_select.house_mode
     to: Holiday
+    trigger: state
   conditions:
   - condition: state
     entity_id: input_boolean.housesitter_mode
