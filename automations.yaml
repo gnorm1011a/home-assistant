@@ -43,7 +43,7 @@
     entity_id: person.adam_smith
     to: not_home
     from: home
-    for: '10'
+    for: 00:15:00
   condition:
   - condition: state
     entity_id: person.madeleine_moloney
@@ -320,7 +320,7 @@
     entity_id: person.madeleine_moloney
     to: not_home
     from: home
-    for: '10'
+    for: 00:15:00
   condition:
   - condition: state
     entity_id: person.adam_smith
@@ -3730,4 +3730,109 @@
     - service: input_boolean.turn_off
       target:
         entity_id: input_boolean.sensor_offline_notified
+  mode: single
+
+# === Phase 1: Presence-State Management ===
+- id: 'phase1_away_mode_alarmo'
+  alias: Presence Detection - Away mode
+  description: Arm Alarmo away and turn off interior lights when house mode is set to Away
+  triggers:
+  - entity_id: input_select.house_mode
+    to: Away
+    trigger: state
+  conditions: []
+  actions:
+  - action: alarm_control_panel.alarm_arm_away
+    data: {}
+    target:
+      entity_id: alarm_control_panel.alarmo
+  - action: light.turn_off
+    data: {}
+    target:
+      entity_id: light.inside_lights
+  mode: single
+- id: 'phase1_away_mode_motion_lights'
+  alias: Presence - Away mode disable interior motion lights
+  description: Disable interior motion light booleans when Away mode is set
+  triggers:
+  - entity_id: input_select.house_mode
+    to: Away
+    trigger: state
+  conditions: []
+  actions:
+  - action: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id:
+      - input_boolean.bathroom_motion_lights
+      - input_boolean.bedroom_motion_lights
+      - input_boolean.ensuite_motion_lights
+      - input_boolean.living_room_motion_lights
+      - input_boolean.kitchen_motion_lights
+      - input_boolean.dining_motion_lights
+      - input_boolean.upstairs_motion_lights
+      - input_boolean.den_motion_lights
+      - input_boolean.pantry_auto_lights
+      - input_boolean.laundry_auto_lights
+  - choose:
+    - alias: Guest is staying - keep guestroom motion lights
+      conditions:
+      - condition: state
+        entity_id: input_boolean.guest_mode
+        state: 'on'
+      sequence: []
+    default:
+    - action: input_boolean.turn_off
+      data: {}
+      target:
+        entity_id: input_boolean.guestroom_motion_lights
+  mode: single
+- id: 'phase1_home_mode_restore'
+  alias: Presence - Home mode restore motion lights
+  description: Re-enable motion light booleans when returning home
+  triggers:
+  - entity_id: input_select.house_mode
+    to: Home
+    trigger: state
+  conditions: []
+  actions:
+  - action: input_boolean.turn_on
+    data: {}
+    target:
+      entity_id:
+      - input_boolean.bathroom_motion_lights
+      - input_boolean.pantry_auto_lights
+      - input_boolean.laundry_auto_lights
+  mode: single
+- id: 'phase1_guest_mode_on'
+  alias: Guest Mode - Enable guestroom motion lights
+  description: Turn on guestroom motion lights when guest mode is enabled
+  triggers:
+  - entity_id: input_boolean.guest_mode
+    to: 'on'
+    trigger: state
+  conditions: []
+  actions:
+  - action: input_boolean.turn_on
+    data: {}
+    target:
+      entity_id: input_boolean.guestroom_motion_lights
+  mode: single
+- id: 'phase1_guest_mode_off'
+  alias: Guest Mode - Disable guestroom motion lights
+  description: Turn off guestroom motion lights and guestroom light when guest mode is disabled
+  triggers:
+  - entity_id: input_boolean.guest_mode
+    to: 'off'
+    trigger: state
+  conditions: []
+  actions:
+  - action: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.guestroom_motion_lights
+  - action: light.turn_off
+    data: {}
+    target:
+      entity_id: light.guestroom
   mode: single
