@@ -4140,3 +4140,423 @@
     target:
       entity_id: light.guestroom
   mode: single
+
+# === Phase 4: Security Alerts ===
+- id: 'phase4_security_garage_person'
+  alias: Security - Garage person detected
+  description: Alert when person detected by garage camera while away or on holiday
+  triggers:
+  - entity_id: binary_sensor.garage_person
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state:
+    - Away
+    - Holiday
+  - condition: state
+    entity_id: input_boolean.housesitter_mode
+    state: 'off'
+  actions:
+  - data:
+      filename: /config/www/security-garage.jpg
+    action: camera.snapshot
+    target:
+      entity_id: camera.garage_fluent
+  - data:
+      title: Security Alert - Garage
+      message: Person detected at garage
+      data:
+        image: https://parkplace.duckdns.org:8123/local/security-garage.jpg
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.pixel_6
+  - data:
+      title: Security Alert - Garage
+      message: Person detected at garage
+      data:
+        image: https://parkplace.duckdns.org:8123/local/security-garage.jpg
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.sm_a556e
+  mode: single
+- id: 'phase4_security_patio_person'
+  alias: Security - Patio person detected
+  description: Alert when person detected by patio camera while away or on holiday
+  triggers:
+  - entity_id: binary_sensor.camera1_person_3
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state:
+    - Away
+    - Holiday
+  - condition: state
+    entity_id: input_boolean.housesitter_mode
+    state: 'off'
+  actions:
+  - data:
+      filename: /config/www/security-patio.jpg
+    action: camera.snapshot
+    target:
+      entity_id: camera.camera1_fluent_3
+  - data:
+      title: Security Alert - Patio
+      message: Person detected at patio
+      data:
+        image: https://parkplace.duckdns.org:8123/local/security-patio.jpg
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.pixel_6
+  - data:
+      title: Security Alert - Patio
+      message: Person detected at patio
+      data:
+        image: https://parkplace.duckdns.org:8123/local/security-patio.jpg
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.sm_a556e
+  mode: single
+- id: 'phase4_security_side_person'
+  alias: Security - Side person detected
+  description: Alert when person detected by side camera while away or on holiday
+  triggers:
+  - entity_id: binary_sensor.side_person
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state:
+    - Away
+    - Holiday
+  - condition: state
+    entity_id: input_boolean.housesitter_mode
+    state: 'off'
+  actions:
+  - data:
+      filename: /config/www/security-side.jpg
+    action: camera.snapshot
+    target:
+      entity_id: camera.side_fluent
+  - data:
+      title: Security Alert - Side
+      message: Person detected at side of house
+      data:
+        image: https://parkplace.duckdns.org:8123/local/security-side.jpg
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.pixel_6
+  - data:
+      title: Security Alert - Side
+      message: Person detected at side of house
+      data:
+        image: https://parkplace.duckdns.org:8123/local/security-side.jpg
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.sm_a556e
+  mode: single
+- id: 'phase4_security_rear_person'
+  alias: Security - Rear person detected
+  description: Alert when person detected by rear camera while away or on holiday
+  triggers:
+  - entity_id: binary_sensor.rear_person
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state:
+    - Away
+    - Holiday
+  - condition: state
+    entity_id: input_boolean.housesitter_mode
+    state: 'off'
+  actions:
+  - data:
+      filename: /config/www/security-rear.jpg
+    action: camera.snapshot
+    target:
+      entity_id: camera.rear_fluent
+  - data:
+      title: Security Alert - Rear
+      message: Person detected at rear of house
+      data:
+        image: https://parkplace.duckdns.org:8123/local/security-rear.jpg
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.pixel_6
+  - data:
+      title: Security Alert - Rear
+      message: Person detected at rear of house
+      data:
+        image: https://parkplace.duckdns.org:8123/local/security-rear.jpg
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.sm_a556e
+  mode: single
+- id: 'phase4_security_backyard_shed'
+  alias: Security - Backyard shed motion detected
+  description: Alert when motion detected by backyard shed sensor while away or on holiday
+  triggers:
+  - entity_id: binary_sensor.hue_outdoor_motion_sensor_1_motion
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state:
+    - Away
+    - Holiday
+  - condition: state
+    entity_id: input_boolean.housesitter_mode
+    state: 'off'
+  actions:
+  - data:
+      title: Security Alert - Backyard (Shed)
+      message: Motion detected at backyard shed
+      data:
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.pixel_6
+  - data:
+      title: Security Alert - Backyard (Shed)
+      message: Motion detected at backyard shed
+      data:
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.sm_a556e
+  mode: single
+- id: 'phase4_security_backyard_house'
+  alias: Security - Backyard house motion detected
+  description: Alert when motion detected by backyard house sensor while away or on holiday
+  triggers:
+  - entity_id: binary_sensor.hue_outdoor_motion_sensor_2_motion
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state:
+    - Away
+    - Holiday
+  - condition: state
+    entity_id: input_boolean.housesitter_mode
+    state: 'off'
+  actions:
+  - data:
+      title: Security Alert - Backyard (House)
+      message: Motion detected at backyard of house
+      data:
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.pixel_6
+  - data:
+      title: Security Alert - Backyard (House)
+      message: Motion detected at backyard of house
+      data:
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.sm_a556e
+  mode: single
+- id: 'phase4_security_front_door_opened'
+  alias: Security - Front door opened while away
+  description: Alert when front door is opened while away or on holiday
+  triggers:
+  - entity_id: binary_sensor.lumi_lumi_sensor_magnet_opening
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state:
+    - Away
+    - Holiday
+  - condition: state
+    entity_id: input_boolean.housesitter_mode
+    state: 'off'
+  actions:
+  - data:
+      filename: /config/www/security-front-door.jpg
+    action: camera.snapshot
+    target:
+      entity_id: camera.front_door_fluent
+  - data:
+      title: Security Alert - Front Door
+      message: Front door has been opened
+      data:
+        image: https://parkplace.duckdns.org:8123/local/security-front-door.jpg
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.pixel_6
+  - data:
+      title: Security Alert - Front Door
+      message: Front door has been opened
+      data:
+        image: https://parkplace.duckdns.org:8123/local/security-front-door.jpg
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.sm_a556e
+  mode: single
+- id: 'phase4_security_back_door_opened'
+  alias: Security - Back door opened while away
+  description: Alert when back door is opened while away or on holiday
+  triggers:
+  - entity_id: binary_sensor.lumi_lumi_sensor_magnet_b586cf03_on_off
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state:
+    - Away
+    - Holiday
+  - condition: state
+    entity_id: input_boolean.housesitter_mode
+    state: 'off'
+  actions:
+  - data:
+      filename: /config/www/security-back-door.jpg
+    action: camera.snapshot
+    target:
+      entity_id: camera.rear_fluent
+  - data:
+      title: Security Alert - Back Door
+      message: Back door has been opened
+      data:
+        image: https://parkplace.duckdns.org:8123/local/security-back-door.jpg
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.pixel_6
+  - data:
+      title: Security Alert - Back Door
+      message: Back door has been opened
+      data:
+        image: https://parkplace.duckdns.org:8123/local/security-back-door.jpg
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.sm_a556e
+  mode: single
+- id: 'phase4_security_garage_rollerdoor_opened'
+  alias: Security - Garage rollerdoor opened while away
+  description: Alert when garage rollerdoor is opened while away or on holiday
+  triggers:
+  - entity_id: binary_sensor.lumi_lumi_sensor_magnet_opening_3
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state:
+    - Away
+    - Holiday
+  - condition: state
+    entity_id: input_boolean.housesitter_mode
+    state: 'off'
+  actions:
+  - data:
+      filename: /config/www/security-garage-door.jpg
+    action: camera.snapshot
+    target:
+      entity_id: camera.garage_fluent
+  - data:
+      title: Security Alert - Garage Door
+      message: Garage rollerdoor has been opened
+      data:
+        image: https://parkplace.duckdns.org:8123/local/security-garage-door.jpg
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.pixel_6
+  - data:
+      title: Security Alert - Garage Door
+      message: Garage rollerdoor has been opened
+      data:
+        image: https://parkplace.duckdns.org:8123/local/security-garage-door.jpg
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.sm_a556e
+  mode: single
+- id: 'phase4_security_sliding_doors_opened'
+  alias: Security - Sliding doors opened while away
+  description: Alert when any sliding door is opened while away or on holiday
+  triggers:
+  - entity_id: binary_sensor.door_sensor_7_iaszone
+    to: 'on'
+    trigger: state
+  - entity_id: binary_sensor.door_sensor_8_iaszone
+    to: 'on'
+    trigger: state
+  - entity_id: binary_sensor.door_sensor_10_iaszone
+    to: 'on'
+    trigger: state
+  - entity_id: binary_sensor.lumi_lumi_sensor_magnet_opening_4
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state:
+    - Away
+    - Holiday
+  - condition: state
+    entity_id: input_boolean.housesitter_mode
+    state: 'off'
+  actions:
+  - data:
+      title: Security Alert - Sliding Door
+      message: 'A sliding door has been opened: {{ trigger.to_state.attributes.friendly_name }}'
+      data:
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.pixel_6
+  - data:
+      title: Security Alert - Sliding Door
+      message: 'A sliding door has been opened: {{ trigger.to_state.attributes.friendly_name }}'
+      data:
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.sm_a556e
+  mode: single
