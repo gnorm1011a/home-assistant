@@ -841,9 +841,6 @@
       seconds: 0
   conditions:
   - condition: state
-    entity_id: input_boolean.front_motion_lights
-    state: 'on'
-  - condition: state
     entity_id: light.front_3
     state: 'on'
   actions:
