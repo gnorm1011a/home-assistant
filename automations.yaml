@@ -4560,3 +4560,119 @@
           uri: app://com.mcu.reolink
     action: notify.sm_a556e
   mode: single
+
+# === Watchman Location Feature ===
+- id: 'watchman_set_location'
+  alias: Watchman - Set Location
+  description: Store Mads current GPS coordinates as the watchman location when button is pressed
+  triggers:
+  - entity_id: input_button.set_watchman_location
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.watchman
+    state: 'on'
+  - condition: template
+    value_template: >
+      {{ state_attr('person.madeleine_moloney', 'latitude') is not none and
+         state_attr('person.madeleine_moloney', 'longitude') is not none }}
+  actions:
+  - action: input_number.set_value
+    data:
+      value: '{{ state_attr(''person.madeleine_moloney'', ''latitude'') }}'
+    target:
+      entity_id: input_number.watchman_lat
+  - action: input_number.set_value
+    data:
+      value: '{{ state_attr(''person.madeleine_moloney'', ''longitude'') }}'
+    target:
+      entity_id: input_number.watchman_lon
+  - data:
+      title: Watchman Location Set
+      message: >-
+        Location set to Mads current position. 1km buffer active.
+        {{ state_attr('person.madeleine_moloney', 'latitude') }},
+        {{ state_attr('person.madeleine_moloney', 'longitude') }}
+    action: notify.pixel_6
+  mode: single
+- id: 'watchman_set_location_error'
+  alias: Watchman - Set Location Error
+  description: Notify if Set Location pressed but Mads location is unavailable
+  triggers:
+  - entity_id: input_button.set_watchman_location
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.watchman
+    state: 'on'
+  - condition: template
+    value_template: >
+      {{ state_attr('person.madeleine_moloney', 'latitude') is none or
+         state_attr('person.madeleine_moloney', 'longitude') is none }}
+  actions:
+  - data:
+      title: Watchman Location Error
+      message: Cannot set location - Mads GPS position is unavailable
+    action: notify.pixel_6
+  mode: single
+- id: 'watchman_location_alert'
+  alias: Watchman - Location breach alert
+  description: Alert when Mads moves more than 1km from the set watchman location
+  triggers:
+  - entity_id: sensor.watchman_mads_distance
+    above: 1000
+    trigger: numeric_state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.watchman
+    state: 'on'
+  - condition: template
+    value_template: '{{ state_attr(''sensor.watchman_mads_distance'', ''location_set'') }}'
+  actions:
+  - action: light.turn_on
+    data:
+      brightness_pct: 100
+      kelvin: 2984
+      flash: short
+    target:
+      entity_id:
+      - light.top_lamp
+      - light.bottom_lamp
+  - data:
+      title: Watchman Alert
+      message: >-
+        Mads has moved {{ states('sensor.watchman_mads_distance') }}m from the
+        set location (exceeded 1km buffer)
+      data:
+        actions:
+        - action: URI
+          title: View Mads Location
+          uri: /config/person
+    action: notify.pixel_6
+  - action: notify.desktop_ha
+    data:
+      title: Watchman Alert
+      message: >-
+        Mads has moved {{ states('sensor.watchman_mads_distance') }}m from the
+        set location (exceeded 1km buffer)
+  mode: single
+- id: 'watchman_reset_location'
+  alias: Watchman - Reset location on disable
+  description: Clear stored watchman location coordinates when watchman is disabled
+  triggers:
+  - entity_id: input_boolean.watchman
+    to: 'off'
+    trigger: state
+  conditions: []
+  actions:
+  - action: input_number.set_value
+    data:
+      value: 0
+    target:
+      entity_id: input_number.watchman_lat
+  - action: input_number.set_value
+    data:
+      value: 0
+    target:
+      entity_id: input_number.watchman_lon
+  mode: single
