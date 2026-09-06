@@ -4581,12 +4581,12 @@
     data:
       value: '{{ state_attr(''person.madeleine_moloney'', ''latitude'') }}'
     target:
-      entity_id: input_number.watchman_lat
+      entity_id: input_number.watchman_latitude
   - action: input_number.set_value
     data:
       value: '{{ state_attr(''person.madeleine_moloney'', ''longitude'') }}'
     target:
-      entity_id: input_number.watchman_lon
+      entity_id: input_number.watchman_longitude
   - data:
       title: Watchman Location Set
       message: >-
@@ -4669,10 +4669,10 @@
     data:
       value: 0
     target:
-      entity_id: input_number.watchman_lat
+      entity_id: input_number.watchman_latitude
   - action: input_number.set_value
     data:
       value: 0
     target:
-      entity_id: input_number.watchman_lon
+      entity_id: input_number.watchman_longitude
   mode: single
