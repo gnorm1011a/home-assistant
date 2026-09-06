@@ -6518,6 +6518,21 @@
                 {
                   "type": "custom:mushroom-select-card",
                   "entity": "input_select.garden_light_scenes"
+                },
+                {
+                  "type": "map",
+                  "entities": [
+                    "person.madeleine_moloney"
+                  ],
+                  "hours_to_show": 24,
+                  "theme_mode": "auto",
+                  "visibility": [
+                    {
+                      "condition": "state",
+                      "entity": "input_boolean.watchman",
+                      "state": "on"
+                    }
+                  ]
                 }
               ]
             },
