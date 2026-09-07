@@ -2766,21 +2766,6 @@
       message: Mads has left work zone
   mode: single
 - id: '1725610856466'
-  alias: Mads Home Arrival Alert
-  description: ''
-  trigger:
-  - platform: zone
-    entity_id: person.madeleine_moloney
-    zone: zone.home
-    event: enter
-  condition: []
-  action:
-  - action: notify.mobile_app_pixel_6
-    metadata: {}
-    data:
-      data: {}
-      title: Movement alert
-      message: Mads has entered home zone
   mode: single
 - id: '1725627831165'
   alias: Pet Food Low Notification
