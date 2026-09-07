@@ -124,9 +124,9 @@
     trigger: state
   actions:
   - data:
-      message: Mads Departure
-      title: Mads has left home
-      data: Notice
+      message: Mads has arrived home
+      title: Mads Arrival
+      data: {}
     action: notify.mobile_app_pixel_6
   mode: single
 - id: da9d89c9867947cd97f2b8e0d4df4739
