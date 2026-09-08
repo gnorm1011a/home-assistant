@@ -507,9 +507,6 @@
     trigger: state
   conditions:
   - condition: state
-    entity_id: input_boolean.bathroom_motion_lights
-    state: 'on'
-  - condition: state
     entity_id: light.gledopto_led_light_cct
     state: 'on'
   actions:
@@ -548,9 +545,6 @@
     - binary_sensor.front_entry
     to: 'off'
   condition:
-  - condition: state
-    entity_id: input_boolean.entry_motion_lights
-    state: 'on'
   - condition: state
     entity_id: light.hallway_light
     state: 'on'
@@ -690,9 +684,6 @@
     trigger: state
   conditions:
   - condition: state
-    entity_id: input_boolean.kitchen_motion_lights
-    state: 'on'
-  - condition: state
     entity_id: light.kitchen
     state: 'on'
   actions:
@@ -733,9 +724,6 @@
   condition:
   - condition: state
     entity_id: light.bedroom
-    state: 'on'
-  - condition: state
-    entity_id: input_boolean.bedroom_motion_lights
     state: 'on'
   action:
   - service: light.turn_off
@@ -818,9 +806,6 @@
     - binary_sensor.upstairs
     to: 'off'
   condition:
-  - condition: state
-    entity_id: input_boolean.upstairs_motion_lights
-    state: 'on'
   - condition: state
     entity_id: light.upstairs_2
     state: 'on'
@@ -946,9 +931,6 @@
       seconds: 0
   condition:
   - condition: state
-    entity_id: input_boolean.side_motion_lights
-    state: 'on'
-  - condition: state
     entity_id: light.side
     state: 'on'
   action:
@@ -999,9 +981,6 @@
       minutes: 3
       seconds: 0
   condition:
-  - condition: state
-    entity_id: input_boolean.studio_motion_lights
-    state: 'on'
   - condition: state
     entity_id: light.studio_lamp_light
     state: 'on'
@@ -1086,9 +1065,6 @@
   condition:
   - condition: state
     entity_id: light.guestroom
-    state: 'on'
-  - condition: state
-    entity_id: input_boolean.guestroom_motion_lights
     state: 'on'
   action:
   - service: light.turn_off
@@ -1497,9 +1473,6 @@
     - binary_sensor.motion_6
     to: 'off'
   condition:
-  - condition: state
-    entity_id: input_boolean.pantry_auto_lights
-    state: 'on'
   - condition: state
     entity_id: switch.mains_pantry_switch_0
     state: 'on'
