@@ -1035,7 +1035,8 @@
   mode: single
 - id: '1682070122692'
   alias: Motion Light Toggle - Sunsise turn off
-  description: Turn off motion light toggles just after sunrise
+  description: Turn off motion light toggles just after sunrise, and turn off any
+    lights left on where no motion is detected
   trigger:
   - platform: sun
     event: sunrise
@@ -1053,6 +1054,79 @@
       - input_boolean.bathroom_motion_lights
       - input_boolean.guestroom_motion_lights
       - input_boolean.entry_motion_lights
+  - choose:
+    - alias: Front - no motion, turn off light
+      conditions:
+      - condition: state
+        entity_id: binary_sensor.motion_7
+        state: 'off'
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.front_3
+    - alias: Side - no motion, turn off light
+      conditions:
+      - condition: state
+        entity_id: binary_sensor.motion_4
+        state: 'off'
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.side
+    - alias: Patio - no motion, turn off light
+      conditions:
+      - condition: state
+        entity_id: binary_sensor.patio
+        state: 'off'
+      sequence:
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.mains_patio_hallway_switch_0
+    - alias: Ensuite - no motion, turn off light
+      conditions:
+      - condition: state
+        entity_id: binary_sensor.ensuite
+        state: 'off'
+      sequence:
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id:
+          - switch.mains_ensuite_switch_0
+          - switch.mains_ensuite_switch_1
+    - alias: Bathroom - no motion, turn off light
+      conditions:
+      - condition: state
+        entity_id: binary_sensor.motion_bathroom
+        state: 'off'
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.bathroom
+    - alias: Guestroom - no motion, turn off light
+      conditions:
+      - condition: state
+        entity_id: binary_sensor.motion_6
+        state: 'off'
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.guestroom
+    - alias: Entry - no motion, turn off light
+      conditions:
+      - condition: state
+        entity_id: binary_sensor.front_entry
+        state: 'off'
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.hallway_light
   mode: single
 - id: '1684991212368'
   alias: Motion Lights - Guestroom turn on
