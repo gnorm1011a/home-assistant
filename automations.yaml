@@ -100,7 +100,7 @@
           title: Housesitter staying
         - action: dismiss_holiday_prompt
           title: Dismiss
-    action: notify.pixel_6
+    action: notify.mobile_app_pixel_6
   - data:
       title: Extended absence detected
       message: You've both been away for 12 hours. Enable Holiday mode?
@@ -112,7 +112,7 @@
           title: Housesitter staying
         - action: dismiss_holiday_prompt
           title: Dismiss
-    action: notify.sm_a556e
+    action: notify.mobile_app_sm_a556e
   mode: single
 - id: c7a9d6ad319e4ee1b99eec9336dcf168
   alias: Notification - Mads arrival
@@ -3950,7 +3950,7 @@
   alias: Holiday Prompt - Enable Holiday mode
   description: Handle Enable Holiday button from absence notification
   triggers:
-  - event: mobile_app_notification_action
+  - event_type: mobile_app_notification_action
     event_data:
       action: enable_holiday_mode
     trigger: event
@@ -3966,7 +3966,7 @@
   alias: Holiday Prompt - Dismiss
   description: Handle Dismiss button from absence notification
   triggers:
-  - event: mobile_app_notification_action
+  - event_type: mobile_app_notification_action
     event_data:
       action: dismiss_holiday_prompt
     trigger: event
@@ -4144,7 +4144,7 @@
   alias: Holiday Prompt - Housesitter staying
   description: Handle Housesitter staying button from absence notification
   triggers:
-  - event: mobile_app_notification_action
+  - event_type: mobile_app_notification_action
     event_data:
       action: housesitter_staying
     trigger: event
@@ -4247,7 +4247,7 @@
         - action: URI
           title: View Live Feed
           uri: app://com.mcu.reolink
-    action: notify.pixel_6
+    action: notify.mobile_app_pixel_6
   - data:
       title: Security Alert - Garage
       message: Person detected at garage
@@ -4257,7 +4257,7 @@
         - action: URI
           title: View Live Feed
           uri: app://com.mcu.reolink
-    action: notify.sm_a556e
+    action: notify.mobile_app_sm_a556e
   mode: single
 - id: 'phase4_security_patio_person'
   alias: Security - Patio person detected
@@ -4290,7 +4290,7 @@
         - action: URI
           title: View Live Feed
           uri: app://com.mcu.reolink
-    action: notify.pixel_6
+    action: notify.mobile_app_pixel_6
   - data:
       title: Security Alert - Patio
       message: Person detected at patio
@@ -4300,7 +4300,7 @@
         - action: URI
           title: View Live Feed
           uri: app://com.mcu.reolink
-    action: notify.sm_a556e
+    action: notify.mobile_app_sm_a556e
   mode: single
 - id: 'phase4_security_side_person'
   alias: Security - Side person detected
@@ -4333,7 +4333,7 @@
         - action: URI
           title: View Live Feed
           uri: app://com.mcu.reolink
-    action: notify.pixel_6
+    action: notify.mobile_app_pixel_6
   - data:
       title: Security Alert - Side
       message: Person detected at side of house
@@ -4343,7 +4343,7 @@
         - action: URI
           title: View Live Feed
           uri: app://com.mcu.reolink
-    action: notify.sm_a556e
+    action: notify.mobile_app_sm_a556e
   mode: single
 - id: 'phase4_security_rear_person'
   alias: Security - Rear person detected
@@ -4376,7 +4376,7 @@
         - action: URI
           title: View Live Feed
           uri: app://com.mcu.reolink
-    action: notify.pixel_6
+    action: notify.mobile_app_pixel_6
   - data:
       title: Security Alert - Rear
       message: Person detected at rear of house
@@ -4386,7 +4386,7 @@
         - action: URI
           title: View Live Feed
           uri: app://com.mcu.reolink
-    action: notify.sm_a556e
+    action: notify.mobile_app_sm_a556e
   mode: single
 - id: 'phase4_security_backyard_shed'
   alias: Security - Backyard shed motion detected
@@ -4413,7 +4413,7 @@
         - action: URI
           title: View Live Feed
           uri: app://com.mcu.reolink
-    action: notify.pixel_6
+    action: notify.mobile_app_pixel_6
   - data:
       title: Security Alert - Backyard (Shed)
       message: Motion detected at backyard shed
@@ -4422,7 +4422,7 @@
         - action: URI
           title: View Live Feed
           uri: app://com.mcu.reolink
-    action: notify.sm_a556e
+    action: notify.mobile_app_sm_a556e
   mode: single
 - id: 'phase4_security_backyard_house'
   alias: Security - Backyard house motion detected
@@ -4449,7 +4449,7 @@
         - action: URI
           title: View Live Feed
           uri: app://com.mcu.reolink
-    action: notify.pixel_6
+    action: notify.mobile_app_pixel_6
   - data:
       title: Security Alert - Backyard (House)
       message: Motion detected at backyard of house
@@ -4458,7 +4458,7 @@
         - action: URI
           title: View Live Feed
           uri: app://com.mcu.reolink
-    action: notify.sm_a556e
+    action: notify.mobile_app_sm_a556e
   mode: single
 - id: 'phase4_security_front_door_opened'
   alias: Security - Front door opened while away
@@ -4491,7 +4491,7 @@
         - action: URI
           title: View Live Feed
           uri: app://com.mcu.reolink
-    action: notify.pixel_6
+    action: notify.mobile_app_pixel_6
   - data:
       title: Security Alert - Front Door
       message: Front door has been opened
@@ -4501,7 +4501,7 @@
         - action: URI
           title: View Live Feed
           uri: app://com.mcu.reolink
-    action: notify.sm_a556e
+    action: notify.mobile_app_sm_a556e
   mode: single
 - id: 'phase4_security_back_door_opened'
   alias: Security - Back door opened while away
@@ -4534,7 +4534,7 @@
         - action: URI
           title: View Live Feed
           uri: app://com.mcu.reolink
-    action: notify.pixel_6
+    action: notify.mobile_app_pixel_6
   - data:
       title: Security Alert - Back Door
       message: Back door has been opened
@@ -4544,7 +4544,7 @@
         - action: URI
           title: View Live Feed
           uri: app://com.mcu.reolink
-    action: notify.sm_a556e
+    action: notify.mobile_app_sm_a556e
   mode: single
 - id: 'phase4_security_garage_rollerdoor_opened'
   alias: Security - Garage rollerdoor opened while away
@@ -4577,7 +4577,7 @@
         - action: URI
           title: View Live Feed
           uri: app://com.mcu.reolink
-    action: notify.pixel_6
+    action: notify.mobile_app_pixel_6
   - data:
       title: Security Alert - Garage Door
       message: Garage rollerdoor has been opened
@@ -4587,7 +4587,7 @@
         - action: URI
           title: View Live Feed
           uri: app://com.mcu.reolink
-    action: notify.sm_a556e
+    action: notify.mobile_app_sm_a556e
   mode: single
 - id: 'phase4_security_sliding_doors_opened'
   alias: Security - Sliding doors opened while away
@@ -4623,7 +4623,7 @@
         - action: URI
           title: View Live Feed
           uri: app://com.mcu.reolink
-    action: notify.pixel_6
+    action: notify.mobile_app_pixel_6
   - data:
       title: Security Alert - Sliding Door
       message: 'A sliding door has been opened: {{ trigger.to_state.attributes.friendly_name }}'
@@ -4632,7 +4632,7 @@
         - action: URI
           title: View Live Feed
           uri: app://com.mcu.reolink
-    action: notify.sm_a556e
+    action: notify.mobile_app_sm_a556e
   mode: single
 
 # === Watchman Location Feature ===
@@ -4667,7 +4667,7 @@
         Location set to Mads current position. 1km buffer active.
         {{ state_attr('person.madeleine_moloney', 'latitude') }},
         {{ state_attr('person.madeleine_moloney', 'longitude') }}
-    action: notify.pixel_6
+    action: notify.mobile_app_pixel_6
   mode: single
 - id: 'watchman_set_location_error'
   alias: Watchman - Set Location Error
@@ -4687,7 +4687,7 @@
   - data:
       title: Watchman Location Error
       message: Cannot set location - Mads GPS position is unavailable
-    action: notify.pixel_6
+    action: notify.mobile_app_pixel_6
   mode: single
 - id: 'watchman_location_alert'
   alias: Watchman - Location breach alert
@@ -4722,8 +4722,8 @@
         - action: URI
           title: View Mads Location
           uri: /config/person
-    action: notify.pixel_6
-  - action: notify.desktop_ha
+    action: notify.mobile_app_pixel_6
+  - action: notify.mobile_app_desktop_ha
     data:
       title: Watchman Alert
       message: >-

@@ -5730,7 +5730,7 @@
                                     "service": "scene.turn_on",
                                     "data": {},
                                     "target": {
-                                      "entity_id": "scene.buro_entspannen"
+                                      "entity_id": "scene.den_relax"
                                     }
                                   },
                                   "icon": "mdi:flask",
@@ -5752,7 +5752,7 @@
                                     "service": "scene.turn_on",
                                     "data": {},
                                     "target": {
-                                      "entity_id": "scene.buro_sonnenuntergang"
+                                      "entity_id": "scene.den_dimmed"
                                     }
                                   },
                                   "card_mod": {
