@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "minor_version": 1,
+  "key": "lovelace.dashboard_sports",
+  "data": {
+    "config": {
+      "views": [
+        {
+          "title": "Bills",
+          "path": "bills",
+          "cards": [
+            {
+              "type": "markdown",
+              "title": "Buffalo Bills",
+              "content": "{% set s = states.sensor.buffalo_bills %}\n{% set state = s.state %}\n{% set team_logo = state_attr('sensor.buffalo_bills', 'team_logo') %}\n{% set opp_logo = state_attr('sensor.buffalo_bills', 'opponent_logo') %}\n{% set team_colors = state_attr('sensor.buffalo_bills', 'team_colors') %}\n{% set opp_colors = state_attr('sensor.buffalo_bills', 'opponent_colors') %}\n{% set team_color = team_colors[0] if team_colors else '#00338d' %}\n{% set opp_color = opp_colors[0] if opp_colors else '#0076b6' %}\n\n{% if state == 'NOT_FOUND' %}\n### No upcoming game\n\nThe schedule hasn't been published yet.\n\n{% elif state == 'BYE' %}\n### Bye Week\n\nThe Buffalo Bills have a bye this week.\n\n{% else %}\n<table width=\"100%\"><tr>\n<td align=\"center\" width=\"45%\">\n<img src=\"{{ team_logo }}\" width=\"120\" height=\"120\" />\n<br/><b style=\"font-size:1.4em;color:{{ team_color }};\">{{ state_attr('sensor.buffalo_bills', 'team_long_name') | default('Buffalo Bills') }}</b>\n<br/><span style=\"font-size:0.9em;color:#888;\">{{ state_attr('sensor.buffalo_bills', 'team_record') | default('') }}</span>\n</td>\n<td align=\"center\" width=\"10%\">\n<span style=\"font-size:1.8em;font-weight:bold;color:#999;\">vs</span>\n</td>\n<td align=\"center\" width=\"45%\">\n<img src=\"{{ opp_logo }}\" width=\"120\" height=\"120\" />\n<br/><b style=\"font-size:1.4em;color:{{ opp_color }};\">{{ state_attr('sensor.buffalo_bills', 'opponent_long_name') | default('TBD') }}</b>\n<br/><span style=\"font-size:0.9em;color:#888;\">{{ state_attr('sensor.buffalo_bills', 'opponent_record') | default('') }}</span>\n</td>\n</tr></table>\n\n---\n\n<table width=\"100%\">\n<tr><td align=\"right\" width=\"40%\"><b>When</b></td><td align=\"left\" width=\"60%\">{{ state_attr('sensor.buffalo_bills', 'date') | default('TBD') }}</td></tr>\n<tr><td align=\"right\"><b>Kickoff</b></td><td align=\"left\">{{ state_attr('sensor.buffalo_bills', 'kickoff_in') | default('TBD') }}</td></tr>\n<tr><td align=\"right\"><b>Venue</b></td><td align=\"left\">{{ state_attr('sensor.buffalo_bills', 'venue') | default('TBD') }}</td></tr>\n<tr><td align=\"right\"><b>Location</b></td><td align=\"left\">{{ state_attr('sensor.buffalo_bills', 'location') | default('TBD') }}</td></tr>\n<tr><td align=\"right\"><b>TV</b></td><td align=\"left\">{{ state_attr('sensor.buffalo_bills', 'tv_network') | default('TBD') }}</td></tr>\n</table>\n\n{% if state == 'PRE' %}\n<table width=\"100%\">\n<tr><td align=\"right\" width=\"40%\"><b>Odds</b></td><td align=\"left\" width=\"60%\">{{ state_attr('sensor.buffalo_bills', 'odds') | default('N/A') }}</td></tr>\n<tr><td align=\"right\"><b>O/U</b></td><td align=\"left\">{{ state_attr('sensor.buffalo_bills', 'overunder') | default('N/A') }}</td></tr>\n</table>\n\n{% elif state == 'IN' %}\n### Game In Progress\n\n<table width=\"100%\">\n<tr><td align=\"right\" width=\"40%\"><b>Quarter</b></td><td align=\"left\" width=\"60%\">{{ state_attr('sensor.buffalo_bills', 'quarter') | default('') }}</td></tr>\n<tr><td align=\"right\"><b>Clock</b></td><td align=\"left\">{{ state_attr('sensor.buffalo_bills', 'clock') | default('') }}</td></tr>\n<tr><td align=\"right\"><b>Possession</b></td><td align=\"left\">{{ state_attr('sensor.buffalo_bills', 'possession') | default('') }}</td></tr>\n<tr><td align=\"right\"><b>Last Play</b></td><td align=\"left\">{{ state_attr('sensor.buffalo_bills', 'last_play') | default('') }}</td></tr>\n</table>\n\n{% elif state == 'POST' %}\n### Game Final\n\n{{ state_attr('sensor.buffalo_bills', 'series_summary') | default('') }}\n\n{% endif %}\n{% endif %}\n\n---\n*Last updated: {{ state_attr('sensor.buffalo_bills', 'last_update') | default('never') }}*"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
