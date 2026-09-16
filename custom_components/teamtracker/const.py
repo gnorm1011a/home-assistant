@@ -1,15 +1,10 @@
 """ Constants for teamtracker sensor"""
-from homeassistant.const import Platform
 from datetime import timedelta
 
+from homeassistant.const import Platform
+
 # API
-URL_HEAD = "http://site.api.espn.com/apis/site/v2/sports/"
-URL_TAIL = "/scoreboard"
-API_LIMIT = 25
-USER_AGENT = (
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6) AppleWebKit/605.1.15 (KHTML, like "
-    "Gecko) Version/15.0 Safari/605.1.15"
-)
+API_LIMIT = 50
 
 # Config
 CONF_API_LANGUAGE = "api_language"
@@ -35,7 +30,7 @@ TENNIS = "tennis"
 VOLLEYBALL = "volleyball"
 
 # Maps
-LEAGUE_MAP = {
+NATIVE_LEAGUES = {
     "AFL": {
         CONF_SPORT_PATH: AUSTRALIAN_FOOTBALL,
         CONF_LEAGUE_PATH: "afl",
@@ -79,6 +74,10 @@ LEAGUE_MAP = {
     "NHL": {
         CONF_SPORT_PATH: HOCKEY,
         CONF_LEAGUE_PATH: "nhl",
+    },
+    "PWHL": {
+        CONF_SPORT_PATH: HOCKEY,
+        CONF_LEAGUE_PATH: "pwhl",
     },
     "UFC": {
         CONF_SPORT_PATH: MMA,
@@ -172,6 +171,8 @@ SPORT_ICON_MAP = {
     SOCCER: "mdi:soccer",
     TENNIS: "mdi:tennis",
     VOLLEYBALL: "mdi:volleyball",
+#     Add sport_path and icons for non-ESPN APIs here
+    "hockeytech": "mdi:hockey-puck",
 }
 
 # Defaults
@@ -187,17 +188,22 @@ DEFAULT_SPORT_PATH = "UNDEFINED_SPORT"
 DEFAULT_TIMEOUT = 120
 DEFAULT_LAST_UPDATE = "2022-02-02 02:02:02-05:00"
 DEFAULT_KICKOFF_IN = "{test} days"
-DEFAULT_REFRESH_RATE = timedelta(minutes=10)
-RAPID_REFRESH_RATE = timedelta(seconds=5)
+GENERAL_REFRESH_RATE = timedelta(minutes=10) # Remove later when event part of provider object
+GENERAL_RAPID_REFRESH_RATE = timedelta(seconds=5)
 
 # Services
 SERVICE_NAME_CALL_API = "call_api"
+SERVICE_NAME_RELOAD_OVERRIDES = "reload_overrides"
+
+INDIVIDUAL_SPORTS = {"golf", "mma", "tennis"}
 
 # Misc
 TEAM_ID = ""
-VERSION = "v0.14.5"
+VERSION = "v0.18.3"
 ISSUE_URL = "https://github.com/vasqued2/ha-teamtracker"
 DOMAIN = "teamtracker"
-ATTRIBUTION = "Data provided by ESPN"
 COORDINATOR = "coordinator"
+OVERRIDE_DICT = "override"
+DEFAULT_OVERRIDE_FILE = "default.json"
+LOCAL_OVERRIDE_FILE = "teamtracker_overrides.json"
 PLATFORMS = [Platform.SENSOR]

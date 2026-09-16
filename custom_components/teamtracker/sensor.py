@@ -4,20 +4,17 @@ from typing import Any
 
 import voluptuous as vol
 
-from homeassistant.components.persistent_notification import async_create
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_ATTRIBUTION, CONF_NAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.helpers.typing import ConfigType
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import slugify
 
-from . import TeamTrackerDataUpdateCoordinator
 from .const import (
-    ATTRIBUTION,
     CONF_API_LANGUAGE,
     CONF_CONFERENCE_ID,
     CONF_LEAGUE_ID,
@@ -32,17 +29,20 @@ from .const import (
     DEFAULT_SPORT_PATH,
     DOMAIN,
     ISSUE_URL,
-    LEAGUE_MAP,
+    NATIVE_LEAGUES,
+    OVERRIDE_DICT,
     SPORT_ICON_MAP,
     VERSION,
 )
+from .coordinator import TeamTrackerCoordinator
+from .utils import load_file_overrides
 
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_LEAGUE_ID, default=DEFAULT_LEAGUE): vol.All(
-            vol.Upper, vol.In([*LEAGUE_MAP.keys(), "XXX"])
+            vol.Upper, vol.In([*NATIVE_LEAGUES.keys(), "XXX"])
         ),
         vol.Required(CONF_TEAM_ID): cv.string,
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
@@ -70,18 +70,12 @@ async def async_setup_platform(
         ISSUE_URL,
     )
 
-    league_ids = [*LEAGUE_MAP.keys(), "XXX"]
+    league_ids = [*NATIVE_LEAGUES.keys(), "XXX"]
     try:
         vol.In(league_ids)(config[CONF_LEAGUE_ID])
     except vol.Invalid:
         _LOGGER.warning("%s: `league_id` must be valid (one of %s)", sensor_name, league_ids)
         _LOGGER.error("%s: Support for invalid `league_id` in YAML was deprecated in v0.7.6.  Correct config prior to next upgrade.", sensor_name)
-        async_create(
-            hass,
-            f"{sensor_name} Error: `league_id` must be valid (one of {league_ids})",
-            "Team Tracker",
-            DOMAIN,
-        )
         return
 
     # Raise an exception if the league ID is XXX and the sport or league path is not
@@ -93,14 +87,13 @@ async def async_setup_platform(
             "Must specify sport and league path for custom league (league_id = XXX)"
         )
         _LOGGER.warning("%s: %s", sensor_name, error_msg)
-        async_create(hass, f"{sensor_name} Error: {error_msg}", "Team Tracker", DOMAIN)
         return
 
     league_id = config[CONF_LEAGUE_ID].upper()
     # If the league ID is not in the map, it must be XXX and therefore we get the path
     # and league from the config
     config.update(
-        LEAGUE_MAP.get(
+        NATIVE_LEAGUES.get(
             league_id,
             {
                 k: v
@@ -113,8 +106,15 @@ async def async_setup_platform(
     if DOMAIN not in hass.data.keys():
         hass.data.setdefault(DOMAIN, {})
 
+    # Load the OVERRIDE_DICT if it doesn't exist
+    if OVERRIDE_DICT not in hass.data[DOMAIN]:
+        hass.data[DOMAIN][OVERRIDE_DICT] = None
+        override_dict = await hass.async_add_executor_job(load_file_overrides, hass)
+        if OVERRIDE_DICT not in hass.data[DOMAIN] or hass.data[DOMAIN][OVERRIDE_DICT] is None:
+            hass.data[DOMAIN][OVERRIDE_DICT] = override_dict
+
     # Setup the data coordinator
-    coordinator = TeamTrackerDataUpdateCoordinator(
+    coordinator = TeamTrackerCoordinator(
         hass,
         config,
     )
@@ -153,6 +153,7 @@ async def async_setup_entry(
 
 class TeamTrackerScoresSensor(CoordinatorEntity):
     """Representation of a Sensor."""
+    _unrecorded_attributes = frozenset({"last_update"})
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, config: ConfigType) -> None:
         """Initialize the sensor."""
@@ -169,9 +170,11 @@ class TeamTrackerScoresSensor(CoordinatorEntity):
             entry_id = slugify(f"{config.get(CONF_TEAM_ID)}")
             sensor_coordinator = hass.data[DOMAIN][sensor_name][COORDINATOR]
             super().__init__(sensor_coordinator)
+            self._yaml_coordinator = sensor_coordinator  # Store reference for cleanup
+
             try:
                 sport_path = config[CONF_SPORT_PATH]
-            except:
+            except (KeyError, AttributeError):  # pylint: disable=broad-exception-caught
                 sport_path = DEFAULT_SPORT_PATH
 
         if sport_path == DEFAULT_SPORT_PATH:
@@ -188,78 +191,12 @@ class TeamTrackerScoresSensor(CoordinatorEntity):
                 sport_path,
             )
 
-        self.coordinator = sensor_coordinator
         self._entry_id = entry_id
         self._name = sensor_name
         self._icon = icon
-        self._state = "PRE"
 
-        self._sport = None
-        self._league = None
-        self._league_logo = None
-        self._team_abbr = None
-        self._opponent_abbr = None
+        self.coordinator = sensor_coordinator
 
-        self._event_name = None
-        self._event_url = None
-        self._date = None
-        self._kickoff_in = None
-        self._series_summary = None
-        self._venue = None
-        self._location = None
-        self._tv_network = None
-        self._odds = None
-        self._overunder = None
-
-        self._team_name = None
-        self._team_id = None
-        self._team_record = None
-        self._team_rank = None
-        self._team_homeaway = None
-        self._team_logo = None
-        self._team_url = None
-        self._team_colors = None
-        self._team_score = None
-        self._team_win_probability = None
-        self._team_winner = None
-        self._team_timeouts = None
-
-        self._opponent_name = None
-        self._opponent_id = None
-        self._opponent_record = None
-        self._opponent_rank = None
-        self._opponent_homeaway = None
-        self._opponent_logo = None
-        self._opponent_url = None
-        self._opponent_colors = None
-        self._opponent_score = None
-        self._opponent_win_probability = None
-        self._opponent_winner = None
-        self._opponent_timeouts = None
-
-        self._quarter = None
-        self._clock = None
-        self._possession = None
-        self._last_play = None
-        self._down_distance_text = None
-
-        self._outs = None
-        self._balls = None
-        self._strikes = None
-        self._on_first = None
-        self._on_second = None
-        self._on_third = None
-
-        self._team_shots_on_target = None
-        self._team_total_shots = None
-        self._opponent_shots_on_target = None
-        self._opponent_total_shots = None
-
-        self._team_sets_won = None
-        self._opponent_sets_won = None
-
-        self._last_update = None
-        self._api_message = None
 
     @property
     def unique_id(self) -> str:
@@ -279,104 +216,31 @@ class TeamTrackerScoresSensor(CoordinatorEntity):
         return self._icon
 
     @property
-    def state(self) -> str:
+    def state(self) -> str | None:
         """Return the state of the sensor."""
         if self.coordinator.data is None:
             return None
-
-        if "state" in self.coordinator.data.keys():
-            return self.coordinator.data["state"]
-
-        return None
+        return self.coordinator.data.state
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return the state message."""
-        attrs = {}
+        attrs: dict[str, Any] = {}
 
         if self.coordinator.data is None:
             return attrs
-
-        attrs[ATTR_ATTRIBUTION] = ATTRIBUTION
-
-        attrs["sport"] = self.coordinator.data["sport"]
-        attrs["league"] = self.coordinator.data["league"]
-        attrs["league_logo"] = self.coordinator.data["league_logo"]
-        attrs["team_abbr"] = self.coordinator.data["team_abbr"]
-        attrs["opponent_abbr"] = self.coordinator.data["opponent_abbr"]
-
-        attrs["event_name"] = self.coordinator.data["event_name"]
-        attrs["event_url"] = self.coordinator.data["event_url"]
-        attrs["date"] = self.coordinator.data["date"]
-        attrs["kickoff_in"] = self.coordinator.data["kickoff_in"]
-        attrs["series_summary"] = self.coordinator.data["series_summary"]
-        attrs["venue"] = self.coordinator.data["venue"]
-        attrs["location"] = self.coordinator.data["location"]
-        attrs["tv_network"] = self.coordinator.data["tv_network"]
-        attrs["odds"] = self.coordinator.data["odds"]
-        attrs["overunder"] = self.coordinator.data["overunder"]
-
-        attrs["team_name"] = self.coordinator.data["team_name"]
-        attrs["team_id"] = self.coordinator.data["team_id"]
-        attrs["team_record"] = self.coordinator.data["team_record"]
-        attrs["team_rank"] = self.coordinator.data["team_rank"]
-        attrs["team_homeaway"] = self.coordinator.data["team_homeaway"]
-        attrs["team_logo"] = self.coordinator.data["team_logo"]
-        attrs["team_url"] = self.coordinator.data["team_url"]
-        attrs["team_colors"] = self.coordinator.data["team_colors"]
-        #        attrs["team_colors_rbg"] = self.colors2rgb(self.coordinator.data["team_colors"])
-        attrs["team_score"] = self.coordinator.data["team_score"]
-        attrs["team_win_probability"] = self.coordinator.data["team_win_probability"]
-        attrs["team_winner"] = self.coordinator.data["team_winner"]
-        attrs["team_timeouts"] = self.coordinator.data["team_timeouts"]
-
-        attrs["opponent_name"] = self.coordinator.data["opponent_name"]
-        attrs["opponent_id"] = self.coordinator.data["opponent_id"]
-        attrs["opponent_record"] = self.coordinator.data["opponent_record"]
-        attrs["opponent_rank"] = self.coordinator.data["opponent_rank"]
-        attrs["opponent_homeaway"] = self.coordinator.data["opponent_homeaway"]
-        attrs["opponent_logo"] = self.coordinator.data["opponent_logo"]
-        attrs["opponent_url"] = self.coordinator.data["opponent_url"]
-        attrs["opponent_colors"] = self.coordinator.data["opponent_colors"]
-        #        attrs["opponent_colors_rgb"] = self.colors2rgb(self.coordinator.data["opponent_colors"])
-        attrs["opponent_score"] = self.coordinator.data["opponent_score"]
-        attrs["opponent_win_probability"] = self.coordinator.data[
-            "opponent_win_probability"
-        ]
-        attrs["opponent_winner"] = self.coordinator.data[
-            "opponent_winner"
-        ]
-        attrs["opponent_timeouts"] = self.coordinator.data["opponent_timeouts"]
-
-        attrs["quarter"] = self.coordinator.data["quarter"]
-        attrs["clock"] = self.coordinator.data["clock"]
-        attrs["possession"] = self.coordinator.data["possession"]
-        attrs["last_play"] = self.coordinator.data["last_play"]
-        attrs["down_distance_text"] = self.coordinator.data["down_distance_text"]
-
-        attrs["outs"] = self.coordinator.data["outs"]
-        attrs["balls"] = self.coordinator.data["balls"]
-        attrs["strikes"] = self.coordinator.data["strikes"]
-        attrs["on_first"] = self.coordinator.data["on_first"]
-        attrs["on_second"] = self.coordinator.data["on_second"]
-        attrs["on_third"] = self.coordinator.data["on_third"]
-
-        attrs["team_shots_on_target"] = self.coordinator.data["team_shots_on_target"]
-        attrs["team_total_shots"] = self.coordinator.data["team_total_shots"]
-        attrs["opponent_shots_on_target"] = self.coordinator.data[
-            "opponent_shots_on_target"
-        ]
-        attrs["opponent_total_shots"] = self.coordinator.data["opponent_total_shots"]
-
-        attrs["team_sets_won"] = self.coordinator.data["team_sets_won"]
-        attrs["opponent_sets_won"] = self.coordinator.data["opponent_sets_won"]
-
-        attrs["last_update"] = self.coordinator.data["last_update"]
-        attrs["api_message"] = self.coordinator.data["api_message"]
-
+        attrs[ATTR_ATTRIBUTION] = self.coordinator.provider.ATTRIBUTION
+        attrs.update(self.coordinator.data.to_dict_all_attr())
         return attrs
 
     @property
     def available(self) -> bool:
         """Return if entity is available."""
         return self.coordinator.last_update_success
+
+    async def async_will_remove_from_hass(self) -> None:
+        """Clean up when entity is being removed."""
+        # Only cleanup for YAML setup (entry is None)
+        if hasattr(self, '_yaml_coordinator'):
+            await self._yaml_coordinator.async_shutdown()
+            _LOGGER.debug("%s: Cleaned up YAML coordinator", self._name)
