@@ -72,7 +72,6 @@
       option: Home
   mode: single
 - id: 1514e71b983c471e8a1326c33f5be956
-- id: 1514e71b983c471e8a1326c33f5be956
   alias: Presence Detection - Holiday mode prompt
   description: Send actionable notification after 12h away prompting to enable Holiday mode
   triggers:
@@ -2838,8 +2837,6 @@
       data: {}
       title: Movement alert
       message: Mads has left work zone
-  mode: single
-- id: '1725610856466'
   mode: single
 - id: '1725627831165'
   alias: Pet Food Low Notification
