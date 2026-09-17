@@ -3613,15 +3613,16 @@
 - id: 'sensor_offline_notification_2026'
   alias: Sensor Offline Notification
   description: >-
-    Check every 15 minutes for offline remote sensors and send a grouped notification.
-    Uses a helper boolean to avoid repeat notifications while sensors remain offline.
+    Check every 15 minutes for remote sensors offline longer than 15 minutes and send a
+    grouped notification. Uses a helper boolean to avoid repeat notifications while sensors
+    remain offline. The 15-minute threshold suppresses false positives during HA restarts.
   trigger:
   - platform: time_pattern
     minutes: '/15'
   condition:
   - condition: template
     value_template: >-
-      {{ states | selectattr('entity_id', 'in', [
+      {{ (states | selectattr('entity_id', 'in', [
         'sensor.bathroom_weather_sensor_battery',
         'sensor.bed_battery',
         'sensor.bedroom_door_sensor_battery',
@@ -3679,7 +3680,7 @@
         'sensor.studio_weather_sensor_battery',
         'sensor.switch_double_rocker_1_battery',
         'sensor.weather_sensor_13_battery'
-      ]) | selectattr('state', 'in', ['unavailable', 'unknown']) | list | count > 0 }}
+      ]) | selectattr('state', 'in', ['unavailable', 'unknown']) | selectattr('last_changed', 'lt', now() - timedelta(minutes=15)) | list | count > 0) or is_state('input_boolean.sensor_offline_notified', 'on') }}
   action:
   - choose:
     - conditions:
@@ -3749,7 +3750,7 @@
               'sensor.studio_weather_sensor_battery',
               'sensor.switch_double_rocker_1_battery',
               'sensor.weather_sensor_13_battery'
-            ]) | selectattr('state', 'in', ['unavailable', 'unknown']) | map(attribute='attributes.friendly_name') | map('replace', ' Battery', '') | map('replace', ' battery', '') | map('replace', ' power', '') | join(', ') }}
+            ]) | selectattr('state', 'in', ['unavailable', 'unknown']) | selectattr('last_changed', 'lt', now() - timedelta(minutes=15)) | map(attribute='attributes.friendly_name') | map('replace', ' Battery', '') | map('replace', ' battery', '') | map('replace', ' power', '') | join(', ') }}
           data:
             notification_importance: high
       - service: input_boolean.turn_on
@@ -3816,7 +3817,7 @@
           'sensor.studio_weather_sensor_battery',
           'sensor.switch_double_rocker_1_battery',
           'sensor.weather_sensor_13_battery'
-        ]) | selectattr('state', 'in', ['unavailable', 'unknown']) | list | count == 0 }}
+        ]) | selectattr('state', 'in', ['unavailable', 'unknown']) | selectattr('last_changed', 'lt', now() - timedelta(minutes=15)) | list | count == 0 }}
     - service: input_boolean.turn_off
       target:
         entity_id: input_boolean.sensor_offline_notified
