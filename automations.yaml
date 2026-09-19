@@ -4246,16 +4246,6 @@
           title: View Live Feed
           uri: app://com.mcu.reolink
     action: notify.mobile_app_pixel_6
-  - data:
-      title: Security Alert - Garage
-      message: Person detected at garage
-      data:
-        image: https://parkplace.duckdns.org:8123/local/security-garage.jpg
-        actions:
-        - action: URI
-          title: View Live Feed
-          uri: app://com.mcu.reolink
-    action: notify.mobile_app_sm_a556e
   mode: single
 - id: 'phase4_security_patio_person'
   alias: Security - Patio person detected
@@ -4289,16 +4279,6 @@
           title: View Live Feed
           uri: app://com.mcu.reolink
     action: notify.mobile_app_pixel_6
-  - data:
-      title: Security Alert - Patio
-      message: Person detected at patio
-      data:
-        image: https://parkplace.duckdns.org:8123/local/security-patio.jpg
-        actions:
-        - action: URI
-          title: View Live Feed
-          uri: app://com.mcu.reolink
-    action: notify.mobile_app_sm_a556e
   mode: single
 - id: 'phase4_security_side_person'
   alias: Security - Side person detected
@@ -4332,16 +4312,6 @@
           title: View Live Feed
           uri: app://com.mcu.reolink
     action: notify.mobile_app_pixel_6
-  - data:
-      title: Security Alert - Side
-      message: Person detected at side of house
-      data:
-        image: https://parkplace.duckdns.org:8123/local/security-side.jpg
-        actions:
-        - action: URI
-          title: View Live Feed
-          uri: app://com.mcu.reolink
-    action: notify.mobile_app_sm_a556e
   mode: single
 - id: 'phase4_security_rear_person'
   alias: Security - Rear person detected
@@ -4375,88 +4345,6 @@
           title: View Live Feed
           uri: app://com.mcu.reolink
     action: notify.mobile_app_pixel_6
-  - data:
-      title: Security Alert - Rear
-      message: Person detected at rear of house
-      data:
-        image: https://parkplace.duckdns.org:8123/local/security-rear.jpg
-        actions:
-        - action: URI
-          title: View Live Feed
-          uri: app://com.mcu.reolink
-    action: notify.mobile_app_sm_a556e
-  mode: single
-- id: 'phase4_security_backyard_shed'
-  alias: Security - Backyard shed motion detected
-  description: Alert when motion detected by backyard shed sensor while away or on holiday
-  triggers:
-  - entity_id: binary_sensor.hue_outdoor_motion_sensor_1_motion
-    to: 'on'
-    trigger: state
-  conditions:
-  - condition: state
-    entity_id: input_select.house_mode
-    state:
-    - Away
-    - Holiday
-  - condition: state
-    entity_id: input_boolean.housesitter_mode
-    state: 'off'
-  actions:
-  - data:
-      title: Security Alert - Backyard (Shed)
-      message: Motion detected at backyard shed
-      data:
-        actions:
-        - action: URI
-          title: View Live Feed
-          uri: app://com.mcu.reolink
-    action: notify.mobile_app_pixel_6
-  - data:
-      title: Security Alert - Backyard (Shed)
-      message: Motion detected at backyard shed
-      data:
-        actions:
-        - action: URI
-          title: View Live Feed
-          uri: app://com.mcu.reolink
-    action: notify.mobile_app_sm_a556e
-  mode: single
-- id: 'phase4_security_backyard_house'
-  alias: Security - Backyard house motion detected
-  description: Alert when motion detected by backyard house sensor while away or on holiday
-  triggers:
-  - entity_id: binary_sensor.hue_outdoor_motion_sensor_2_motion
-    to: 'on'
-    trigger: state
-  conditions:
-  - condition: state
-    entity_id: input_select.house_mode
-    state:
-    - Away
-    - Holiday
-  - condition: state
-    entity_id: input_boolean.housesitter_mode
-    state: 'off'
-  actions:
-  - data:
-      title: Security Alert - Backyard (House)
-      message: Motion detected at backyard of house
-      data:
-        actions:
-        - action: URI
-          title: View Live Feed
-          uri: app://com.mcu.reolink
-    action: notify.mobile_app_pixel_6
-  - data:
-      title: Security Alert - Backyard (House)
-      message: Motion detected at backyard of house
-      data:
-        actions:
-        - action: URI
-          title: View Live Feed
-          uri: app://com.mcu.reolink
-    action: notify.mobile_app_sm_a556e
   mode: single
 - id: 'phase4_security_front_door_opened'
   alias: Security - Front door opened while away
@@ -4490,16 +4378,6 @@
           title: View Live Feed
           uri: app://com.mcu.reolink
     action: notify.mobile_app_pixel_6
-  - data:
-      title: Security Alert - Front Door
-      message: Front door has been opened
-      data:
-        image: https://parkplace.duckdns.org:8123/local/security-front-door.jpg
-        actions:
-        - action: URI
-          title: View Live Feed
-          uri: app://com.mcu.reolink
-    action: notify.mobile_app_sm_a556e
   mode: single
 - id: 'phase4_security_back_door_opened'
   alias: Security - Back door opened while away
@@ -4533,16 +4411,6 @@
           title: View Live Feed
           uri: app://com.mcu.reolink
     action: notify.mobile_app_pixel_6
-  - data:
-      title: Security Alert - Back Door
-      message: Back door has been opened
-      data:
-        image: https://parkplace.duckdns.org:8123/local/security-back-door.jpg
-        actions:
-        - action: URI
-          title: View Live Feed
-          uri: app://com.mcu.reolink
-    action: notify.mobile_app_sm_a556e
   mode: single
 - id: 'phase4_security_garage_rollerdoor_opened'
   alias: Security - Garage rollerdoor opened while away
@@ -4576,16 +4444,6 @@
           title: View Live Feed
           uri: app://com.mcu.reolink
     action: notify.mobile_app_pixel_6
-  - data:
-      title: Security Alert - Garage Door
-      message: Garage rollerdoor has been opened
-      data:
-        image: https://parkplace.duckdns.org:8123/local/security-garage-door.jpg
-        actions:
-        - action: URI
-          title: View Live Feed
-          uri: app://com.mcu.reolink
-    action: notify.mobile_app_sm_a556e
   mode: single
 - id: 'phase4_security_sliding_doors_opened'
   alias: Security - Sliding doors opened while away
@@ -4622,15 +4480,6 @@
           title: View Live Feed
           uri: app://com.mcu.reolink
     action: notify.mobile_app_pixel_6
-  - data:
-      title: Security Alert - Sliding Door
-      message: 'A sliding door has been opened: {{ trigger.to_state.attributes.friendly_name }}'
-      data:
-        actions:
-        - action: URI
-          title: View Live Feed
-          uri: app://com.mcu.reolink
-    action: notify.mobile_app_sm_a556e
   mode: single
 
 # === Watchman Location Feature ===
