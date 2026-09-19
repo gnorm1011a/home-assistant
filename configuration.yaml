@@ -171,6 +171,31 @@ input_datetime:
     has_date: true
     has_time: true
 
+  last_person_side:
+    name: "Person Detection - Side"
+    has_date: true
+    has_time: true
+    icon: mdi:cctv
+    initial: "2020-01-01 00:00"
+  last_person_shed:
+    name: "Person Detection - Shed"
+    has_date: true
+    has_time: true
+    icon: mdi:cctv
+    initial: "2020-01-01 00:00"
+  last_person_rear:
+    name: "Person Detection - Rear"
+    has_date: true
+    has_time: true
+    icon: mdi:cctv
+    initial: "2020-01-01 00:00"
+  last_person_patio:
+    name: "Person Detection - Patio"
+    has_date: true
+    has_time: true
+    icon: mdi:cctv
+    initial: "2020-01-01 00:00"
+
 input_boolean:
   guest_lamp_dim_up:
     name: "Guest Lamp Dim Up"

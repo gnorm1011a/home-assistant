@@ -4482,6 +4482,87 @@
     action: notify.mobile_app_pixel_6
   mode: single
 
+# === Correlated Person Detection (Away/Sleep) ===
+- id: 'security_person_correlated'
+  alias: Security - Correlated person detection
+  description: >-
+    Alert only when at least 2 different cameras (Side, Shed, Rear, Patio) detect a
+    person within 5 minutes while Away, Sleep or Holiday. Stamps each camera's last
+    detection time, then counts how many stamps are recent. Resets all stamps after
+    alerting so each alert requires a fresh pair of detections.
+  triggers:
+  - entity_id: binary_sensor.side_person
+    to: 'on'
+    trigger: state
+    id: side
+  - entity_id: binary_sensor.camera1_person
+    to: 'on'
+    trigger: state
+    id: shed
+  - entity_id: binary_sensor.rear_person
+    to: 'on'
+    trigger: state
+    id: rear
+  - entity_id: binary_sensor.camera1_person_3
+    to: 'on'
+    trigger: state
+    id: patio
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state:
+    - Away
+    - Sleep
+    - Holiday
+  - condition: state
+    entity_id: input_boolean.housesitter_mode
+    state: 'off'
+  actions:
+  - action: input_datetime.set_datetime
+    target:
+      entity_id: input_datetime.last_person_{{ trigger.id }}
+    data:
+      timestamp: '{{ now() | as_timestamp | int }}'
+  - condition: template
+    value_template: >-
+      {{ ['input_datetime.last_person_side', 'input_datetime.last_person_shed',
+          'input_datetime.last_person_rear', 'input_datetime.last_person_patio']
+        | map('states') | map('as_datetime') | map('as_timestamp')
+        | select('gt', (now() | as_timestamp) - 300) | list | count >= 2 }}
+  - action: camera.snapshot
+    target:
+      entity_id: "{{ {'side': 'camera.side_fluent', 'shed': 'camera.camera1_fluent', 'rear': 'camera.rear_fluent', 'patio': 'camera.camera1_fluent_3'}[trigger.id] }}"
+    data:
+      filename: /config/www/security-correlated.jpg
+  - data:
+      title: Security Alert - Person Confirmed
+      message: >-
+        {% set cam_names = {'input_datetime.last_person_side': 'Side', 'input_datetime.last_person_shed': 'Shed', 'input_datetime.last_person_rear': 'Rear', 'input_datetime.last_person_patio': 'Patio'} %}
+        {% set ns = namespace(found=[]) %}
+        {% for ent, name in cam_names.items() %}
+        {% if (states(ent) | as_datetime | as_timestamp) > (now() | as_timestamp) - 300 %}
+        {% set ns.found = ns.found + [name] %}
+        {% endif %}
+        {% endfor %}
+        Person confirmed by {{ ns.found | length }} cameras: {{ ns.found | join(', ') }}
+      data:
+        image: https://parkplace.duckdns.org:8123/local/security-correlated.jpg
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.mobile_app_pixel_6
+  - action: input_datetime.set_datetime
+    target:
+      entity_id:
+      - input_datetime.last_person_side
+      - input_datetime.last_person_shed
+      - input_datetime.last_person_rear
+      - input_datetime.last_person_patio
+    data:
+      datetime: '2020-01-01 00:00'
+  mode: single
+
 # === Watchman Location Feature ===
 - id: 'watchman_set_location'
   alias: Watchman - Set Location
