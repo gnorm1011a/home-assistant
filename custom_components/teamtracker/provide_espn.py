@@ -155,6 +155,7 @@ class EspnProvider(BaseSportProvider):
         url_parms["lang"] = lang[:2]
         url_parms["limit"] = str(API_LIMIT)
 
+        d1 = d2 = None
         if sport_path not in ("tennis", "baseball"):
             d1 = (date.today() - timedelta(days=1)).strftime("%Y%m%d")
             if league_path == "all":
@@ -163,7 +164,6 @@ class EspnProvider(BaseSportProvider):
 #                d2 = (date.today() + timedelta(days=1)).strftime("%Y%m%d")
             else:
                 d2 = (date.today() + timedelta(days=90)).strftime("%Y%m%d")
-            url_parms["dates"] = f"{d1}-{d2}"
 
         file_override = False
         if self._coordinator.conference_id:
@@ -173,8 +173,43 @@ class EspnProvider(BaseSportProvider):
 
         url = f"{ESPN_BASE_URL}/{sport_path}/{league_path}/scoreboard"
 
-        response = await self.async_call_espn_api(hass, url, url_parms, sensor_name, team_id, file_override)
-        data = response["data"]
+        if d1 is None:
+            response = await self.async_call_espn_api(hass, url, url_parms, sensor_name, team_id, file_override)
+            data = response["data"]
+        else:
+            # ESPN removed multi-day date ranges in Sept 2026 -
+            # "dates=YYYYMMDD-YYYYMMDD" now returns HTTP 400.  Month
+            # scopes ("dates=YYYYMM") still work, so fetch each month in
+            # the window and trim the events back to [d1, d2].
+            url_parms["limit"] = "300"
+            data = None
+            events = []
+            seen_ids = set()
+            year, month = int(d1[:4]), int(d1[4:6])
+            end_year, end_month = int(d2[:4]), int(d2[4:6])
+            while (year, month) <= (end_year, end_month):
+                url_parms["dates"] = f"{year:04d}{month:02d}"
+                response = await self.async_call_espn_api(
+                    hass, url, url_parms, sensor_name, team_id, file_override
+                )
+                month_data = response["data"]
+                if month_data:
+                    if data is None:
+                        data = month_data
+                    for event in month_data.get("events", []):
+                        event_id = event.get("id")
+                        event_date = event.get("date", "")[:10].replace("-", "")
+                        if event_id not in seen_ids and (
+                            file_override or d1 <= event_date <= d2
+                        ):
+                            seen_ids.add(event_id)
+                            events.append(event)
+                month += 1
+                if month > 12:
+                    year, month = year + 1, 1
+            if data is not None:
+                data["events"] = events
+            response["data"] = data
 
         num_events = 0
         if data is not None:
