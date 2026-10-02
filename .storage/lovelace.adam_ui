@@ -156,36 +156,46 @@
                   }
                 },
                 {
-                  "type": "custom:auto-entities",
+                  "type": "custom:mod-card",
+                  "card_mod": {
+                    "style": "ha-card {\n  height: 320px;\n  overflow-y: auto;\n}\n"
+                  },
                   "card": {
-                    "type": "entities"
-                  },
-                  "filter": {
-                    "include": [
-                      {
-                        "domain": "binary_sensor",
-                        "attributes": {
-                          "device_class": "motion"
-                        },
-                        "state": "on",
-                        "options": {
-                          "secondary_info": "last-changed"
+                    "type": "custom:auto-entities",
+                    "card": {
+                      "type": "entities"
+                    },
+                    "filter": {
+                      "include": [
+                        {
+                          "domain": "binary_sensor",
+                          "attributes": {
+                            "device_class": "motion"
+                          },
+                          "state": "on",
+                          "options": {
+                            "secondary_info": "last-changed"
+                          }
                         }
-                      }
-                    ],
-                    "exclude": [
-                      {
-                        "entity_id": "binary_sensor.bda90a91_536107e5"
-                      },
-                      {
-                        "entity_id": "binary_sensor.90f2526b_0a6cc42e"
-                      }
-                    ]
-                  },
-                  "sort": {
-                    "method": "last_changed",
-                    "reverse": true,
-                    "count": 6
+                      ],
+                      "exclude": [
+                        {
+                          "entity_id": "binary_sensor.bda90a91_536107e5"
+                        },
+                        {
+                          "entity_id": "binary_sensor.90f2526b_0a6cc42e"
+                        },
+                        {
+                          "entity_id": "*_vehicle*"
+                        }
+                      ]
+                    },
+                    "sort": {
+                      "method": "last_changed",
+                      "reverse": true,
+                      "count": 6
+                    },
+                    "show_empty": true
                   }
                 },
                 {
@@ -5218,6 +5228,9 @@
                       },
                       {
                         "entity_id": "binary_sensor.90f2526b_0a6cc42e"
+                      },
+                      {
+                        "entity_id": "*_vehicle*"
                       }
                     ]
                   },
@@ -5335,6 +5348,9 @@
                       },
                       {
                         "entity_id": "binary_sensor.90f2526b_0a6cc42e"
+                      },
+                      {
+                        "entity_id": "*_vehicle*"
                       }
                     ]
                   }

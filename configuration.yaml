@@ -195,6 +195,48 @@ input_datetime:
     has_time: true
     icon: mdi:cctv
     initial: "2020-01-01 00:00"
+  last_person_front_door:
+    name: "Person Detection - Front Door"
+    has_date: true
+    has_time: true
+    icon: mdi:cctv
+    initial: "2020-01-01 00:00"
+  last_person_doorbell:
+    name: "Person Detection - Doorbell"
+    has_date: true
+    has_time: true
+    icon: mdi:cctv
+    initial: "2020-01-01 00:00"
+  last_person_garage:
+    name: "Person Detection - Garage"
+    has_date: true
+    has_time: true
+    icon: mdi:cctv
+    initial: "2020-01-01 00:00"
+  last_person_balcony:
+    name: "Person Detection - Front Balcony"
+    has_date: true
+    has_time: true
+    icon: mdi:cctv
+    initial: "2020-01-01 00:00"
+  night_alert_last_sent:
+    name: "Night Alert - Last Sent"
+    has_date: true
+    has_time: true
+    icon: mdi:bell-ring
+    initial: "2020-01-01 00:00"
+  last_pir_shed:
+    name: "PIR Detection - Shed"
+    has_date: true
+    has_time: true
+    icon: mdi:motion-sensor
+    initial: "2020-01-01 00:00"
+  last_pir_house:
+    name: "PIR Detection - House Side"
+    has_date: true
+    has_time: true
+    icon: mdi:motion-sensor
+    initial: "2020-01-01 00:00"
 
 input_boolean:
   guest_lamp_dim_up:
@@ -206,6 +248,16 @@ input_boolean:
     name: "Sensor Offline Notified"
     initial: false
     icon: mdi:bell-off
+
+  resident_outside:
+    name: "Resident Outside"
+    initial: false
+    icon: mdi:account-arrow-right
+
+  speaker_alerts:
+    name: "Speaker Alerts"
+    initial: true
+    icon: mdi:volume-high
 input_select:
 
   guest_lamp_scene:
@@ -368,6 +420,13 @@ frontend:
     - /local/hass-hue-icons.js
   themes: !include_dir_merge_named themes
 
+
+timer:
+  resident_outside_window:
+    name: "Resident Outside Window"
+    duration: "00:45:00"
+    restore: false
+    icon: mdi:timer-outline
 
 automation: !include automations.yaml
 script: !include scripts.yaml

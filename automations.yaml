@@ -1,15 +1,25 @@
 - id: 7e5a772c86ef4840a68d7ba9996e6781
   alias: Presence Detection - Home mode
+  description: >-
+    Disarm Alarmo when the house mode returns to Home. (Previously armed
+    armed_home; changed 2026-09-24 because armed_home turned every daytime
+    door-open into an alarm once codeless arming was enabled.)
   triggers:
   - entity_id: input_select.house_mode
     to: Home
     trigger: state
   conditions:
   actions:
-  - action: alarm_control_panel.alarm_arm_home
+  - action: alarm_control_panel.alarm_disarm
     data: {}
     target:
       entity_id: alarm_control_panel.alarmo
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.resident_outside
+  - action: timer.cancel
+    target:
+      entity_id: timer.resident_outside_window
   mode: single
 - id: 1c69a5fe81504c3bb6409a3dcf121e95
   alias: Presence Detection - Sleep mode
@@ -64,7 +74,12 @@
   - platform: state
     entity_id: person.adam_smith
     to: home
-  condition: []
+  condition:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: input_select.house_mode
+      state: Sleep
   action:
   - service: input_select.select_option
     data:
@@ -333,7 +348,12 @@
   - platform: state
     entity_id: person.madeleine_moloney
     to: home
-  condition: []
+  condition:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: input_select.house_mode
+      state: Sleep
   action:
   - service: input_select.select_option
     data:
@@ -506,16 +526,12 @@
     trigger: state
   conditions:
   - condition: state
-    entity_id: input_boolean.bathroom_motion_lights
-    state: 'on'
-  - condition: state
     entity_id: light.gledopto_led_light_cct
     state: 'on'
   actions:
-  - data: {}
-    target:
-      entity_id: light.gledopto_led_light_cct
-    action: light.turn_off
+  - action: script.ensure_off
+    data:
+      entity: light.gledopto_led_light_cct
   mode: single
 - id: '1679375346350'
   alias: 'Motion Lights -  Entry turn on '
@@ -554,10 +570,9 @@
     entity_id: light.hallway_light
     state: 'on'
   action:
-  - service: light.turn_off
-    data: {}
-    target:
-      entity_id: light.hallway_light
+  - action: script.ensure_off
+    data:
+      entity: light.hallway_light
   mode: single
 - id: '1679918928671'
   alias: Motion Lights - Den turn on
@@ -596,10 +611,9 @@
     entity_id: light.den
     state: 'on'
   actions:
-  - data: {}
-    target:
-      entity_id: light.den
-    action: light.turn_off
+  - action: script.ensure_off
+    data:
+      entity: light.den
   mode: single
 - id: '1679974942324'
   alias: Motion Lights - Dining turn on
@@ -632,10 +646,9 @@
     entity_id: input_boolean.dining_motion_lights
     state: 'on'
   actions:
-  - data: {}
-    target:
-      entity_id: light.dining
-    action: light.turn_off
+  - action: script.ensure_off
+    data:
+      entity: light.dining
   mode: single
 - id: '1679975174380'
   alias: Motion Lights - Living room turn on
@@ -674,10 +687,9 @@
     entity_id: light.living_room
     state: 'on'
   actions:
-  - data: {}
-    target:
-      entity_id: light.living_room
-    action: light.turn_off
+  - action: script.ensure_off
+    data:
+      entity: light.living_room
   mode: single
 - id: '1679975262213'
   alias: Motion Lights - Kitchen turn off
@@ -695,10 +707,9 @@
     entity_id: light.kitchen
     state: 'on'
   actions:
-  - data: {}
-    target:
-      entity_id: light.kitchen
-    action: light.turn_off
+  - action: script.ensure_off
+    data:
+      entity: light.kitchen
   mode: single
 - id: '1680335384448'
   alias: Motion Lights - Bedroom turn on
@@ -737,10 +748,9 @@
     entity_id: input_boolean.bedroom_motion_lights
     state: 'on'
   action:
-  - service: light.turn_off
-    data: {}
-    target:
-      entity_id: light.bedroom
+  - action: script.ensure_off
+    data:
+      entity: light.bedroom
   mode: single
 - id: '1680607820601'
   alias: Motion Lights -  Patio turn on
@@ -781,11 +791,9 @@
     entity_id: switch.mains_patio_hallway_switch_0
     state: 'on'
   action:
-  - service: switch.turn_off
-    target:
-      entity_id:
-      - switch.mains_patio_hallway_switch_0
-    data: {}
+  - action: script.ensure_off
+    data:
+      entity: switch.mains_patio_hallway_switch_0
   mode: single
 - id: '1680760096226'
   alias: Motion Lights - Upstairs turn on
@@ -824,10 +832,9 @@
     entity_id: light.upstairs_2
     state: 'on'
   action:
-  - service: light.turn_off
-    data: {}
-    target:
-      entity_id: light.upstairs_2
+  - action: script.ensure_off
+    data:
+      entity: light.upstairs_2
   mode: single
 - id: '1680762317192'
   alias: Motion Lights - Front turn on
@@ -896,11 +903,9 @@
           {% set s = state_attr('automation.lighting_front_lights_off', 'last_triggered') %}
           {{ m is not none and s is not none and s > m }}
       sequence:
-      - data:
-          transition: 30
-        target:
-          entity_id: light.front_3
-        action: light.turn_off
+      - action: script.ensure_off
+        data:
+          entity: light.front_3
     default:
     - data:
         transition: 30
@@ -951,11 +956,9 @@
     entity_id: light.side
     state: 'on'
   action:
-  - data:
-      transition: 10
-    target:
-      entity_id: light.side
-    action: light.turn_off
+  - action: script.ensure_off
+    data:
+      entity: light.side
   mode: single
 - id: '1680848063210'
   alias: Motion Lights - Studio turn on
@@ -1005,11 +1008,9 @@
     entity_id: light.studio_lamp_light
     state: 'on'
   action:
-  - service: light.turn_off
+  - action: script.ensure_off
     data:
-      transition: 10
-    target:
-      entity_id: light.studio_lamp_light
+      entity: light.studio_lamp_light
   mode: single
 - id: '1682069592795'
   alias: 'Motion Light Toggle - Sunset turn on '
@@ -1027,10 +1028,7 @@
       - input_boolean.front_motion_lights
       - input_boolean.side_motion_lights
       - input_boolean.patio_motion_lights
-      - input_boolean.ensuite_motion_lights
       - input_boolean.bathroom_motion_lights
-      - input_boolean.guestroom_motion_lights
-      - input_boolean.entry_motion_lights
   mode: single
 - id: '1682070122692'
   alias: Motion Light Toggle - Sunsise turn off
@@ -1049,10 +1047,7 @@
       - input_boolean.front_motion_lights
       - input_boolean.side_motion_lights
       - input_boolean.patio_motion_lights
-      - input_boolean.ensuite_motion_lights
       - input_boolean.bathroom_motion_lights
-      - input_boolean.guestroom_motion_lights
-      - input_boolean.entry_motion_lights
   - choose:
     - alias: Front - no motion, turn off light
       conditions:
@@ -1060,114 +1055,66 @@
         entity_id: binary_sensor.motion_7
         state: 'off'
       sequence:
-      - service: light.turn_off
-        data: {}
-        target:
-          entity_id: light.front_3
+      - action: script.ensure_off
+        data:
+          entity: light.front_3
     - alias: Side - no motion, turn off light
       conditions:
       - condition: state
         entity_id: binary_sensor.motion_4
         state: 'off'
       sequence:
-      - service: light.turn_off
-        data: {}
-        target:
-          entity_id: light.side
+      - action: script.ensure_off
+        data:
+          entity: light.side
     - alias: Patio - no motion, turn off light
       conditions:
       - condition: state
         entity_id: binary_sensor.patio
         state: 'off'
       sequence:
-      - service: switch.turn_off
-        data: {}
-        target:
-          entity_id: switch.mains_patio_hallway_switch_0
+      - action: script.ensure_off
+        data:
+          entity: switch.mains_patio_hallway_switch_0
     - alias: Ensuite - no motion, turn off light
       conditions:
       - condition: state
         entity_id: binary_sensor.ensuite
         state: 'off'
       sequence:
-      - service: switch.turn_off
-        data: {}
-        target:
-          entity_id:
-          - switch.mains_ensuite_switch_0
-          - switch.mains_ensuite_switch_1
+      - action: script.ensure_off
+        data:
+          entity: switch.mains_ensuite_switch_0
+      - action: script.ensure_off
+        data:
+          entity: switch.mains_ensuite_switch_1
     - alias: Bathroom - no motion, turn off light
       conditions:
       - condition: state
         entity_id: binary_sensor.motion_bathroom
         state: 'off'
       sequence:
-      - service: light.turn_off
-        data: {}
-        target:
-          entity_id: light.bathroom
+      - action: script.ensure_off
+        data:
+          entity: light.bathroom
     - alias: Guestroom - no motion, turn off light
       conditions:
       - condition: state
         entity_id: binary_sensor.motion_6
         state: 'off'
       sequence:
-      - service: light.turn_off
-        data: {}
-        target:
-          entity_id: light.guestroom
+      - action: script.ensure_off
+        data:
+          entity: light.guestroom
     - alias: Entry - no motion, turn off light
       conditions:
       - condition: state
         entity_id: binary_sensor.front_entry
         state: 'off'
       sequence:
-      - service: light.turn_off
-        data: {}
-        target:
-          entity_id: light.hallway_light
-  mode: single
-- id: '1684991212368'
-  alias: Motion Lights - Guestroom turn on
-  description: Turn on guestroom light on motion.
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.motion_6
-    to: 'on'
-  condition:
-  - condition: state
-    entity_id: input_boolean.guestroom_motion_lights
-    state: 'on'
-  - condition: state
-    entity_id: light.guestroom
-    state: 'off'
-  action:
-  - service: light.turn_on
-    data: {}
-    target:
-      entity_id: light.guestroom
-  mode: single
-- id: '1684991283058'
-  alias: Motion Lights - Guestroom turn off
-  description: Turn off guestroom light when no motion is detected.
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.motion_6
-    to: 'off'
-  condition:
-  - condition: state
-    entity_id: light.guestroom
-    state: 'on'
-  - condition: state
-    entity_id: input_boolean.guestroom_motion_lights
-    state: 'on'
-  action:
-  - service: light.turn_off
-    data: {}
-    target:
-      entity_id: light.guestroom
+      - action: script.ensure_off
+        data:
+          entity: light.hallway_light
   mode: single
 - id: '1702556278291'
   alias: Xmas Lights (Front)
@@ -1242,10 +1189,9 @@
         - light.backyard_2
       data: {}
     else:
-    - service: light.turn_off
-      target:
-        entity_id: light.backyard_2
-      data: {}
+    - action: script.ensure_off
+      data:
+        entity: light.backyard_2
   mode: single
 - id: '1705925666556'
   alias: Watchman - Flash when enabled or disabled
@@ -1287,10 +1233,9 @@
         - light.backyard_2
       data: {}
     else:
-    - service: light.turn_off
-      target:
-        entity_id: light.backyard_2
-      data: {}
+    - action: script.ensure_off
+      data:
+        entity: light.backyard_2
   mode: single
 - id: '1706004825996'
   alias: Wall Switch - Living Room - Cycle light scenes
@@ -1407,10 +1352,9 @@
       entity_id: input_select.house_mode
       state: Holiday
   actions:
-  - data: {}
-    action: light.turn_off
-    target:
-      entity_id: light.front_3
+  - action: script.ensure_off
+    data:
+      entity: light.front_3
   mode: single
 - id: '1707125985994'
   alias: Watchman - Level 1 Warning
@@ -1517,11 +1461,9 @@
       entity_id:
       - input_boolean.bathroom_motion_lights
     data: {}
-  - service: light.turn_off
-    metadata: {}
-    data: {}
-    target:
-      entity_id: light.bathroom
+  - action: script.ensure_off
+    data:
+      entity: light.bathroom
   mode: single
 - id: '1707897609405'
   alias: Entertainment - Soundbar Source
@@ -1577,11 +1519,9 @@
     entity_id: switch.mains_pantry_switch_0
     state: 'on'
   action:
-  - service: switch.turn_off
-    target:
-      entity_id:
-      - switch.mains_pantry_switch_0
-    data: {}
+  - action: script.ensure_off
+    data:
+      entity: switch.mains_pantry_switch_0
   mode: single
 - id: '1709103337402'
   alias: Shelly - Dining On
@@ -1611,11 +1551,9 @@
     to: 'off'
   condition: []
   action:
-  - service: light.turn_off
-    target:
-      entity_id:
-      - light.dining
-    data: {}
+  - action: script.ensure_off
+    data:
+      entity: light.dining
   mode: single
 - id: '1709104954022'
   alias: Shelly Kitchen - Turn on
@@ -1645,11 +1583,9 @@
     to: 'off'
   condition: []
   action:
-  - service: light.turn_off
-    target:
-      entity_id:
-      - light.kitchen
-    data: {}
+  - action: script.ensure_off
+    data:
+      entity: light.kitchen
   mode: single
 - id: '1709106009420'
   alias: Shelly - Front turn on
@@ -1679,11 +1615,9 @@
     to: 'off'
   condition: []
   action:
-  - service: light.turn_off
-    target:
-      entity_id:
-      - light.front_3
-    data: {}
+  - action: script.ensure_off
+    data:
+      entity: light.front_3
   mode: single
 - id: '1709115940318'
   alias: Shelly - Side turn on
@@ -1713,11 +1647,9 @@
     to: 'off'
   condition: []
   action:
-  - service: light.turn_off
-    target:
-      entity_id:
-      - light.side
-    data: {}
+  - action: script.ensure_off
+    data:
+      entity: light.side
   mode: single
 - id: '1709116286664'
   alias: Shelly - Rear turn on
@@ -1747,11 +1679,9 @@
     to: 'off'
   condition: []
   action:
-  - service: light.turn_off
-    target:
-      entity_id:
-      - light.backyard
-    data: {}
+  - action: script.ensure_off
+    data:
+      entity: light.backyard
   mode: single
 - id: '1709116462012'
   alias: Shelly - Floodlight turn off
@@ -1763,10 +1693,9 @@
     to: 'off'
   condition: []
   action:
-  - service: light.turn_off
-    data: {}
-    target:
-      entity_id: light.hue_discover_outdoor_wall_1
+  - action: script.ensure_off
+    data:
+      entity: light.hue_discover_outdoor_wall_1
   mode: single
 - id: '1709116500974'
   alias: Shelly - Floodlight turn on
@@ -1821,10 +1750,9 @@
       entity_id:
       - input_boolean.pantry_auto_lights
     data: {}
-  - service: switch.turn_off
-    target:
-      entity_id: switch.mains_pantry_switch_0
-    data: {}
+  - action: script.ensure_off
+    data:
+      entity: switch.mains_pantry_switch_0
   mode: single
 - id: '1709963410548'
   alias: NFC - Dishwashing mode toggle
@@ -1859,10 +1787,9 @@
     target:
       entity_id: input_boolean.dishwashing
     action: input_boolean.turn_off
-  - target:
-      entity_id: switch.mains_pantry_switch_0
-    data: {}
-    action: switch.turn_off
+  - action: script.ensure_off
+    data:
+      entity: switch.mains_pantry_switch_0
   mode: single
 - id: '1724445344668'
   alias: Cat Leaving House
@@ -2078,6 +2005,9 @@
         hours: 0
         minutes: 3
         seconds: 0
+  - condition: state
+    entity_id: input_boolean.guest_mode
+    state: 'off'
   action:
   - action: input_boolean.turn_on
     metadata: {}
@@ -2105,6 +2035,10 @@
   - platform: state
     entity_id:
     - binary_sensor.door_sensor_8_iaszone
+    to: 'on'
+  - platform: state
+    entity_id:
+    - input_boolean.guest_mode
     to: 'on'
   condition: []
   action:
@@ -2134,6 +2068,9 @@
   - condition: state
     entity_id: sensor.mew_meow_position
     state: inside
+  - condition: state
+    entity_id: input_boolean.guest_mode
+    state: 'off'
   action:
   - action: input_boolean.turn_on
     target:
@@ -2221,12 +2158,6 @@
     from: 'off'
   condition: []
   action:
-  - action: xiaomi_aqara.play_ringtone
-    metadata: {}
-    data:
-      gw_mac: 04cf8cf2fb95
-      ringtone_id: '11'
-      ringtone_vol: 10
   - sequence:
     - delay:
         hours: 0
@@ -2452,11 +2383,9 @@
         minutes: 0
         seconds: 45
         milliseconds: 0
-    - action: light.turn_off
-      target:
-        entity_id:
-        - light.rear_floodlight
-      data: {}
+    - action: script.ensure_off
+      data:
+        entity: light.rear_floodlight
   mode: single
 - id: '1725064105192'
   alias: CDS - Side Camera Floodlight
@@ -2486,10 +2415,9 @@
         minutes: 0
         seconds: 20
         milliseconds: 0
-    - action: light.turn_off
-      data: {}
-      target:
-        entity_id: light.side_floodlight
+    - action: script.ensure_off
+      data:
+        entity: light.side_floodlight
   mode: single
 - id: '1725065048968'
   alias: Event Notification (2 Days)
@@ -3106,10 +3034,9 @@
     entity_id: switch.shellyplus2pm_e465b86040bc_switch_0
     state: 'on'
   actions:
-  - data: {}
-    action: switch.turn_off
-    target:
-      entity_id: switch.shellyplus2pm_e465b86040bc_switch_0
+  - action: script.ensure_off
+    data:
+      entity: switch.shellyplus2pm_e465b86040bc_switch_0
   mode: single
 - id: '1743590771656'
   alias: Cat Alarm - Light on Animal Detection
@@ -3179,19 +3106,18 @@
       minutes: 1
       seconds: 0
       milliseconds: 0
-  - action: light.turn_off
-    metadata: {}
-    data: {}
-    target:
-      entity_id:
-      - light.hue_discover_outdoor_wall_1
-      - light.garden
-      - light.patio_light
-  - action: switch.turn_off
-    metadata: {}
-    data: {}
-    target:
-      entity_id: switch.mains_patio_hallway_switch_0
+  - action: script.ensure_off
+    data:
+      entity: light.hue_discover_outdoor_wall_1
+  - action: script.ensure_off
+    data:
+      entity: light.garden
+  - action: script.ensure_off
+    data:
+      entity: light.patio_light
+  - action: script.ensure_off
+    data:
+      entity: switch.mains_patio_hallway_switch_0
   mode: single
 - id: '1743592741759'
   alias: Rodret Dimmer 1
@@ -3247,11 +3173,9 @@
       seconds: 0
   conditions: []
   actions:
-  - action: switch.turn_off
-    metadata: {}
-    data: {}
-    target:
-      entity_id: switch.mains_front_balcony_closet_switch_1
+  - action: script.ensure_off
+    data:
+      entity: switch.mains_front_balcony_closet_switch_1
   mode: single
 - id: '1759904940965'
   alias: Rocker 1 - Toggle Garden Lights
@@ -3288,6 +3212,14 @@
     data: {}
     target:
       entity_id: script.toggle_cat_location
+  - action: script.cast_media_with_no_chime
+    metadata: {}
+    data:
+      volume: 0.5
+      media_file:
+        entity_id: media_player.living_room_speaker
+        media_content_id: https://parkplace.duckdns.org:8123/local/cat-meow.ogg
+        media_content_type: music
   mode: single
 - id: '1759906236652'
   alias: Garden Light Scene Cycler - Single Automation
@@ -3488,11 +3420,9 @@
         entity_id: light.guestroom
         state: 'on'
       then:
-      - action: light.turn_off
-        target:
-          entity_id: light.guestroom
+      - action: script.ensure_off
         data:
-          transition: 1
+          entity: light.guestroom
       else:
       - action: script.guest_lamp_apply_scene
         data: {}
@@ -3555,7 +3485,6 @@
     - sensor.hue_smart_button_2_battery
     - sensor.laundry_door_battery
     - sensor.living_room_sliding_door_battery
-    - sensor.lumi_lumi_remote_b286acn01_battery
     - sensor.lumi_lumi_sensor_magnet_b586cf03_power
     - sensor.lumi_lumi_sensor_magnet_battery
     - sensor.lumi_lumi_sensor_magnet_battery_2
@@ -3564,7 +3493,6 @@
     - sensor.lumi_lumi_sensor_magnet_power
     - sensor.lumi_lumi_sensor_motion_1ac4f902_power
     - sensor.lumi_lumi_sensor_motion_742edc01_power
-    - sensor.lumi_lumi_sensor_motion_77c4f902_power
     - sensor.lumi_lumi_sensor_motion_92551c03_power
     - sensor.lumi_lumi_sensor_motion_aq2_battery
     - sensor.lumi_lumi_sensor_motion_aq2_battery_10
@@ -3638,7 +3566,6 @@
         'sensor.hue_smart_button_2_battery',
         'sensor.laundry_door_battery',
         'sensor.living_room_sliding_door_battery',
-        'sensor.lumi_lumi_remote_b286acn01_battery',
         'sensor.lumi_lumi_sensor_magnet_b586cf03_power',
         'sensor.lumi_lumi_sensor_magnet_battery',
         'sensor.lumi_lumi_sensor_magnet_battery_2',
@@ -3647,7 +3574,6 @@
         'sensor.lumi_lumi_sensor_magnet_power',
         'sensor.lumi_lumi_sensor_motion_1ac4f902_power',
         'sensor.lumi_lumi_sensor_motion_742edc01_power',
-        'sensor.lumi_lumi_sensor_motion_77c4f902_power',
         'sensor.lumi_lumi_sensor_motion_92551c03_power',
         'sensor.lumi_lumi_sensor_motion_aq2_battery',
         'sensor.lumi_lumi_sensor_motion_aq2_battery_10',
@@ -3708,7 +3634,6 @@
               'sensor.hue_smart_button_2_battery',
               'sensor.laundry_door_battery',
               'sensor.living_room_sliding_door_battery',
-              'sensor.lumi_lumi_remote_b286acn01_battery',
               'sensor.lumi_lumi_sensor_magnet_b586cf03_power',
               'sensor.lumi_lumi_sensor_magnet_battery',
               'sensor.lumi_lumi_sensor_magnet_battery_2',
@@ -3717,7 +3642,6 @@
               'sensor.lumi_lumi_sensor_magnet_power',
               'sensor.lumi_lumi_sensor_motion_1ac4f902_power',
               'sensor.lumi_lumi_sensor_motion_742edc01_power',
-              'sensor.lumi_lumi_sensor_motion_77c4f902_power',
               'sensor.lumi_lumi_sensor_motion_92551c03_power',
               'sensor.lumi_lumi_sensor_motion_aq2_battery',
               'sensor.lumi_lumi_sensor_motion_aq2_battery_10',
@@ -3775,7 +3699,6 @@
           'sensor.hue_smart_button_2_battery',
           'sensor.laundry_door_battery',
           'sensor.living_room_sliding_door_battery',
-          'sensor.lumi_lumi_remote_b286acn01_battery',
           'sensor.lumi_lumi_sensor_magnet_b586cf03_power',
           'sensor.lumi_lumi_sensor_magnet_battery',
           'sensor.lumi_lumi_sensor_magnet_battery_2',
@@ -3784,7 +3707,6 @@
           'sensor.lumi_lumi_sensor_magnet_power',
           'sensor.lumi_lumi_sensor_motion_1ac4f902_power',
           'sensor.lumi_lumi_sensor_motion_742edc01_power',
-          'sensor.lumi_lumi_sensor_motion_77c4f902_power',
           'sensor.lumi_lumi_sensor_motion_92551c03_power',
           'sensor.lumi_lumi_sensor_motion_aq2_battery',
           'sensor.lumi_lumi_sensor_motion_aq2_battery_10',
@@ -3837,10 +3759,9 @@
     data: {}
     target:
       entity_id: alarm_control_panel.alarmo
-  - action: light.turn_off
-    data: {}
-    target:
-      entity_id: light.inside_lights
+  - action: script.ensure_off
+    data:
+      entity: light.inside_lights
   mode: single
 - id: 'phase1_away_mode_motion_lights'
   alias: Presence - Away mode disable interior motion lights
@@ -3857,7 +3778,6 @@
       entity_id:
       - input_boolean.bathroom_motion_lights
       - input_boolean.bedroom_motion_lights
-      - input_boolean.ensuite_motion_lights
       - input_boolean.living_room_motion_lights
       - input_boolean.kitchen_motion_lights
       - input_boolean.dining_motion_lights
@@ -3865,33 +3785,39 @@
       - input_boolean.den_motion_lights
       - input_boolean.pantry_auto_lights
       - input_boolean.laundry_auto_lights
-  - choose:
-    - alias: Guest is staying - keep guestroom motion lights
-      conditions:
-      - condition: state
-        entity_id: input_boolean.guest_mode
-        state: 'on'
-      sequence: []
-    default:
-    - action: input_boolean.turn_off
-      data: {}
-      target:
-        entity_id: input_boolean.guestroom_motion_lights
-  - action: homeassistant.turn_off
-    data: {}
-    target:
-      entity_id:
-      - light.gledopto_led_light_cct
-      - light.bedroom
-      - switch.mains_ensuite_switch_0
-      - switch.mains_ensuite_switch_1
-      - light.living_room
-      - light.kitchen
-      - light.dining
-      - light.upstairs_2
-      - light.den
-      - switch.mains_pantry_switch_0
-      - switch.shellyplus2pm_e465b86040bc_switch_0
+  - action: script.ensure_off
+    data:
+      entity: light.gledopto_led_light_cct
+  - action: script.ensure_off
+    data:
+      entity: light.bedroom
+  - action: script.ensure_off
+    data:
+      entity: switch.mains_ensuite_switch_0
+  - action: script.ensure_off
+    data:
+      entity: switch.mains_ensuite_switch_1
+  - action: script.ensure_off
+    data:
+      entity: light.living_room
+  - action: script.ensure_off
+    data:
+      entity: light.kitchen
+  - action: script.ensure_off
+    data:
+      entity: light.dining
+  - action: script.ensure_off
+    data:
+      entity: light.upstairs_2
+  - action: script.ensure_off
+    data:
+      entity: light.den
+  - action: script.ensure_off
+    data:
+      entity: switch.mains_pantry_switch_0
+  - action: script.ensure_off
+    data:
+      entity: switch.shellyplus2pm_e465b86040bc_switch_0
   mode: single
 - id: 'phase1_home_mode_restore'
   alias: Presence - Home mode restore motion lights
@@ -3909,38 +3835,6 @@
       - input_boolean.bathroom_motion_lights
       - input_boolean.pantry_auto_lights
       - input_boolean.laundry_auto_lights
-  mode: single
-- id: 'phase1_guest_mode_on'
-  alias: Guest Mode - Enable guestroom motion lights
-  description: Turn on guestroom motion lights when guest mode is enabled
-  triggers:
-  - entity_id: input_boolean.guest_mode
-    to: 'on'
-    trigger: state
-  conditions: []
-  actions:
-  - action: input_boolean.turn_on
-    data: {}
-    target:
-      entity_id: input_boolean.guestroom_motion_lights
-  mode: single
-- id: 'phase1_guest_mode_off'
-  alias: Guest Mode - Disable guestroom motion lights
-  description: Turn off guestroom motion lights and guestroom light when guest mode is disabled
-  triggers:
-  - entity_id: input_boolean.guest_mode
-    to: 'off'
-    trigger: state
-  conditions: []
-  actions:
-  - action: input_boolean.turn_off
-    data: {}
-    target:
-      entity_id: input_boolean.guestroom_motion_lights
-  - action: light.turn_off
-    data: {}
-    target:
-      entity_id: light.guestroom
   mode: single
 
 # === Phase 2: Holiday Mode Improvements ===
@@ -4010,11 +3904,9 @@
     entity_id: input_boolean.housesitter_mode
     state: 'off'
   actions:
-  - data:
-      transition: 60
-    target:
-      entity_id: light.front_3
-    action: light.turn_off
+  - action: script.ensure_off
+    data:
+      entity: light.front_3
   mode: single
 - id: 'phase2_holiday_light_sim_evening'
   alias: Holiday - Light simulation evening on
@@ -4046,11 +3938,9 @@
           hours: '{{ range(1, 3) | random }}'
           minutes: 0
           seconds: 0
-      - action: light.turn_off
+      - action: script.ensure_off
         data:
-          transition: 5
-        target:
-          entity_id: light.living_room
+          entity: light.living_room
     - alias: Random selection 2 - Den lights
       conditions:
       - condition: template
@@ -4066,11 +3956,9 @@
           hours: '{{ range(1, 3) | random }}'
           minutes: 0
           seconds: 0
-      - action: light.turn_off
+      - action: script.ensure_off
         data:
-          transition: 5
-        target:
-          entity_id: light.den
+          entity: light.den
     - alias: Random selection 3 - Kitchen lights
       conditions:
       - condition: template
@@ -4086,11 +3974,9 @@
           hours: '{{ range(1, 3) | random }}'
           minutes: 0
           seconds: 0
-      - action: light.turn_off
+      - action: script.ensure_off
         data:
-          transition: 5
-        target:
-          entity_id: light.kitchen
+          entity: light.kitchen
     - alias: Random selection 4 - Hallway light
       conditions:
       - condition: template
@@ -4106,11 +3992,9 @@
           hours: '{{ range(1, 2) | random }}'
           minutes: 0
           seconds: 0
-      - action: light.turn_off
+      - action: script.ensure_off
         data:
-          transition: 5
-        target:
-          entity_id: light.hallway
+          entity: light.hallway
   mode: single
 - id: 'phase2_holiday_light_sim_off'
   alias: Holiday - Light simulation off at 10pm
@@ -4126,15 +4010,18 @@
     entity_id: input_boolean.housesitter_mode
     state: 'off'
   actions:
-  - action: light.turn_off
+  - action: script.ensure_off
     data:
-      transition: 30
-    target:
-      entity_id:
-      - light.living_room
-      - light.den
-      - light.kitchen
-      - light.hallway
+      entity: light.living_room
+  - action: script.ensure_off
+    data:
+      entity: light.den
+  - action: script.ensure_off
+    data:
+      entity: light.kitchen
+  - action: script.ensure_off
+    data:
+      entity: light.hallway
   mode: single
 
 # === Phase 3: Housesitter Mode ===
@@ -4177,10 +4064,6 @@
   - action: input_boolean.turn_on
     data: {}
     target:
-      entity_id: input_boolean.guestroom_motion_lights
-  - action: input_boolean.turn_on
-    data: {}
-    target:
       entity_id: input_boolean.guest_mode
   mode: single
 - id: 'phase3_housesitter_mode_off'
@@ -4203,14 +4086,9 @@
     data: {}
     target:
       entity_id: input_boolean.guest_mode
-  - action: input_boolean.turn_off
-    data: {}
-    target:
-      entity_id: input_boolean.guestroom_motion_lights
-  - action: light.turn_off
-    data: {}
-    target:
-      entity_id: light.guestroom
+  - action: script.ensure_off
+    data:
+      entity: light.guestroom
   mode: single
 
 # === Phase 4: Security Alerts ===
@@ -4512,7 +4390,6 @@
     entity_id: input_select.house_mode
     state:
     - Away
-    - Sleep
     - Holiday
   - condition: state
     entity_id: input_boolean.housesitter_mode
@@ -4527,8 +4404,8 @@
     value_template: >-
       {{ ['input_datetime.last_person_side', 'input_datetime.last_person_shed',
           'input_datetime.last_person_rear', 'input_datetime.last_person_patio']
-        | map('states') | map('as_datetime') | map('as_timestamp')
-        | select('gt', (now() | as_timestamp) - 300) | list | count >= 2 }}
+        | map('states') | map('as_datetime') | map('default', now() - timedelta(hours=1), true) | map('as_timestamp')
+        | select('gt', (now() | as_timestamp) - 180) | list | count >= 2 }}
   - action: camera.snapshot
     target:
       entity_id: "{{ {'side': 'camera.side_fluent', 'shed': 'camera.camera1_fluent', 'rear': 'camera.rear_fluent', 'patio': 'camera.camera1_fluent_3'}[trigger.id] }}"
@@ -4540,7 +4417,7 @@
         {% set cam_names = {'input_datetime.last_person_side': 'Side', 'input_datetime.last_person_shed': 'Shed', 'input_datetime.last_person_rear': 'Rear', 'input_datetime.last_person_patio': 'Patio'} %}
         {% set ns = namespace(found=[]) %}
         {% for ent, name in cam_names.items() %}
-        {% if (states(ent) | as_datetime | as_timestamp) > (now() | as_timestamp) - 300 %}
+        {% if (states(ent) | as_datetime | default(now() - timedelta(hours=1), true) | as_timestamp) > (now() | as_timestamp) - 180 %}
         {% set ns.found = ns.found + [name] %}
         {% endif %}
         {% endfor %}
@@ -4677,4 +4554,1211 @@
       value: 0
     target:
       entity_id: input_number.watchman_longitude
+  mode: single
+
+# === Night Security (Sleep mode) ===
+# Alarmo arms armed_night when house_mode -> Sleep (perimeter doors only -
+# interior motion is intentionally not armed so residents can move around).
+#
+# Resident exit: a perimeter door opening while armed, preceded by downstairs
+# motion (<2 min), sets resident_outside for 45 min and disarms Alarmo so the
+# exit itself never triggers. Return (any perimeter door) clears the flag and
+# re-arms. If the window expires, Adam gets a re-arm prompt (no auto re-arm -
+# a returning resident would otherwise face a pending alarm at the door).
+#
+# External person detection while armed and no resident outside:
+#   T1   single camera person event            -> snapshot + quiet alert (Adam, 10 min throttle)
+#   T1.5 camera person + Hue PIR within 3 min  -> + floodlight (possible intruder)
+#   T2   2+ distinct cameras within 3 min      -> floodlight + confirmed alert (Adam)
+# Front door / doorbell person events participate in the same 3-min correlation.
+# Shed door open (sensor pending pairing) during Sleep = immediate confirmed alert.
+# Alarmo pending/triggered = alarm tier, always notifies both phones.
+
+- id: 'night_pir_stamp'
+  alias: Night Security - PIR stamp
+  description: >-
+    Stamps Hue outdoor PIR last-active times. PIRs fire on any motion so they
+    never alert alone - they only corroborate camera person events.
+  triggers:
+  - entity_id: binary_sensor.hue_outdoor_motion_sensor_1_motion
+    to: 'on'
+    trigger: state
+    id: shed
+  - entity_id: binary_sensor.hue_outdoor_motion_sensor_2_motion
+    to: 'on'
+    trigger: state
+    id: house
+  conditions: []
+  actions:
+  - action: input_datetime.set_datetime
+    target:
+      entity_id: input_datetime.last_pir_{{ trigger.id }}
+    data:
+      timestamp: '{{ now() | as_timestamp | int }}'
+  mode: single
+
+- id: 'night_resident_exit'
+  alias: Night Security - Resident exit detected
+  description: >-
+    Door opened while armed_night with downstairs motion in the last 2 minutes =
+    a resident stepping out. Disarm and mute external alerts for 45 minutes.
+  triggers:
+  - entity_id:
+    - binary_sensor.lumi_lumi_sensor_magnet_opening
+    - binary_sensor.lumi_lumi_sensor_magnet_b586cf03_on_off
+    - binary_sensor.lumi_lumi_sensor_magnet_opening_3
+    - binary_sensor.lumi_lumi_sensor_magnet_opening_4
+    - binary_sensor.door_sensor_7_iaszone
+    - binary_sensor.door_sensor_8_iaszone
+    - binary_sensor.door_sensor_9_iaszone
+    - binary_sensor.door_sensor_10_iaszone
+    - binary_sensor.door_sensor_11_iaszone
+    - binary_sensor.door_sensor_12_iaszone
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: alarm_control_panel.alarmo
+    state: armed_night
+  - condition: template
+    value_template: >-
+      {{ is_state('binary_sensor.night_downstairs_motion', 'on')
+         or (now() - (states.binary_sensor.night_downstairs_motion.last_changed
+             | default(now() - timedelta(hours=1), true))).total_seconds() < 120 }}
+  actions:
+  - action: alarm_control_panel.alarm_disarm
+    target:
+      entity_id: alarm_control_panel.alarmo
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.resident_outside
+  - action: timer.start
+    target:
+      entity_id: timer.resident_outside_window
+  mode: single
+
+- id: 'night_resident_return'
+  alias: Night Security - Resident return
+  description: >-
+    Any perimeter door opens while resident_outside is set = someone came back
+    in. Clear the flag and re-arm if still in Sleep mode.
+  triggers:
+  - entity_id:
+    - binary_sensor.lumi_lumi_sensor_magnet_opening
+    - binary_sensor.lumi_lumi_sensor_magnet_b586cf03_on_off
+    - binary_sensor.lumi_lumi_sensor_magnet_opening_3
+    - binary_sensor.lumi_lumi_sensor_magnet_opening_4
+    - binary_sensor.door_sensor_7_iaszone
+    - binary_sensor.door_sensor_8_iaszone
+    - binary_sensor.door_sensor_9_iaszone
+    - binary_sensor.door_sensor_10_iaszone
+    - binary_sensor.door_sensor_11_iaszone
+    - binary_sensor.door_sensor_12_iaszone
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.resident_outside
+    state: 'on'
+  actions:
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.resident_outside
+  - action: timer.cancel
+    target:
+      entity_id: timer.resident_outside_window
+  - if:
+    - condition: state
+      entity_id: input_select.house_mode
+      state: Sleep
+    then:
+    - action: alarm_control_panel.alarm_arm_night
+      target:
+        entity_id: alarm_control_panel.alarmo
+  mode: single
+
+- id: 'night_resident_timeout'
+  alias: Night Security - Resident window expired
+  description: >-
+    45-minute outside window elapsed without a return. Clear the flag and offer
+    Adam a re-arm action - no automatic re-arm so a returning resident does not
+    face a pending alarm.
+  triggers:
+  - trigger: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.resident_outside_window
+  conditions:
+  - condition: state
+    entity_id: input_boolean.resident_outside
+    state: 'on'
+  actions:
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.resident_outside
+  - if:
+    - condition: state
+      entity_id: input_select.house_mode
+      state: Sleep
+    then:
+    - action: alarm_control_panel.alarm_arm_night
+      target:
+        entity_id: alarm_control_panel.alarmo
+    - data:
+        title: Night Security
+        message: Resident window expired - alarm re-armed (night).
+      action: notify.mobile_app_pixel_6
+    else:
+    - data:
+        title: Night Security
+        message: Resident outside window expired - alarm still disarmed.
+        data:
+          actions:
+          - action: rearm_night
+            title: Re-arm alarm
+      action: notify.mobile_app_pixel_6
+  mode: single
+
+- id: 'night_late_return'
+  alias: Night Security - Resident arrives home
+  description: >-
+    Someone arrives home while the house is in Sleep mode (e.g. late night out).
+    Stay in Sleep: disarm for entry, mark resident outside so their approach
+    detections don't alert, and re-arm automatically after 30 minutes once
+    they're settled inside.
+  triggers:
+  - entity_id:
+    - person.adam_smith
+    - person.madeleine_moloney
+    to: home
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state: Sleep
+  actions:
+  - action: alarm_control_panel.alarm_disarm
+    target:
+      entity_id: alarm_control_panel.alarmo
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.resident_outside
+  - action: timer.start
+    target:
+      entity_id: timer.resident_outside_window
+    data:
+      duration: '00:30:00'
+  mode: single
+
+- id: 'night_person_event'
+  alias: Night Security - Person event evaluation
+  description: >-
+    Evaluates every camera person event during Sleep. Stamps the camera, then:
+    2+ distinct cameras within 3 min = confirmed (floodlight + alert),
+    camera + PIR within 3 min = possible (floodlight + alert),
+    single camera = quiet throttled alert.
+  triggers:
+  - entity_id: binary_sensor.side_person
+    to: 'on'
+    trigger: state
+    id: side
+  - entity_id: binary_sensor.camera1_person
+    to: 'on'
+    trigger: state
+    id: shed
+  - entity_id: binary_sensor.rear_person
+    to: 'on'
+    trigger: state
+    id: rear
+  - entity_id: binary_sensor.camera1_person_3
+    to: 'on'
+    trigger: state
+    id: patio
+  - entity_id: binary_sensor.front_door_person
+    to: 'on'
+    trigger: state
+    id: front_door
+  - entity_id: binary_sensor.doorbell_person_2
+    to: 'on'
+    trigger: state
+    id: doorbell
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state: Sleep
+  - condition: state
+    entity_id: input_boolean.resident_outside
+    state: 'off'
+  actions:
+  - action: input_datetime.set_datetime
+    target:
+      entity_id: input_datetime.last_person_{{ trigger.id }}
+    data:
+      timestamp: '{{ now() | as_timestamp | int }}'
+  - variables:
+      cam_map: >-
+        {{ {'side': 'camera.side_fluent', 'shed': 'camera.camera1_fluent',
+            'rear': 'camera.rear_fluent', 'patio': 'camera.camera1_fluent_3',
+            'front_door': 'camera.front_door_fluent', 'doorbell': 'camera.doorbell_fluent_2'}[trigger.id] }}
+      light_map: >-
+        {{ {'side': 'light.side_floodlight', 'shed': 'light.camera1_floodlight',
+            'rear': 'light.rear_floodlight', 'patio': 'light.camera1_floodlight_2',
+            'front_door': 'light.front_door_floodlight', 'doorbell': 'light.front_door_floodlight'}[trigger.id] }}
+      name_map: >-
+        {{ {'side': 'Side', 'shed': 'Shed', 'rear': 'Rear', 'patio': 'Patio',
+            'front_door': 'Front Door', 'doorbell': 'Doorbell'}[trigger.id] }}
+      recent_cams: >-
+        {{ ['input_datetime.last_person_side', 'input_datetime.last_person_shed',
+            'input_datetime.last_person_rear', 'input_datetime.last_person_patio',
+            'input_datetime.last_person_front_door', 'input_datetime.last_person_doorbell']
+          | map('states') | map('as_datetime') | map('default', now() - timedelta(hours=1), true) | map('as_timestamp')
+          | select('gt', (now() | as_timestamp) - 180) | list | count }}
+      recent_pirs: >-
+        {{ ['input_datetime.last_pir_shed', 'input_datetime.last_pir_house']
+          | map('states') | map('as_datetime') | map('default', now() - timedelta(hours=1), true) | map('as_timestamp')
+          | select('gt', (now() | as_timestamp) - 180) | list | count }}
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ recent_cams | int >= 2 }}'
+      sequence:
+      - action: camera.snapshot
+        target:
+          entity_id: '{{ cam_map }}'
+        data:
+          filename: /config/www/night-security.jpg
+      - action: light.turn_on
+        target:
+          entity_id: '{{ light_map }}'
+      - data:
+          title: Security Alert - Person Confirmed
+          message: >-
+            {% set cam_names = {'input_datetime.last_person_side': 'Side', 'input_datetime.last_person_shed': 'Shed', 'input_datetime.last_person_rear': 'Rear', 'input_datetime.last_person_patio': 'Patio', 'input_datetime.last_person_front_door': 'Front Door', 'input_datetime.last_person_doorbell': 'Doorbell'} %}
+            {% set ns = namespace(found=[]) %}
+            {% for ent, name in cam_names.items() %}
+            {% if (states(ent) | as_datetime | default(now() - timedelta(hours=1), true) | as_timestamp) > (now() | as_timestamp) - 180 %}
+            {% set ns.found = ns.found + [name] %}
+            {% endif %}
+            {% endfor %}
+            Person confirmed by {{ ns.found | length }} cameras: {{ ns.found | join(', ') }}
+          data:
+            image: https://parkplace.duckdns.org:8123/local/night-security.jpg
+            actions:
+            - action: URI
+              title: View Live Feed
+              uri: app://com.mcu.reolink
+        action: notify.mobile_app_pixel_6
+      - action: input_datetime.set_datetime
+        target:
+          entity_id:
+          - input_datetime.last_person_side
+          - input_datetime.last_person_shed
+          - input_datetime.last_person_rear
+          - input_datetime.last_person_patio
+          - input_datetime.last_person_front_door
+          - input_datetime.last_person_doorbell
+          - input_datetime.last_pir_shed
+          - input_datetime.last_pir_house
+        data:
+          datetime: '2020-01-01 00:00'
+    - conditions:
+      - condition: template
+        value_template: '{{ recent_pirs | int >= 1 }}'
+      - condition: template
+        value_template: "{{ trigger.id not in ['front_door', 'doorbell'] }}"
+      sequence:
+      - action: camera.snapshot
+        target:
+          entity_id: '{{ cam_map }}'
+        data:
+          filename: /config/www/night-security.jpg
+      - action: light.turn_on
+        target:
+          entity_id: '{{ light_map }}'
+      - if:
+        - condition: template
+          value_template: >-
+            {{ (states('input_datetime.night_alert_last_sent') | as_datetime | default(now() - timedelta(hours=1), true) | as_timestamp)
+               < (now() | as_timestamp) - 600 }}
+        then:
+        - data:
+            title: Security - Possible Person
+            message: 'Person on {{ name_map }} camera with PIR corroboration - possible intruder.'
+            data:
+              image: https://parkplace.duckdns.org:8123/local/night-security.jpg
+              actions:
+              - action: URI
+                title: View Live Feed
+                uri: app://com.mcu.reolink
+          action: notify.mobile_app_pixel_6
+        - action: input_datetime.set_datetime
+          target:
+            entity_id: input_datetime.night_alert_last_sent
+          data:
+            timestamp: '{{ now() | as_timestamp | int }}'
+    - conditions:
+      - condition: template
+        value_template: "{{ trigger.id not in ['front_door', 'doorbell'] }}"
+      sequence:
+      - if:
+        - condition: template
+          value_template: >-
+            {{ (states('input_datetime.night_alert_last_sent') | as_datetime | default(now() - timedelta(hours=1), true) | as_timestamp)
+               < (now() | as_timestamp) - 600 }}
+        then:
+        - action: camera.snapshot
+          target:
+            entity_id: '{{ cam_map }}'
+          data:
+            filename: /config/www/night-security.jpg
+        - data:
+            title: Night Security - Person
+            message: 'Single person event on {{ name_map }} camera.'
+            data:
+              image: https://parkplace.duckdns.org:8123/local/night-security.jpg
+          action: notify.mobile_app_pixel_6
+        - action: input_datetime.set_datetime
+          target:
+            entity_id: input_datetime.night_alert_last_sent
+          data:
+            timestamp: '{{ now() | as_timestamp | int }}'
+  mode: single
+
+- id: 'night_shed_door'
+  alias: Night Security - Shed door opened
+  description: >-
+    Shed door contact opened during Sleep with no resident outside = immediate
+    confirmed alert. NOTE: binary_sensor.shed_door does not exist yet - replace
+    with the real entity_id when the upgraded sensor is paired.
+  triggers:
+  - entity_id: binary_sensor.shed_door
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state: Sleep
+  - condition: state
+    entity_id: input_boolean.resident_outside
+    state: 'off'
+  actions:
+  - action: camera.snapshot
+    target:
+      entity_id: camera.camera1_fluent
+    data:
+      filename: /config/www/night-security.jpg
+  - action: light.turn_on
+    target:
+      entity_id:
+      - light.camera1_floodlight
+      - light.camera1_floodlight_2
+  - data:
+      title: Security Alert - Shed Door
+      message: Shed door opened during Sleep mode.
+      data:
+        image: https://parkplace.duckdns.org:8123/local/night-security.jpg
+        actions:
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.mobile_app_pixel_6
+  mode: single
+
+- id: 'night_alarm_pending'
+  alias: Night Security - Alarm pending
+  description: >-
+    Alarmo entered pending (perimeter door opened while armed with no exit
+    signature). Both phones get a disarm action before sirens. Waits 10s and
+    re-checks so a resident exit (which disarms within ~1s) does not alert.
+  triggers:
+  - entity_id: alarm_control_panel.alarmo
+    to: pending
+    trigger: state
+  conditions: []
+  actions:
+  - delay: '00:00:10'
+  - if:
+    - condition: state
+      entity_id: alarm_control_panel.alarmo
+      state: pending
+    then:
+    - data:
+        title: ALARM PENDING
+        message: 'Entry detected: {{ state_attr(''alarm_control_panel.alarmo'', ''open_sensors'') }}. Disarm now?'
+        data:
+          actions:
+          - action: disarm_alarm
+            title: Disarm
+      action: notify.mobile_app_pixel_6
+    - data:
+        title: ALARM PENDING
+        message: 'Entry detected: {{ state_attr(''alarm_control_panel.alarmo'', ''open_sensors'') }}. Disarm now?'
+        data:
+          actions:
+          - action: disarm_alarm
+            title: Disarm
+      action: notify.mobile_app_sm_a556e
+  mode: single
+
+- id: 'night_alarm_triggered'
+  alias: Night Security - Alarm triggered
+  description: >-
+    Alarmo triggered. Notify both phones and light up all exterior floodlights
+    plus the den (silent deterrent, no sirens).
+  triggers:
+  - entity_id: alarm_control_panel.alarmo
+    to: triggered
+    trigger: state
+  conditions: []
+  actions:
+  - action: light.turn_on
+    target:
+      entity_id:
+      - light.side_floodlight
+      - light.rear_floodlight
+      - light.camera1_floodlight
+      - light.camera1_floodlight_2
+      - light.front_door_floodlight
+      - light.front_balcony_floodlight
+      - light.garage_floodlight
+      - light.spotlight_1
+      - light.spotlight_2
+      - light.spotlight_3
+      - light.spotlight_4
+      - light.spotlight_5
+  - action: light.turn_on
+    target:
+      entity_id: light.den
+    data:
+      brightness_pct: 100
+  - data:
+      title: ALARM TRIGGERED
+      message: 'Alarm triggered: {{ state_attr(''alarm_control_panel.alarmo'', ''open_sensors'') }}'
+    action: notify.mobile_app_pixel_6
+  - data:
+      title: ALARM TRIGGERED
+      message: 'Alarm triggered: {{ state_attr(''alarm_control_panel.alarmo'', ''open_sensors'') }}'
+    action: notify.mobile_app_sm_a556e
+  mode: single
+
+- id: 'night_alarm_disarm_action'
+  alias: Night Security - Disarm from notification
+  triggers:
+  - event_type: mobile_app_notification_action
+    event_data:
+      action: disarm_alarm
+    trigger: event
+  conditions: []
+  actions:
+  - action: alarm_control_panel.alarm_disarm
+    target:
+      entity_id: alarm_control_panel.alarmo
+  mode: single
+
+- id: 'night_alarm_rearm_action'
+  alias: Night Security - Re-arm from notification
+  triggers:
+  - event_type: mobile_app_notification_action
+    event_data:
+      action: rearm_night
+    trigger: event
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state: Sleep
+  actions:
+  - action: alarm_control_panel.alarm_arm_night
+    target:
+      entity_id: alarm_control_panel.alarmo
+  mode: single
+
+- id: 'night_arm_verify'
+  alias: Night Security - Arm verification
+  description: >-
+    60s after Sleep mode engages, confirm Alarmo actually armed. Notifies Adam
+    if the arm call failed so a failed arm never goes unnoticed.
+  triggers:
+  - entity_id: input_select.house_mode
+    to: Sleep
+    trigger: state
+  conditions: []
+  actions:
+  - delay: '00:01:00'
+  - if:
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: alarm_control_panel.alarmo
+        state:
+        - armed_night
+        - armed_home
+    then:
+    - data:
+        title: Night Security
+        message: 'Sleep mode set but alarm did not arm (state: {{ states(''alarm_control_panel.alarmo'') }}). Check Alarmo.'
+      action: notify.mobile_app_pixel_6
+  mode: single
+# === Security fixes & escalation (2026-09-25) ===
+
+- id: 'morning_motion_home'
+  alias: House Mode - Morning motion ends Sleep
+  description: >-
+    First downstairs motion after 05:30 while in Sleep mode means the household
+    is awake - return to Home (disarms Alarmo) so morning doors don't alarm.
+  triggers:
+  - entity_id: binary_sensor.night_downstairs_motion
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state: Sleep
+  - condition: time
+    after: '05:30:00'
+    before: '10:00:00'
+  actions:
+  - action: input_select.select_option
+    data:
+      option: Home
+    target:
+      entity_id: input_select.house_mode
+  - data:
+      title: House Mode
+      message: Morning motion detected - switched to Home, alarm disarmed.
+    action: notify.mobile_app_pixel_6
+  mode: single
+
+- id: 'guest_mode_cds_reenable'
+  alias: Guest Mode - Re-enable CDS automations
+  description: >-
+    The Guest Mode automation turns CDS automations OFF when guests arrive but
+    nothing re-enabled them. Restore them when guest mode turns off.
+  triggers:
+  - entity_id: input_boolean.guest_mode
+    to: 'off'
+    trigger: state
+  conditions: []
+  actions:
+  - action: automation.turn_on
+    target:
+      entity_id:
+      - automation.pet_camera
+      - automation.e1_cds_alarm
+      - automation.cds_enable_e1_supplemental_alarm_at_night
+      - automation.cds_trigger
+      - automation.cds_alarm_auto_enable_doors
+      - automation.cds_side_camera_floodlight
+      - automation.cds_auto_disable
+      - automation.cds_e1_supplemental_alarm_disable
+      - automation.cds_auto_enable
+      - automation.cds_rear_camera_spotlight
+  mode: single
+
+- id: 'person_stamp_all'
+  alias: Security - Person detection stamps
+  description: >-
+    Stamps the last person-detection time for every outdoor camera regardless of
+    mode. Stamps feed night correlation and entry-escalation checks.
+  triggers:
+  - entity_id: binary_sensor.side_person
+    to: 'on'
+    trigger: state
+    id: side
+  - entity_id: binary_sensor.camera1_person
+    to: 'on'
+    trigger: state
+    id: shed
+  - entity_id: binary_sensor.rear_person
+    to: 'on'
+    trigger: state
+    id: rear
+  - entity_id: binary_sensor.camera1_person_3
+    to: 'on'
+    trigger: state
+    id: patio
+  - entity_id: binary_sensor.front_door_person
+    to: 'on'
+    trigger: state
+    id: front_door
+  - entity_id: binary_sensor.doorbell_person_2
+    to: 'on'
+    trigger: state
+    id: doorbell
+  conditions: []
+  actions:
+  - action: input_datetime.set_datetime
+    target:
+      entity_id: input_datetime.last_person_{{ trigger.id }}
+    data:
+      timestamp: '{{ now() | as_timestamp | int }}'
+  mode: single
+
+- id: 'night_entry_escalation'
+  alias: Night Security - Entry with person sighting
+  description: >-
+    Perimeter door opens while armed_night WITHOUT the resident-exit signature
+    (no recent downstairs motion) AND a camera saw a person in the last 3 min =
+    probable intrusion. Alerts both phones immediately, ahead of the pending
+    notification.
+  triggers:
+  - entity_id: binary_sensor.lumi_lumi_sensor_magnet_opening
+    to: 'on'
+    trigger: state
+    id: front_door
+  - entity_id: binary_sensor.lumi_lumi_sensor_magnet_b586cf03_on_off
+    to: 'on'
+    trigger: state
+    id: back_door
+  - entity_id: binary_sensor.door_sensor_7_iaszone
+    to: 'on'
+    trigger: state
+    id: den_sliding
+  - entity_id: binary_sensor.door_sensor_8_iaszone
+    to: 'on'
+    trigger: state
+    id: guestroom_sliding
+  - entity_id: binary_sensor.door_sensor_10_iaszone
+    to: 'on'
+    trigger: state
+    id: living_sliding
+  - entity_id: binary_sensor.lumi_lumi_sensor_magnet_opening_4
+    to: 'on'
+    trigger: state
+    id: downstairs_door
+  - entity_id: binary_sensor.lumi_lumi_sensor_magnet_opening_3
+    to: 'on'
+    trigger: state
+    id: garage_roller
+  - entity_id: binary_sensor.door_sensor_9_iaszone
+    to: 'on'
+    trigger: state
+    id: garage_entry
+  - entity_id: binary_sensor.door_sensor_12_iaszone
+    to: 'on'
+    trigger: state
+    id: garage_side
+  - entity_id: binary_sensor.door_sensor_11_iaszone
+    to: 'on'
+    trigger: state
+    id: laundry
+  conditions:
+  - condition: state
+    entity_id: alarm_control_panel.alarmo
+    state: armed_night
+  - condition: state
+    entity_id: input_boolean.resident_outside
+    state: 'off'
+  - condition: template
+    value_template: >-
+      {{ not is_state('binary_sensor.night_downstairs_motion', 'on')
+         and (now() - (states.binary_sensor.night_downstairs_motion.last_changed
+             | default(now() - timedelta(hours=1), true))).total_seconds() >= 120 }}
+  - condition: template
+    value_template: >-
+      {{ ['input_datetime.last_person_side', 'input_datetime.last_person_shed',
+          'input_datetime.last_person_rear', 'input_datetime.last_person_patio',
+          'input_datetime.last_person_front_door', 'input_datetime.last_person_doorbell']
+        | map('states') | map('as_datetime') | map('default', now() - timedelta(hours=1), true) | map('as_timestamp')
+        | select('gt', (now() | as_timestamp) - 180) | list | count >= 1 }}
+  actions:
+  - action: camera.snapshot
+    target:
+      entity_id: >-
+        {{ {'front_door': 'camera.front_door_fluent', 'back_door': 'camera.rear_fluent',
+            'den_sliding': 'camera.rear_fluent', 'guestroom_sliding': 'camera.camera1_fluent_3',
+            'living_sliding': 'camera.camera1_fluent_3', 'downstairs_door': 'camera.camera1_fluent_3',
+            'garage_roller': 'camera.garage_fluent', 'garage_entry': 'camera.garage_fluent',
+            'garage_side': 'camera.garage_fluent', 'laundry': 'camera.rear_fluent'}[trigger.id] }}
+    data:
+      filename: /config/www/night-security.jpg
+  - data:
+      title: SECURITY - Entry + Person Sighted
+      message: >-
+        {{ trigger.to_state.attributes.friendly_name }} opened while armed.
+        {% set cam_names = {'input_datetime.last_person_side': 'Side', 'input_datetime.last_person_shed': 'Shed', 'input_datetime.last_person_rear': 'Rear', 'input_datetime.last_person_patio': 'Patio', 'input_datetime.last_person_front_door': 'Front Door', 'input_datetime.last_person_doorbell': 'Doorbell'} %}
+        {% set ns = namespace(found=[]) %}
+        {% for ent, name in cam_names.items() %}
+        {% if (states(ent) | as_datetime | default(now() - timedelta(hours=1), true) | as_timestamp) > (now() | as_timestamp) - 180 %}
+        {% set ns.found = ns.found + [name] %}
+        {% endif %}
+        {% endfor %}
+        Person sighted recently on: {{ ns.found | join(', ') }}
+      data:
+        image: https://parkplace.duckdns.org:8123/local/night-security.jpg
+        actions:
+        - action: disarm_alarm
+          title: Disarm
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.mobile_app_pixel_6
+  - data:
+      title: SECURITY - Entry + Person Sighted
+      message: '{{ trigger.to_state.attributes.friendly_name }} opened while armed - person sighted recently.'
+      data:
+        actions:
+        - action: disarm_alarm
+          title: Disarm
+    action: notify.mobile_app_sm_a556e
+  mode: single
+
+- id: 'night_garage_person'
+  alias: Night Security - Person inside garage
+  description: >-
+    Person detected inside the garage while armed_night with no resident
+    outside = someone is physically inside the garage. Immediate alert to both
+    phones with garage floodlight.
+  triggers:
+  - entity_id: binary_sensor.garage_person
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: alarm_control_panel.alarmo
+    state: armed_night
+  - condition: state
+    entity_id: input_boolean.resident_outside
+    state: 'off'
+  actions:
+  - action: light.turn_on
+    target:
+      entity_id: light.garage_floodlight
+  - action: camera.snapshot
+    target:
+      entity_id: camera.garage_fluent
+    data:
+      filename: /config/www/night-security.jpg
+  - data:
+      title: SECURITY - Person in Garage
+      message: Person detected inside the garage during Sleep mode.
+      data:
+        image: https://parkplace.duckdns.org:8123/local/night-security.jpg
+        actions:
+        - action: disarm_alarm
+          title: Disarm
+        - action: URI
+          title: View Live Feed
+          uri: app://com.mcu.reolink
+    action: notify.mobile_app_pixel_6
+  - data:
+      title: SECURITY - Person in Garage
+      message: Person detected inside the garage during Sleep mode.
+      data:
+        actions:
+        - action: disarm_alarm
+          title: Disarm
+    action: notify.mobile_app_sm_a556e
+  mode: single
+- id: bathroom_fan_no_motion_off
+  alias: Bathroom Fan - Off after 15 min no motion
+  description: Turn off the bathroom fan if no motion has been detected in the bathroom for 15 minutes.
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.motion_bathroom
+    to: 'off'
+    for:
+      minutes: 15
+  conditions:
+  - condition: state
+    entity_id: fan.shellyplus1pm_b0b21c0e7af0_switch_0
+    state: 'on'
+  actions:
+  - action: script.ensure_off
+    data:
+      entity: fan.shellyplus1pm_b0b21c0e7af0_switch_0
+  mode: single
+- id: shelly_device_offline_watchdog
+  alias: Shelly Device Offline Watchdog
+  description: >-
+    Alerts when a Shelly device's primary switch entity is unavailable for 5+
+    minutes (device hung, crashed, or circuit power loss) and again when it
+    recovers. The 5-minute threshold suppresses noise during HA restarts.
+    Recovery alerts only fire if the device was down for 5+ minutes.
+  triggers:
+  - trigger: state
+    id: offline
+    entity_id:
+    - switch.mains_upstairs_hallway_switch_0
+    - switch.mains_pantry_switch_0
+    - switch.mains_garage_switch_0
+    - switch.mains_upstairs_powder_switch_0
+    - switch.mains_adam_closet_switch_0
+    - switch.ensuite_fan_switch_0
+    - switch.mains_ensuite_switch_0
+    - switch.mains_bedroom_switch_0
+    - switch.mains_downstairs_powder_switch_0
+    - switch.plus1pm_den_switch_0
+    - switch.plus1pm_guestroom_switch_0
+    - switch.shellyem_4417932136b7
+    - switch.mains_front_hallway_switch_0
+    - switch.mains_backyard_switch_0
+    - switch.mains_kitchen_switch_0
+    - switch.plus1pm_dining_switch_0
+    - switch.mains_studio_switch_0
+    - switch.mains_front_balcony_closet_switch_0
+    - switch.mains_patio_hallway_switch_0
+    - switch.mains_living_room_kitchen_switch_0
+    - switch.shellyplus1pm_b0b21c0e7af0_switch_0
+    - switch.shellyplus2pm_e465b86040bc_switch_0
+    - switch.mains_front_courtyard_switch_0
+    - switch.mains_garage_light_sensor_switch_0
+    - switch.shellyplus2pm_e465b8b85c58_switch_0
+    to: 'unavailable'
+    for:
+      minutes: 5
+  - trigger: state
+    id: recovered
+    entity_id:
+    - switch.mains_upstairs_hallway_switch_0
+    - switch.mains_pantry_switch_0
+    - switch.mains_garage_switch_0
+    - switch.mains_upstairs_powder_switch_0
+    - switch.mains_adam_closet_switch_0
+    - switch.ensuite_fan_switch_0
+    - switch.mains_ensuite_switch_0
+    - switch.mains_bedroom_switch_0
+    - switch.mains_downstairs_powder_switch_0
+    - switch.plus1pm_den_switch_0
+    - switch.plus1pm_guestroom_switch_0
+    - switch.shellyem_4417932136b7
+    - switch.mains_front_hallway_switch_0
+    - switch.mains_backyard_switch_0
+    - switch.mains_kitchen_switch_0
+    - switch.plus1pm_dining_switch_0
+    - switch.mains_studio_switch_0
+    - switch.mains_front_balcony_closet_switch_0
+    - switch.mains_patio_hallway_switch_0
+    - switch.mains_living_room_kitchen_switch_0
+    - switch.shellyplus1pm_b0b21c0e7af0_switch_0
+    - switch.shellyplus2pm_e465b86040bc_switch_0
+    - switch.mains_front_courtyard_switch_0
+    - switch.mains_garage_light_sensor_switch_0
+    - switch.shellyplus2pm_e465b8b85c58_switch_0
+    from: 'unavailable'
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - offline
+      sequence:
+      - action: notify.mobile_app_pixel_6
+        data:
+          title: Shelly Device Offline
+          message: "{{ trigger.to_state.attributes.friendly_name }} has been unreachable for 5+ minutes. Check the device - may need a breaker reset."
+          data:
+            notification_importance: high
+    - conditions:
+      - condition: trigger
+        id:
+        - recovered
+      - condition: template
+        value_template: "{{ (now() - trigger.from_state.last_changed).total_seconds() >= 300 }}"
+      sequence:
+      - action: notify.mobile_app_pixel_6
+        data:
+          title: Shelly Device Back Online
+          message: "{{ trigger.to_state.attributes.friendly_name }} is reachable again."
+  mode: queued
+- id: ikea_plug_offline_watchdog
+  alias: IKEA Plug Offline Watchdog
+  description: >-
+    Alerts when an IKEA Tradfri control outlet's switch entity is unavailable for
+    5+ minutes and again when it recovers. These plugs are Zigbee mesh routers -
+    a dead router orphans the battery sensors routing through it (as happened to
+    the Sep 22 sensor cluster when IKEA Plug 3 went dark). The 5-minute threshold
+    suppresses noise during HA restarts. Recovery alerts only fire if the plug
+    was down for 5+ minutes.
+  triggers:
+  - trigger: state
+    id: offline
+    entity_id:
+    - switch.ikea_of_sweden_tradfri_control_outlet_switch
+    - switch.ikea_of_sweden_tradfri_control_outlet_switch_2
+    - switch.ikea_plug_3_switch_3
+    to: 'unavailable'
+    for:
+      minutes: 5
+  - trigger: state
+    id: recovered
+    entity_id:
+    - switch.ikea_of_sweden_tradfri_control_outlet_switch
+    - switch.ikea_of_sweden_tradfri_control_outlet_switch_2
+    - switch.ikea_plug_3_switch_3
+    from: 'unavailable'
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - offline
+      sequence:
+      - action: notify.mobile_app_pixel_6
+        data:
+          title: IKEA Plug Offline
+          message: "{{ trigger.to_state.attributes.friendly_name }} has been unreachable for 5+ minutes. It is a Zigbee router - check it is still plugged in and the socket is on. Battery sensors routing through it will go silent until it recovers or they are re-paired."
+          data:
+            notification_importance: high
+    - conditions:
+      - condition: trigger
+        id:
+        - recovered
+      - condition: template
+        value_template: "{{ (now() - trigger.from_state.last_changed).total_seconds() >= 300 }}"
+      sequence:
+      - action: notify.mobile_app_pixel_6
+        data:
+          title: IKEA Plug Back Online
+          message: "{{ trigger.to_state.attributes.friendly_name }} is reachable again. Check whether orphaned sensors have rejoined or need re-pairing."
+  mode: queued
+- id: cast_keepalive_den_speaker
+  alias: Cast Keep-Alive - Notification Speakers
+  description: >-
+    Keeps the cast session warm on the alert speakers (den, kitchen, bedroom) by
+    playing a 0.6s silent clip every 4 minutes while the Default Media Receiver
+    session is idle. Google cast sessions time out after ~10 minutes; a warm
+    session means notifications play instantly with no connect chime and no
+    volume-mute gymnastics. Skips speakers that are off, playing content, or
+    running a different app - so it never interrupts real playback and never
+    causes an audible cold-start chime on its own.
+  triggers:
+  - trigger: time_pattern
+    minutes: /4
+  conditions: []
+  actions:
+  - repeat:
+      for_each:
+      - media_player.living_room_speaker
+      - media_player.kitchen_display
+      - media_player.bedroom_speaker_2
+      sequence:
+      - if:
+        - condition: template
+          value_template: "{{ is_state(repeat.item, 'idle') and state_attr(repeat.item, 'app_name') == 'Default Media Receiver' }}"
+        then:
+        - action: media_player.play_media
+          metadata: {}
+          target:
+            entity_id: '{{ repeat.item }}'
+          data:
+            media_content_id: https://parkplace.duckdns.org:8123/local/silence.wav
+            media_content_type: music
+  mode: single
+- id: garage_door_arming_beep
+  alias: Garage Door - Arming Beep
+  description: >-
+    Plays a short double-click (alarm-arming style) on the Den speaker when the
+    garage roller door opens or closes. Uses the no-chime cast script so the
+    Google connect tone is suppressed.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.lumi_lumi_sensor_magnet_opening_3
+    to: 'on'
+    from: 'off'
+    id: opened
+  - trigger: state
+    entity_id:
+    - binary_sensor.lumi_lumi_sensor_magnet_opening_3
+    to: 'off'
+    from: 'on'
+    id: closed
+  conditions: []
+  actions:
+  - action: script.cast_media_with_no_chime
+    metadata: {}
+    data:
+      volume: 0.5
+      media_file:
+        entity_id: media_player.living_room_speaker
+        media_content_id: https://parkplace.duckdns.org:8123/local/arm-click.wav
+        media_content_type: music
+  mode: single
+- id: front_door_person_floodlight
+  alias: Front Door - Person Floodlight
+  description: >-
+    Turns the front door floodlight on the moment someone is detected at the
+    front door and off once all sensors clear. Uses the zone-filtered camera
+    sensors plus the courtyard PIR and doorbell person sensor, so it fires for
+    people on the walkway regardless of camera angle (street excluded by the
+    Reolink non-detection zone).
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.front_door_person
+    - binary_sensor.front_door_pet
+    - binary_sensor.doorbell_person_2
+    - binary_sensor.motion_7
+    to: 'on'
+    from: 'off'
+    id: detected
+  - trigger: state
+    entity_id:
+    - binary_sensor.front_door_person
+    - binary_sensor.front_door_pet
+    - binary_sensor.doorbell_person_2
+    - binary_sensor.motion_7
+    to: 'off'
+    from: 'on'
+    id: cleared
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - detected
+      sequence:
+      - action: light.turn_on
+        metadata: {}
+        target:
+          entity_id: light.front_door_floodlight
+    - conditions:
+      - condition: trigger
+        id:
+        - cleared
+      - condition: template
+        value_template: '{{ is_state(''binary_sensor.front_door_person'',''off'') and is_state(''binary_sensor.front_door_pet'',''off'')
+          and is_state(''binary_sensor.doorbell_person_2'',''off'') and is_state(''binary_sensor.motion_7'',''off'') }}'
+      sequence:
+      - action: light.turn_off
+        metadata: {}
+        target:
+          entity_id: light.front_door_floodlight
+  mode: restart
+- id: security_front_door_person_alert
+  alias: Security - Front Door Person Alert
+  description: >-
+    Person detection at the front door from the two outdoor-facing person
+    sensors (front door camera - zone-filtered so street is excluded - and the
+    doorbell camera). Indoor motion sensors (front_entry PIR, camera pixel
+    motion) are deliberately NOT triggers: they fire on interior approach
+    through the hallway/glass door. 60s cooldown prevents repeat chimes from
+    sensor flapping. Routes by house mode: Away/Holiday pushes a snapshot with
+    a Reolink live-feed link; Guest mode sends a quiet push; Sleep sounds the
+    bedroom speaker; Home sounds den speaker or den+kitchen+bedroom in parallel.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.front_door_person
+    - binary_sensor.doorbell_person_2
+    - binary_sensor.motion_7
+    to: 'on'
+    from: 'off'
+    id: person
+  conditions:
+  - condition: template
+    value_template: '{{ state_attr(''automation.security_front_door_person_alert'',''last_triggered'') is none or (now() - state_attr(''automation.security_front_door_person_alert'',''last_triggered'')).total_seconds() > 60 }}'
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - person
+      - condition: state
+        entity_id: input_select.house_mode
+        state:
+        - Away
+        - Holiday
+      sequence:
+      - action: camera.snapshot
+        metadata: {}
+        data:
+          filename: /config/www/frontdoor-snapshot.jpg
+        target:
+          entity_id: camera.front_door_fluent
+      - action: notify.mobile_app_pixel_6
+        metadata: {}
+        data:
+          title: Front Door - Person
+          message: Person detected at the front door.
+          data:
+            image: https://parkplace.duckdns.org:8123/local/frontdoor-snapshot.jpg
+            actions:
+            - action: URI
+              title: View Live Feed
+              uri: app://com.mcu.reolink
+    - conditions:
+      - condition: trigger
+        id:
+        - person
+      - condition: state
+        entity_id: input_boolean.guest_mode
+        state: 'on'
+      sequence:
+      - action: notify.mobile_app_pixel_6
+        metadata: {}
+        data:
+          title: Front Door - Person
+          message: Person detected at the front door. (Guest mode - no speaker alert)
+    - conditions:
+      - condition: trigger
+        id:
+        - person
+      - condition: state
+        entity_id: input_select.house_mode
+        state: Sleep
+      - condition: state
+        entity_id: person.adam_smith
+        state: home
+      - condition: state
+        entity_id: person.madeleine_moloney
+        state: home
+      sequence:
+      - action: script.cast_media_with_no_chime
+        metadata: {}
+        data:
+          volume: 1.0
+          media_file:
+            entity_id: media_player.bedroom_speaker_2
+            media_content_id: https://parkplace.duckdns.org:8123/local/person-alert.wav
+            media_content_type: music
+    - conditions:
+      - condition: state
+        entity_id: input_select.house_mode
+        state: Home
+      - condition: state
+        entity_id: binary_sensor.den_occupied
+        state: 'on'
+      sequence:
+      - action: script.cast_media_with_no_chime
+        metadata: {}
+        data:
+          volume: 1.0
+          media_file:
+            entity_id: media_player.living_room_speaker
+            media_content_id: https://parkplace.duckdns.org:8123/local/person-alert.wav
+            media_content_type: music
+    - conditions:
+      - condition: state
+        entity_id: input_select.house_mode
+        state: Home
+      sequence:
+      - parallel:
+        - action: script.cast_media_with_no_chime
+          metadata: {}
+          data:
+            volume: 1.0
+            media_file:
+              entity_id: media_player.living_room_speaker
+              media_content_id: https://parkplace.duckdns.org:8123/local/person-alert.wav
+              media_content_type: music
+        - action: script.cast_media_with_no_chime
+          metadata: {}
+          data:
+            volume: 1.0
+            media_file:
+              entity_id: media_player.kitchen_display
+              media_content_id: https://parkplace.duckdns.org:8123/local/person-alert.wav
+              media_content_type: music
+        - action: script.cast_media_with_no_chime
+          metadata: {}
+          data:
+            volume: 1.0
+            media_file:
+              entity_id: media_player.bedroom_speaker_2
+              media_content_id: https://parkplace.duckdns.org:8123/local/person-alert.wav
+              media_content_type: music
   mode: single
