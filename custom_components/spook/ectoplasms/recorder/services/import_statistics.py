@@ -7,7 +7,9 @@ from typing import TYPE_CHECKING
 import voluptuous as vol
 
 from homeassistant.components.recorder import DOMAIN
+from homeassistant.components.recorder.models import StatisticMeanType
 from homeassistant.components.recorder.statistics import (
+    STATISTIC_UNIT_TO_UNIT_CONVERTER,
     async_add_external_statistics,
     async_import_statistics,
 )
@@ -48,11 +50,26 @@ class SpookService(AbstractSpookAdminService):
     async def async_handle_service(self, call: ServiceCall) -> None:
         """Handle the service call."""
         metadata: StatisticMetaData = {
-            "has_mean": call.data["has_mean"],
             "has_sum": call.data["has_sum"],
-            "name": call.data["name"],
+            "mean_type": (
+                StatisticMeanType.ARITHMETIC
+                if call.data["has_mean"]
+                else StatisticMeanType.NONE
+            ),
+            # Named after itself when nobody says otherwise. Home Assistant
+            # writes no name on the statistics a sensor keeps for itself, and
+            # takes that as meaning there is an entity somewhere holding the
+            # name instead. Importing without one leaves statistics that read
+            # as a sensor's, which is how Spook's own repairs end up calling
+            # something imported through here unknown. #1565.
+            "name": call.data["name"] or call.data["statistic_id"],
             "source": call.data["source"],
             "statistic_id": call.data["statistic_id"],
+            "unit_class": STATISTIC_UNIT_TO_UNIT_CONVERTER.get(
+                call.data["unit_of_measurement"]
+            ).UNIT_CLASS
+            if call.data["unit_of_measurement"] in STATISTIC_UNIT_TO_UNIT_CONVERTER
+            else None,
             "unit_of_measurement": call.data["unit_of_measurement"],
         }
 
