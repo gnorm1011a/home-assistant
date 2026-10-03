@@ -255,42 +255,114 @@ zha_add_device:
 cast_media_with_no_chime:
   alias: "Cast Media with no Chime \U0001F515"
   sequence:
+  - condition: state
+    entity_id: input_boolean.speaker_alerts
+    state: 'on'
+  - variables:
+      orig_vol: '{{ state_attr(media_file.entity_id, ''volume_level'') | float(0.5) }}'
+      orig_muted: '{{ is_state_attr(media_file.entity_id, ''is_volume_muted'', true) }}'
+      orig_state: '{{ states(media_file.entity_id) }}'
   - choose:
     - conditions:
       - condition: template
-        value_template: '{{ is_state(media_file.entity_id,''off'') }}'
+        value_template: '{{ is_state(media_file.entity_id, ''idle'') and state_attr(media_file.entity_id,
+          ''app_name'') == ''Default Media Receiver'' }}'
       sequence:
       - target:
           entity_id: '{{ media_file.entity_id }}'
         data:
-          volume_level: 0
-        action: media_player.volume_set
+          media_content_id: https://parkplace.duckdns.org:8123/local/silence.wav
+          media_content_type: music
+        action: media_player.play_media
+      - wait_template: '{{ is_state(media_file.entity_id, ''playing'') }}'
+        timeout: '0:00:05'
+        continue_on_timeout: true
+      - delay:
+          milliseconds: 400
       - target:
           entity_id: '{{ media_file.entity_id }}'
-        data: {}
-        action: media_player.turn_on
-      - if:
-        - condition: template
-          value_template: '{{ not is_state(media_file.entity_id, ''idle'') }}'
-        then:
-        - wait_template: '{{ is_state(media_file.entity_id, ''idle'') }}'
-          timeout: 0:00:05
-    - conditions:
-      - condition: template
-        value_template: '{{ is_state(media_file.entity_id, ''idle'') }}'
-      sequence: []
-  - target:
-      entity_id: '{{ media_file.entity_id }}'
-    data:
-      volume_level: '{{ volume }}'
-    action: media_player.volume_set
+        data:
+          volume_level: '{{ volume }}'
+        action: media_player.volume_set
+      - delay:
+          milliseconds: 300
+    default:
+    - target:
+        entity_id: '{{ media_file.entity_id }}'
+      data:
+        is_volume_muted: true
+      action: media_player.volume_mute
+    - delay: 00:00:01
+    - target:
+        entity_id: '{{ media_file.entity_id }}'
+      data:
+        media_content_id: https://parkplace.duckdns.org:8123/local/silence.wav
+        media_content_type: music
+      action: media_player.play_media
+    - wait_template: '{{ is_state(media_file.entity_id, ''playing'') }}'
+      timeout: '0:00:08'
+      continue_on_timeout: true
+    - target:
+        entity_id: '{{ media_file.entity_id }}'
+      data:
+        volume_level: '{{ volume }}'
+      action: media_player.volume_set
+    - delay: 00:00:01
+    - target:
+        entity_id: '{{ media_file.entity_id }}'
+      data:
+        is_volume_muted: false
+      action: media_player.volume_mute
+    - delay:
+        milliseconds: 500
   - target:
       entity_id: '{{ media_file.entity_id }}'
     data:
       media_content_id: '{{ media_file.media_content_id }}'
       media_content_type: '{{ media_file.media_content_type }}'
     action: media_player.play_media
-  mode: single
+    continue_on_error: true
+  - wait_template: '{{ is_state(media_file.entity_id, ''playing'') }}'
+    timeout: '0:00:10'
+    continue_on_timeout: true
+  - wait_template: '{{ not is_state(media_file.entity_id, ''playing'') }}'
+    timeout: '0:01:00'
+    continue_on_timeout: true
+  - target:
+      entity_id: '{{ media_file.entity_id }}'
+    data:
+      media_content_id: https://parkplace.duckdns.org:8123/local/silence.wav
+      media_content_type: music
+    action: media_player.play_media
+    continue_on_error: true
+  - wait_template: '{{ is_state(media_file.entity_id, ''playing'') }}'
+    timeout: '0:00:05'
+    continue_on_timeout: true
+  - delay:
+      milliseconds: 400
+  - target:
+      entity_id: '{{ media_file.entity_id }}'
+    data:
+      volume_level: '{{ orig_vol }}'
+    action: media_player.volume_set
+    continue_on_error: true
+  - delay:
+      milliseconds: 300
+  - target:
+      entity_id: '{{ media_file.entity_id }}'
+    data:
+      is_volume_muted: '{{ orig_muted }}'
+    action: media_player.volume_mute
+    continue_on_error: true
+  - if:
+    - condition: template
+      value_template: '{{ orig_state == ''off'' }}'
+    then:
+    - target:
+        entity_id: '{{ media_file.entity_id }}'
+      action: media_player.turn_off
+      continue_on_error: true
+  mode: parallel
   fields:
     media_file:
       selector:

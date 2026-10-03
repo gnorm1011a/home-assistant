@@ -130,27 +130,39 @@ contact sensor.
 
 ---
 
-## 4. Sensor location map
+## 4. Sensor location map & trust model
 
-Every security-relevant sensor by physical location. **Interior sensors can never
-discriminate a visitor from a resident** — only outdoor-facing sensors are valid
-alert triggers.
+**The core rule that prevents false alarms:** a camera sensor can only be an
+*independent* alert trigger if its field of view cannot see public space, or a
+non-detection zone is painted in the Reolink app excluding it. A camera that
+sees the street will classify passersby as "person" — it is only ever a
+**corroborating** sensor, never a trigger on its own. The same discrimination
+problem applies, reversed, to indoor sensors (cannot tell resident from
+visitor — never alert triggers).
 
-### Outdoor — valid alert triggers
+Three trust classes:
 
-| Entity | Type | Location | Used in alerts? |
-|---|---|---|---|
-| `binary_sensor.motion_7` | PIR | Front courtyard | ✅ Front-door alert + floodlight |
-| `binary_sensor.front_door_person` / `_pet` | Camera class | Front door (high mount, zone-filtered) | ✅ Alert + floodlight |
-| `binary_sensor.doorbell_person_2` / `_pet_2` | Camera class | Doorbell (head height) | ✅ Alert + floodlight |
-| `binary_sensor.front_balcony_person` / `_pet` / `_motion` | Camera | Front balcony | Floodlight zone only — street noise ⚠️ |
-| `binary_sensor.side_person` / `_pet` / `_motion` | Camera | Side of house | Correlated detection + night eval |
-| `binary_sensor.rear_person` / `_pet` / `_motion` | Camera | Rear | Correlated detection + night eval |
-| `binary_sensor.camera1_person_3` / `_pet_2` | Camera | Patio | Correlated detection + night eval |
-| `binary_sensor.garage_person` / `_pet` | Camera | Garage interior | Away person alerts + night eval |
-| `binary_sensor.hue_outdoor_motion_sensor_1_motion` | PIR | Backyard (shed side) | Night eval stamps (`last_pir_shed`) |
-| `binary_sensor.hue_outdoor_motion_sensor_2_motion` | PIR | Backyard (house side) | Night eval stamps (`last_pir_house`) |
-| `binary_sensor.garden_motion` | PIR | Garden | — |
+| Class | Rule | Sensors |
+|---|---|---|
+| **Independent trigger** | Outdoor-facing AND street-excluded (PIR aimed at private space, or camera with painted zone) | `motion_7` (courtyard PIR), `front_door_person` (zone painted) |
+| **Corroboration-only** | Sees public space, no painted zone — only fires alongside an independent trigger | `doorbell_person_2` (sees street — gated on `motion_7` ±20s), `front_balcony_person` (sees street — not a trigger at all) |
+| **Occupancy only** | Indoor — cannot discriminate resident vs visitor | `front_entry`, `den_motion`, `kitchen`, all interior PIRs |
+
+### Outdoor sensors — field of view
+
+| Entity | Type | Location | Sees public space? | Used in alerts? |
+|---|---|---|---|---|
+| `binary_sensor.motion_7` | PIR | Front courtyard | No — aimed at courtyard | ✅ Independent trigger + floodlight |
+| `binary_sensor.front_door_person` / `_pet` | Camera class | Front door (high mount) | Street **excluded by painted zone** | ✅ Independent trigger + floodlight |
+| `binary_sensor.doorbell_person_2` / `_pet_2` | Camera class | Doorbell (head height) | **Yes — street in view, NO zone painted** | ⚠️ Corroboration only — gated on `motion_7` ±20s for alert/floodlight/stamp |
+| `binary_sensor.front_balcony_person` / `_pet` / `_motion` | Camera | Front balcony | **Yes — street in view, NO zone painted** | ❌ Never a trigger (stats + watchdog only) |
+| `binary_sensor.side_person` / `_pet` / `_motion` | Camera | Side of house | ⚠️ Verify — may see street over side gate | Correlated detection + night eval |
+| `binary_sensor.rear_person` / `_pet` / `_motion` | Camera | Rear | No — backyard only | Correlated detection + night eval |
+| `binary_sensor.camera1_person_3` / `_pet_2` | Camera | Patio | No — backyard only (⚠️ cam offline) | Correlated detection + night eval |
+| `binary_sensor.garage_person` / `_pet` | Camera | Garage interior | No | Away person alerts + night eval |
+| `binary_sensor.hue_outdoor_motion_sensor_1_motion` | PIR | Backyard (shed side) | No | Night eval stamps (`last_pir_shed`) |
+| `binary_sensor.hue_outdoor_motion_sensor_2_motion` | PIR | Backyard (house side) | No | Night eval stamps (`last_pir_house`) |
+| `binary_sensor.garden_motion` | PIR | Garden | No | — |
 
 ### Contacts (entry points)
 
@@ -262,6 +274,11 @@ playing; gates whether Home-mode alerts ring just the den or all three speakers.
 **`Security - Front Door Person Alert`** (`security_front_door_person_alert`)
 
 Triggers (OR): `front_door_person`, `doorbell_person_2`, `motion_7`. Cooldown: 60s.
+**`doorbell_person_2` is corroboration-gated**: its event only passes when
+`motion_7` is on or fired within 20s (it sees the street, no zone painted).
+Same gate applied to the floodlight `detected` trigger and the doorbell
+night-eval stamp. Restore it as an independent trigger once a non-detection
+zone is painted in the Reolink app.
 
 | Condition | Action |
 |---|---|
@@ -376,14 +393,15 @@ Also: `PIR stamp`, `Shed door opened`, `Entry with person sighting`,
 
 ## 7. Edge cases & gotchas
 
-1. **Pixel motion sensors are unreliable for alerts** — wind and through-glass
+1. **A camera that sees public space is never an independent trigger** — it
+   will classify passersby. Either paint a Reolink non-detection zone (front
+   door cam: done) or gate the sensor behind a private-space corroborator
+   (doorbell: gated on courtyard PIR). This is the #1 false-alarm source.
+2. **Pixel motion sensors are unreliable for alerts** — wind and through-glass
    visibility cause false positives. Only classified person/pet sensors and
    outdoor PIRs drive alerts.
-2. **High-mounted cameras need face-ish views** for person class — cover gaps
+3. **High-mounted cameras need face-ish views** for person class — cover gaps
    with a second (lower) camera or an outdoor PIR.
-3. **Camera non-detection zones filter at the source** — painted in the Reolink
-   app, invisible to HA. Front door done; front balcony still needs one (street
-   in view).
 4. **Sensor flap → double alerts.** Classified sensors toggle rapidly; every
    alert path needs a cooldown or stamp-correlation.
 5. **Cast sessions expire ≈10 min** — keep-alive or every alert is a cold start
@@ -450,3 +468,7 @@ routers — Plug 3 dropping previously orphaned Aqara end devices.
   (`.storage/` gitignored except `lovelace.adam_ui`).
 - Snapshot images in `www/` are ephemeral runtime artifacts, served publicly via
   DuckDNS — expected to churn.
+- **Before adding any camera sensor as an alert trigger, check §4's field-of-view
+  column** — if it sees public space it is corroboration-only until a
+  non-detection zone is painted in the Reolink app. Update the column when zones
+  change.

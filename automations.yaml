@@ -5236,7 +5236,14 @@
     to: 'on'
     trigger: state
     id: doorbell
-  conditions: []
+  conditions:
+  # Same street-passerby filter as the front door alert - do not stamp
+  # doorbell person events that the courtyard PIR cannot corroborate.
+  - condition: template
+    value_template: >-
+      {{ trigger.entity_id != 'binary_sensor.doorbell_person_2'
+         or is_state('binary_sensor.motion_7', 'on')
+         or (now() - states.binary_sensor.motion_7.last_changed) .total_seconds() < 20 }}
   actions:
   - action: input_datetime.set_datetime
     target:
@@ -5663,7 +5670,14 @@
     to: 'off'
     from: 'on'
     id: cleared
-  conditions: []
+  conditions:
+  # Doorbell cam sees the street - only let its person sensor light the
+  # floodlight when the courtyard PIR corroborates a real approach.
+  - condition: template
+    value_template: >-
+      {{ trigger.id != 'detected' or trigger.entity_id != 'binary_sensor.doorbell_person_2'
+         or is_state('binary_sensor.motion_7', 'on')
+         or (now() - states.binary_sensor.motion_7.last_changed).total_seconds() < 20 }}
   actions:
   - choose:
     - conditions:
@@ -5780,7 +5794,14 @@
   - condition: state
     entity_id: input_boolean.enable_alarm
     state: 'on'
-
+  # Doorbell cam has no painted zone - it classifies street pedestrians.
+  # Only trust its person sensor when the courtyard PIR corroborates (a real
+  # approach walks through the courtyard; a passerby never trips motion_7).
+  - condition: template
+    value_template: >-
+      {{ trigger.entity_id != 'binary_sensor.doorbell_person_2'
+         or is_state('binary_sensor.motion_7', 'on')
+         or (now() - states.binary_sensor.motion_7.last_changed).total_seconds() < 20 }}
   - condition: template
     value_template: '{{ state_attr(''automation.security_front_door_person_alert'',''last_triggered'') is none or (now() - state_attr(''automation.security_front_door_person_alert'',''last_triggered'')).total_seconds() > 60 }}'
   actions:
