@@ -16,10 +16,13 @@ Last updated: 2026-10-02.
 | `input_boolean.guest_mode` | bool | on/off | Guests staying — **security speaker alerts are suppressed** (alerts become quiet pushes instead of audible chimes). Non-security sounds (door beeps, miscellaneous notifications) are NOT affected. |
 | `input_boolean.housesitter_mode` | bool | on/off | Someone house-sitting while we're away — suppresses correlated person alerts in Away/Holiday. |
 | `input_boolean.speaker_alerts` | bool | on/off | **Master kill switch for ALL speaker output** through `cast_media_with_no_chime`. Currently **OFF** while testing. |
+| `input_boolean.enable_alarm` | bool | on/off | **Master toggle for the security system.** Gates every alerting automation (Away door/person alerts, correlated detection, front-door alert, night-security alerts, pending announcement, sensor watchdog). State-tracking automations (direction stamps, person/PIR stamps, resident exit/return) keep running so re-enabling doesn't leave stale state. Alarmo itself is NOT blocked — disarm/arm still work. |
 | `input_boolean.resident_outside` | bool | on/off | Set during Sleep when a resident exits (e.g. letting a pet out) so their return doesn't trip the alarm. |
 | `timer.resident_outside_window` | timer | | Countdown window for the resident-outside flow. |
+| `input_datetime.last_house_departure` | datetime | | Stamp set by Door direction detection when a door opens with interior-side activity in the prior 60s. Front-door alerts suppress for 120s after a departure. |
+| `input_datetime.last_house_arrival` | datetime | | Stamp set when a door opens with exterior-side activity in the prior 60s. |
 | `input_boolean.bedtime` | bool | on/off | Night context flag. |
-| `alarm_control_panel.alarmo` | alarm | disarmed / armed_night / pending / triggered | Alarmo panel — the escalation path used by Night Security. |
+| `alarm_control_panel.alarmo` | alarm | disarmed / armed_away / armed_night / pending / triggered | Alarmo panel. Entry delay (pending): **60s armed_away**, 45s armed_home/night, 0 armed_vacation. |
 
 ### Mode transitions
 
@@ -29,10 +32,26 @@ Last updated: 2026-10-02.
 
 ## 2. Presence detection
 
-| Person | Trackers |
-|---|---|
-| `person.adam_smith` | `device_tracker.pixel_6` (+ `pixel_6_2`; several stale `pixel_6_*` variants unavailable) |
-| `person.madeleine_moloney` | `device_tracker.sm_a556e`, `sm_g973f`, `sm_g991n` |
+| Person | Trackers | Sources |
+|---|---|---|
+| `person.adam_smith` | `device_tracker.pixel_6`, `device_tracker.pixel_6_2` | HA companion-app GPS + UniFi router (WiFi) |
+| `person.madeleine_moloney` | `device_tracker.sm_a556e`, `device_tracker.galaxy_a55_5g` | HA companion-app GPS + UniFi router (WiFi) |
+
+**Rules that matter:**
+
+- A person is `home` if **any** tracker reports home; `not_home` requires **all**
+  trackers not_home. Dual-source means WiFi loss alone (e.g. phone doze) cannot
+  mark someone away — GPS still reports the home zone. Conversely a GPS flap
+  while away cannot mark them home — the router tracker must also see them.
+- `house_mode → Away` requires a person `not_home` **for 15 minutes** — absorbs
+  transient GPS/router glitches.
+- `person → home` sets `house_mode → Home` immediately and disarms Alarmo —
+  digital arrival is instant once a tracker sees the phone.
+- `device_tracker.windows_home_assistant` (Adam's PC) is deliberately NOT a
+  person tracker: it holds `home` while the PC is awake, which would silently
+  block Away-detection whenever the PC is left on. Available as a soft signal only.
+- GPS accuracy is ~100 m — tight arrival zones are meaningless; physical
+  sensors (courtyard PIR, doorbell cam) are the true "someone is at the door" layer.
 
 Drives house-mode transitions and alert routing (`Sleep + both home` → bedroom speaker).
 
@@ -226,6 +245,14 @@ required**: speakers on the IoT VLAN can't reach HA's LAN IP.
 `binary_sensor.den_occupied` (template) — `den_motion` OR desktop online OR Den TV
 playing; gates whether Home-mode alerts ring just the den or all three speakers.
 
+### Voice + TTS (bypasses the cast script)
+
+| Piece | Detail |
+|---|---|
+| `tts.home_assistant_cloud` | Nabu Casa TTS — used for the alarm-pending announcement on `media_player.kitchen_display` |
+| `script.cancel_pending_alarm` ("Cancel Alarm") | Google-exposed script. Disarms Alarmo **only while `pending`** — cannot cancel an armed or triggered alarm. Google Home routine: "cancel alarm" → run script. Confirms via kitchen speaker. |
+| Google Assistant | Via Nabu Casa cloud (`google_connected: true`); `script` is in `google_default_expose` so new scripts auto-expose |
+
 ---
 
 ## 6. Automation logic reference
@@ -246,9 +273,44 @@ Triggers (OR): `front_door_person`, `doorbell_person_2`, `motion_7`. Cooldown: 6
 
 `mode: single`. Volumes at **1.0 during testing** — retune after.
 
+**Departure suppression:** all speaker branches + the guest push are gated on
+`input_datetime.last_house_departure` — no chime for 120s after a detected
+departure (a resident leaving shouldn't alert on themselves). Unknown/ambiguous
+direction still alerts.
+
 **`Front Door - Person Floodlight`** — on when any of `front_door_person`,
 `front_door_pet`, `doorbell_person_2`, `motion_7` fires; off only when ALL clear.
 `mode: restart`.
+
+### Direction detection — arrivals vs departures
+
+**`Security - Door direction detection`** (`security_door_direction_detection`)
+
+When a door opens, classifies by which side saw activity in the prior 60s:
+
+| Door | Interior evidence | Exterior evidence | Verdict |
+|---|---|---|---|
+| Front door | `front_entry` PIR | `motion_7`, `front_door_person`, `doorbell_person_2` | interior-first → **departure**; exterior-first → **arrival** |
+| Garage roller | `motion_3`, `garage_person`, `garage_vehicle`, `garage_motion` | *(none — roller is interior-side)* | interior → **departure** (covers car AND on-foot exits); nothing → **arrival** |
+
+Only runs in `Home` / `Sleep` / `None` — in `Away`, interior-activity-then-door is
+an intruder leaving, not a resident departing, so nothing is stamped.
+
+Stamps `input_datetime.last_house_departure` / `last_house_arrival`. Used by the
+front-door alert's 120s departure suppression. **Known gap:** leaving on foot via
+the garage side door can't be detected (dead sensor `door_sensor_12`) — such a
+departure won't stamp and the person may chime themselves crossing the courtyard.
+
+### Front lights
+
+| Automation | Behaviour |
+|---|---|
+| `Lighting - Front lights (on)` | Sunset −15min → `light.front_3` at **80% / 3000K** (warm ambient scene) |
+| `Lighting - Front lights (off)` | 23:59 → off (skipped in Holiday) |
+| `Motion Light Toggle - Sunset/Sunrise` | Arms `input_boolean.front_motion_lights` at sunset −30min; disarms at sunrise +60min + sweeps leftover lights |
+| `Motion Lights - Front turn on` | `motion_7` while toggle armed → `scene.create` snapshot → `light.front_3` at **100% / 5000K** (bright white pop) |
+| `Motion Lights - Front turn off` | PIR clear 2min → `scene.turn_on` restores snapshot (30s transition); handles stale snapshots across the scheduled ON/OFF boundaries |
+| `Holiday - Front light on/off` | Holiday-only version of the ambient scene |
 
 ### Perimeter person detection — Away/Holiday
 
@@ -278,9 +340,26 @@ Sleep (skipped while `resident_outside`):
 `Resident arrives home` clear or escalate. Lets a resident step out during Sleep
 without tripping the alarm.
 
-**Alarmo chain** — `Alarm pending` (entry delay) → `Alarm triggered` (all
-floodlights + den 100% + "ALARM TRIGGERED" push to both phones) → `Disarm` /
-`Re-arm` from notification actions → `Arm verification`.
+**Alarmo chain** — `Alarm pending` (entry delay, 60s for armed_away) → `Alarm
+triggered` (all floodlights + den 100% + "ALARM TRIGGERED" push to both phones) →
+`Disarm` / `Re-arm` from notification actions → `Arm verification`.
+
+**Pending window (armed_away entry):** 60s. On `alarmo → pending`:
+
+- `Security - Alarm pending announcement` — immediate TTS on the upstairs
+  kitchen speaker: "Warning. Alarm pending." (gated by `enable_alarm`)
+- `Night Security - Alarm pending` — waits 10s (so a resident exit that
+  auto-disarms doesn't alert), then pushes a Disarm action to both phones
+- Voice cancel: "ok google, cancel alarm" → `script.cancel_pending_alarm` →
+  disarms only while pending
+- If a person's tracker flips `home` during the window, `Presence Detection -
+  Home` disarms — the pending period is the grace for GPS to catch up with a
+  physically-arrived resident
+
+**Sensor health watchdog** — `Security - Sensor health watchdog` fires if any
+critical perimeter/detection/camera entity is `unavailable` for >10 min, plus a
+daily 09:00 sweep listing everything still dead (catches entities that died
+before the watchdog existed). So a dead contact can't silently open a gap.
 
 Also: `PIR stamp`, `Shed door opened`, `Entry with person sighting`,
 `Person inside garage`, `Morning motion ends Sleep`.
@@ -319,6 +398,21 @@ Also: `PIR stamp`, `Shed door opened`, `Entry with person sighting`,
 10. **`speaker_alerts` currently OFF** — flip on when testing resumes.
 11. **Reolink chime can't be triggered on demand** — ringtones bind to camera
     event classes; `siren.doorbell_siren_2`/camera sirens exist for escalation.
+12. **Physical arrival precedes digital presence** — GPS can lag minutes behind
+    someone walking to the door. The pending window + direction classifier are
+    the bridge: the door contact + courtyard PIR detect arrival physically while
+    trackers catch up. In Away mode a resident arriving gets: pending → phone
+    push with Disarm → tracker flips home → auto-disarm.
+13. **Presence is fail-safe toward "home"** — any-tracker-home wins, so the
+    system errs toward not alarming on residents; the corresponding risk is
+    false-home if a tracker sticks (why the PC tracker was detached).
+14. **Departure suppression is conservative** — 120s window, front-door alerts
+    only; Away-mode pushes are never suppressed (a departure stamp can't exist
+    in Away since classification doesn't run there).
+15. **A dead sensor can't be told apart from a quiet sensor** — the watchdog
+    covers `unavailable` state, but a physically-blocked or mis-zoned sensor
+    stays "alive" while blind. Alarmo per-sensor `auto_bypass` exists as config
+    if arming should tolerate dead contacts (not enabled deliberately).
 
 ---
 

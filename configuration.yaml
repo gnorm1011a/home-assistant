@@ -171,6 +171,16 @@ input_datetime:
     has_date: true
     has_time: true
 
+  last_house_departure:
+    name: "Last House Departure"
+    has_date: true
+    has_time: true
+
+  last_house_arrival:
+    name: "Last House Arrival"
+    has_date: true
+    has_time: true
+
   last_person_side:
     name: "Person Detection - Side"
     has_date: true
@@ -258,6 +268,11 @@ input_boolean:
     name: "Speaker Alerts"
     initial: true
     icon: mdi:volume-high
+
+  enable_alarm:
+    name: "Enable Alarm"
+    initial: true
+    icon: mdi:shield-check
 input_select:
 
   guest_lamp_scene:

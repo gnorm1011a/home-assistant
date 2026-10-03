@@ -856,7 +856,7 @@
     action: scene.create
   - data:
       brightness_pct: 100
-      color_temp_kelvin: 3008
+      color_temp_kelvin: 5000
     target:
       entity_id: light.front_3
     action: light.turn_on
@@ -890,8 +890,8 @@
       sequence:
       - data:
           transition: 30
-          brightness: 255
-          color_temp_kelvin: 3231
+          brightness: 205
+          color_temp_kelvin: 3000
         target:
           entity_id: light.front_3
         action: light.turn_on
@@ -1333,8 +1333,8 @@
   - metadata: {}
     data:
       transition: 60
-      brightness: 255
-      color_temp_kelvin: 3231
+      brightness: 205
+      color_temp_kelvin: 3000
     target:
       entity_id: light.front_3
     action: light.turn_on
@@ -3883,8 +3883,8 @@
   - metadata: {}
     data:
       transition: 60
-      brightness: 255
-      color_temp_kelvin: 3231
+      brightness: 205
+      color_temp_kelvin: 3000
     target:
       entity_id: light.front_3
     action: light.turn_on
@@ -4101,6 +4101,10 @@
     trigger: state
   conditions:
   - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
+
+  - condition: state
     entity_id: input_select.house_mode
     state:
     - Away
@@ -4133,6 +4137,10 @@
     to: 'on'
     trigger: state
   conditions:
+  - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
+
   - condition: state
     entity_id: input_select.house_mode
     state:
@@ -4167,6 +4175,10 @@
     trigger: state
   conditions:
   - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
+
+  - condition: state
     entity_id: input_select.house_mode
     state:
     - Away
@@ -4199,6 +4211,10 @@
     to: 'on'
     trigger: state
   conditions:
+  - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
+
   - condition: state
     entity_id: input_select.house_mode
     state:
@@ -4233,6 +4249,10 @@
     trigger: state
   conditions:
   - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
+
+  - condition: state
     entity_id: input_select.house_mode
     state:
     - Away
@@ -4266,6 +4286,10 @@
     trigger: state
   conditions:
   - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
+
+  - condition: state
     entity_id: input_select.house_mode
     state:
     - Away
@@ -4298,6 +4322,10 @@
     to: 'on'
     trigger: state
   conditions:
+  - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
+
   - condition: state
     entity_id: input_select.house_mode
     state:
@@ -4340,6 +4368,10 @@
     to: 'on'
     trigger: state
   conditions:
+  - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
+
   - condition: state
     entity_id: input_select.house_mode
     state:
@@ -4386,6 +4418,10 @@
     trigger: state
     id: patio
   conditions:
+  - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
+
   - condition: state
     entity_id: input_select.house_mode
     state:
@@ -4690,6 +4726,10 @@
       entity_id: timer.resident_outside_window
   conditions:
   - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
+
+  - condition: state
     entity_id: input_boolean.resident_outside
     state: 'on'
   actions:
@@ -4936,6 +4976,10 @@
     trigger: state
   conditions:
   - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
+
+  - condition: state
     entity_id: input_select.house_mode
     state: Sleep
   - condition: state
@@ -4974,7 +5018,11 @@
   - entity_id: alarm_control_panel.alarmo
     to: pending
     trigger: state
-  conditions: []
+  conditions:
+  - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
+
   actions:
   - delay: '00:00:10'
   - if:
@@ -5009,7 +5057,11 @@
   - entity_id: alarm_control_panel.alarmo
     to: triggered
     trigger: state
-  conditions: []
+  conditions:
+  - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
+
   actions:
   - action: light.turn_on
     target:
@@ -5243,6 +5295,10 @@
     id: laundry
   conditions:
   - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
+
+  - condition: state
     entity_id: alarm_control_panel.alarmo
     state: armed_night
   - condition: state
@@ -5313,6 +5369,10 @@
     to: 'on'
     trigger: state
   conditions:
+  - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
+
   - condition: state
     entity_id: alarm_control_panel.alarmo
     state: armed_night
@@ -5628,6 +5688,74 @@
         target:
           entity_id: light.front_door_floodlight
   mode: restart
+- id: 'security_door_direction'
+  alias: Security - Door direction detection
+  description: >-
+    Classifies each exterior door opening as a departure or an arrival by looking
+    at which side saw activity first: interior sensor active in the 60s before
+    the door opens = someone leaving; exterior sensor active = arriving.
+    Stamps input_datetime.last_house_departure / last_house_arrival - the
+    front-door speaker alert suppresses chimes for 120s after a departure so
+    residents and guests leaving the house don't trigger "visitor" alerts.
+    Front door: hallway PIR (front_entry, interior) vs courtyard PIR + person
+    cams (exterior). Garage roller: interior garage activity (motion_3 PIR +
+    garage person/vehicle/motion camera classes - covers driving AND walking
+    out) vs none = arrival (roller opened remotely, car pulls in). Only runs in
+    Home/Sleep - in Away/Holiday, interior-then-door activity is an intrusion,
+    not a departure.
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.lumi_lumi_sensor_magnet_opening
+    to: 'on'
+    id: front_door
+  - trigger: state
+    entity_id: binary_sensor.lumi_lumi_sensor_magnet_opening_3
+    to: 'on'
+    id: garage
+  conditions:
+  - condition: state
+    entity_id: input_select.house_mode
+    state:
+    - Home
+    - Sleep
+    - 'None'
+  actions:
+  - variables:
+      interior_list: >-
+        {{ {'front_door': ['binary_sensor.front_entry'],
+            'garage': ['binary_sensor.motion_3', 'binary_sensor.garage_person',
+                       'binary_sensor.garage_vehicle', 'binary_sensor.garage_motion']}[trigger.id] }}
+      exterior_list: >-
+        {{ {'front_door': ['binary_sensor.motion_7', 'binary_sensor.front_door_person',
+                           'binary_sensor.doorbell_person_2'],
+            'garage': []}[trigger.id] }}
+      interior_recent: >-
+        {{ expand(interior_list) | map(attribute='last_changed') | map('as_timestamp')
+          | select('gt', (now() | as_timestamp) - 60) | list | count > 0 }}
+      exterior_recent: >-
+        {{ expand(exterior_list) | map(attribute='last_changed') | map('as_timestamp')
+          | select('gt', (now() | as_timestamp) - 60) | list | count > 0 }}
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ interior_recent }}'
+      sequence:
+      - action: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.last_house_departure
+        data:
+          timestamp: '{{ now() | as_timestamp | int }}'
+    - conditions:
+      - condition: template
+        value_template: '{{ exterior_recent }}'
+      sequence:
+      - action: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.last_house_arrival
+        data:
+          timestamp: '{{ now() | as_timestamp | int }}'
+  mode: single
+
 - id: security_front_door_person_alert
   alias: Security - Front Door Person Alert
   description: >-
@@ -5649,6 +5777,10 @@
     from: 'off'
     id: person
   conditions:
+  - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
+
   - condition: template
     value_template: '{{ state_attr(''automation.security_front_door_person_alert'',''last_triggered'') is none or (now() - state_attr(''automation.security_front_door_person_alert'',''last_triggered'')).total_seconds() > 60 }}'
   actions:
@@ -5687,6 +5819,8 @@
       - condition: state
         entity_id: input_boolean.guest_mode
         state: 'on'
+      - condition: template
+        value_template: '{{ states(''input_datetime.last_house_departure'') | as_datetime | default(now() - timedelta(hours=2), true) | as_timestamp < (now() | as_timestamp) - 120 }}'
       sequence:
       - action: notify.mobile_app_pixel_6
         metadata: {}
@@ -5706,6 +5840,8 @@
       - condition: state
         entity_id: person.madeleine_moloney
         state: home
+      - condition: template
+        value_template: '{{ states(''input_datetime.last_house_departure'') | as_datetime | default(now() - timedelta(hours=2), true) | as_timestamp < (now() | as_timestamp) - 120 }}'
       sequence:
       - action: script.cast_media_with_no_chime
         metadata: {}
@@ -5722,6 +5858,8 @@
       - condition: state
         entity_id: binary_sensor.den_occupied
         state: 'on'
+      - condition: template
+        value_template: '{{ states(''input_datetime.last_house_departure'') | as_datetime | default(now() - timedelta(hours=2), true) | as_timestamp < (now() | as_timestamp) - 120 }}'
       sequence:
       - action: script.cast_media_with_no_chime
         metadata: {}
@@ -5735,6 +5873,8 @@
       - condition: state
         entity_id: input_select.house_mode
         state: Home
+      - condition: template
+        value_template: '{{ states(''input_datetime.last_house_departure'') | as_datetime | default(now() - timedelta(hours=2), true) | as_timestamp < (now() | as_timestamp) - 120 }}'
       sequence:
       - parallel:
         - action: script.cast_media_with_no_chime
@@ -5761,4 +5901,112 @@
               entity_id: media_player.bedroom_speaker_2
               media_content_id: https://parkplace.duckdns.org:8123/local/person-alert.wav
               media_content_type: music
+  mode: single
+
+- id: 'security_pending_announcement'
+  alias: Security - Alarm pending announcement
+  description: >-
+    Alarmo entered pending (a perimeter door opened while armed, entry delay
+    running). Announces on the upstairs kitchen speaker immediately so a
+    resident hears the countdown and can disarm via 'ok google - cancel alarm'
+    (Cancel Alarm script, Google Assistant) or the phone notification from
+    'Night Security - Alarm pending'. Fires once per pending event.
+  triggers:
+  - trigger: state
+    entity_id: alarm_control_panel.alarmo
+    to: pending
+  conditions:
+  - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
+  actions:
+  - action: tts.speak
+    target:
+      entity_id: tts.home_assistant_cloud
+    data:
+      media_player_entity_id: media_player.kitchen_display
+      message: Warning. Alarm pending. You have sixty seconds to disarm.
+  mode: restart
+
+- id: 'security_sensor_health_watchdog'
+  alias: Security - Sensor health watchdog
+  description: >-
+    Watches the security sensor net for silent failure. If any critical sensor,
+    camera or the alarm panel itself is unavailable for more than 10 minutes,
+    or remains unavailable at the 09:00 daily sweep, notifies Adam so a dead
+    battery or dropped Zigbee device cannot quietly open a coverage gap.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.lumi_lumi_sensor_magnet_opening
+    - binary_sensor.lumi_lumi_sensor_magnet_b586cf03_on_off
+    - binary_sensor.lumi_lumi_sensor_magnet_on_off
+    - binary_sensor.lumi_lumi_sensor_magnet_opening_3
+    - binary_sensor.lumi_lumi_sensor_magnet_opening_4
+    - binary_sensor.door_sensor_7_iaszone
+    - binary_sensor.door_sensor_8_iaszone
+    - binary_sensor.door_sensor_9_iaszone
+    - binary_sensor.door_sensor_10_iaszone
+    - binary_sensor.door_sensor_11_iaszone
+    - binary_sensor.door_sensor_12_iaszone
+    - binary_sensor.motion_7
+    - binary_sensor.motion_3
+    - binary_sensor.front_entry
+    - binary_sensor.night_downstairs_motion
+    - binary_sensor.front_door_person
+    - binary_sensor.front_door_pet
+    - binary_sensor.doorbell_person_2
+    - binary_sensor.doorbell_motion_2
+    - binary_sensor.garage_person
+    - binary_sensor.garage_vehicle
+    - binary_sensor.side_person
+    - binary_sensor.rear_person
+    - binary_sensor.camera1_person
+    - binary_sensor.camera1_person_3
+    - binary_sensor.front_balcony_person
+    - binary_sensor.hue_outdoor_motion_sensor_1_motion
+    - binary_sensor.hue_outdoor_motion_sensor_2_motion
+    - alarm_control_panel.alarmo
+    - camera.front_door_fluent
+    - camera.doorbell_fluent_2
+    - camera.garage_fluent
+    - camera.rear_fluent
+    - camera.side_fluent
+    - camera.camera1_fluent
+    - camera.camera1_fluent_3
+    - camera.front_balcony_fluent
+    to: unavailable
+    for: '00:10:00'
+    id: offline
+  - trigger: time
+    at: '09:00:00'
+    id: daily
+  conditions:
+  - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - offline
+      sequence:
+      - action: notify.mobile_app_pixel_6
+        data:
+          title: Security sensor offline
+          message: '{{ trigger.to_state.attributes.friendly_name }} has been unavailable for over 10 minutes.'
+    - conditions:
+      - condition: trigger
+        id:
+        - daily
+      - condition: template
+        value_template: >-
+          {{ expand(['binary_sensor.lumi_lumi_sensor_magnet_opening','binary_sensor.lumi_lumi_sensor_magnet_b586cf03_on_off','binary_sensor.lumi_lumi_sensor_magnet_on_off','binary_sensor.lumi_lumi_sensor_magnet_opening_3','binary_sensor.lumi_lumi_sensor_magnet_opening_4','binary_sensor.door_sensor_7_iaszone','binary_sensor.door_sensor_8_iaszone','binary_sensor.door_sensor_9_iaszone','binary_sensor.door_sensor_10_iaszone','binary_sensor.door_sensor_11_iaszone','binary_sensor.door_sensor_12_iaszone','binary_sensor.motion_7','binary_sensor.motion_3','binary_sensor.front_entry','binary_sensor.night_downstairs_motion','binary_sensor.front_door_person','binary_sensor.front_door_pet','binary_sensor.doorbell_person_2','binary_sensor.doorbell_motion_2','binary_sensor.garage_person','binary_sensor.garage_vehicle','binary_sensor.side_person','binary_sensor.rear_person','binary_sensor.camera1_person','binary_sensor.camera1_person_3','binary_sensor.front_balcony_person','binary_sensor.hue_outdoor_motion_sensor_1_motion','binary_sensor.hue_outdoor_motion_sensor_2_motion','alarm_control_panel.alarmo','camera.front_door_fluent','camera.doorbell_fluent_2','camera.garage_fluent','camera.rear_fluent','camera.side_fluent','camera.camera1_fluent','camera.camera1_fluent_3','camera.front_balcony_fluent']) | selectattr('state','eq','unavailable') | list | count > 0 }}
+      sequence:
+      - action: notify.mobile_app_pixel_6
+        data:
+          title: Security sensor check
+          message: >-
+            Security sensors currently unavailable: {{ expand(['binary_sensor.lumi_lumi_sensor_magnet_opening','binary_sensor.lumi_lumi_sensor_magnet_b586cf03_on_off','binary_sensor.lumi_lumi_sensor_magnet_on_off','binary_sensor.lumi_lumi_sensor_magnet_opening_3','binary_sensor.lumi_lumi_sensor_magnet_opening_4','binary_sensor.door_sensor_7_iaszone','binary_sensor.door_sensor_8_iaszone','binary_sensor.door_sensor_9_iaszone','binary_sensor.door_sensor_10_iaszone','binary_sensor.door_sensor_11_iaszone','binary_sensor.door_sensor_12_iaszone','binary_sensor.motion_7','binary_sensor.motion_3','binary_sensor.front_entry','binary_sensor.night_downstairs_motion','binary_sensor.front_door_person','binary_sensor.front_door_pet','binary_sensor.doorbell_person_2','binary_sensor.doorbell_motion_2','binary_sensor.garage_person','binary_sensor.garage_vehicle','binary_sensor.side_person','binary_sensor.rear_person','binary_sensor.camera1_person','binary_sensor.camera1_person_3','binary_sensor.front_balcony_person','binary_sensor.hue_outdoor_motion_sensor_1_motion','binary_sensor.hue_outdoor_motion_sensor_2_motion','alarm_control_panel.alarmo','camera.front_door_fluent','camera.doorbell_fluent_2','camera.garage_fluent','camera.rear_fluent','camera.side_fluent','camera.camera1_fluent','camera.camera1_fluent_3','camera.front_balcony_fluent']) | selectattr('state','eq','unavailable') | map(attribute='name') | join(', ') }}
   mode: single
