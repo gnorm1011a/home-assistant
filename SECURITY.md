@@ -270,9 +270,10 @@ playing; gates whether Home-mode alerts ring just the den or all three speakers.
 |---|---|
 | `tts.home_assistant_cloud` | Nabu Casa TTS — used for the alarm-pending announcement on `media_player.kitchen_display`. TTS leaves the display on a black cast screen — every TTS call site ends with `media_player.turn_off` to return it to ambient |
 | `switch.alarm` ("Alarm") | Template switch exposed to Google. State mirrors Alarmo (self-resets after each command). `turn_off` → `script.alarm_cancel`. Voice arming deliberately not supported |
-| `script.alarm_cancel` ("Alarm Cancel") | The voice flow: only valid while `pending`. First call → "Are you sure? Say 'turn off the alarm' again within 30 seconds" + opens `alarm_cancel_confirm`/`timer.alarm_cancel_confirm_window`. Second call inside the window → disarm + "Alarm disarmed". A triggered or fully armed alarm can never be voice-cancelled |
-| `Security - Alarm cancel confirm window expired` | Clears the confirm flag when the window lapses — a stale request can't be confirmed against a future pending |
-| Google Assistant | Via Nabu Casa cloud. **Native phrases**: "ok google, **turn off the alarm**" (×2 = request + confirm), "ok google, **turn on alarm cancel**" (scene fallback). Arbitrary custom phrases ("cancel alarm") would need a Google Home routine — not currently configured |
+| `alarm_control_panel.alarm` ("Alarm") | Template security panel exposed to Google (registry expose flag). Mirrors Alarmo; `disarm` → `script.alarm_cancel`. No arm actions defined — voice arming not supported |
+| `script.alarm_cancel` ("Alarm Cancel") | Single-step voice disarm: if Alarmo is `pending` **or** `triggered` → disarm + "Alarm disarmed". Otherwise replies "There is no active alarm to cancel." No confirmation step — Google's secure-device PIN (configured in Nabu Casa) is the gate |
+| `switch.alarm` ("Alarm") | Template switch exposed to Google. State mirrors Alarmo (self-resets). `turn_off` → `script.alarm_cancel` |
+| Google Assistant | Via Nabu Casa cloud. **Native phrases**: "ok google, **disarm the alarm**" (security-system command — Google asks for the secure-devices PIN), "ok google, **turn off the alarm**" (switch). "Cancel" is not a Google smart-home verb and "cancel the alarm" collides with the clock-alarm intent — it cannot be done without a Google Home routine (not configured). The real `alarm_control_panel.alarmo` is deliberately NOT exposed to Google — the guarded template panel is the only voice path |
 
 ---
 
@@ -367,19 +368,22 @@ Sleep (skipped while `resident_outside`):
 without tripping the alarm.
 
 **Alarmo chain** — `Alarm pending` (entry delay, 60s for armed_away) → `Alarm
-triggered` (all floodlights + den 100% + "ALARM TRIGGERED" push to both phones) →
-`Disarm` / `Re-arm` from notification actions → `Arm verification`.
+triggered` ("ALARM TRIGGERED" push to both phones — notifications only, no
+lights or sirens) → `Disarm` / `Re-arm` from notification actions → `Arm
+verification`.
 
 **Pending window (armed_away entry):** 60s. On `alarmo → pending`:
 
 - `Security - Alarm pending announcement` — primes the kitchen speaker with a
   silence mask (suppresses Google's cold-start beep), then repeats "Warning.
-  Alarm pending." via TTS every ~4s until pending ends, and turns the display
-  off afterward so it returns to ambient (gated by `enable_alarm`)
+  Alarm pending." via TTS every ~4s for up to **90 seconds**, continuing into
+  the triggered state (message switches to "Warning. Alarm triggered."), and
+  turns the display off afterward so it returns to ambient (gated by
+  `enable_alarm`)
 - `Night Security - Alarm pending` — waits 10s (so a resident exit that
   auto-disarms doesn't alert), then pushes a Disarm action to both phones
-- Voice cancel: "ok google, activate cancel alarm" → `script.cancel_pending_alarm` →
-  disarms only while pending
+- Voice disarm: "ok google, **disarm the alarm**" or "ok google, **turn off the
+  alarm**" → `script.alarm_cancel` → disarms while pending or triggered
 - If a person's tracker flips `home` during the window, `Presence Detection -
   Home` disarms — the pending period is the grace for GPS to catch up with a
   physically-arrived resident

@@ -319,3 +319,15 @@
             entity_id: switch.alarm
       turn_off:
         - action: script.alarm_cancel
+- alarm_control_panel:
+    - name: "Alarm"
+      unique_id: alarm_voice_panel
+      icon: mdi:shield-home
+      # Exposed to Google as a security system so 'ok google, disarm the alarm'
+      # is a native command. Disarm routes through script.alarm_cancel which
+      # only disarms while Alarmo is pending or triggered. Voice arming is
+      # deliberately not supported.
+      state: "{{ states('alarm_control_panel.alarmo') }}"
+      availability: "{{ states('alarm_control_panel.alarmo') != 'unavailable' }}"
+      disarm:
+        - action: script.alarm_cancel

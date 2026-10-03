@@ -5091,8 +5091,9 @@
 - id: 'night_alarm_triggered'
   alias: Night Security - Alarm triggered
   description: >-
-    Alarmo triggered. Notify both phones and light up all exterior floodlights
-    plus the den (silent deterrent, no sirens).
+    Alarmo triggered. Notifications only - no lights, sirens or deterrent
+    actions (standing rule: never add actions to alarm triggers without an
+    explicit request).
   triggers:
   - entity_id: alarm_control_panel.alarmo
     to: triggered
@@ -5103,26 +5104,6 @@
     state: 'on'
 
   actions:
-  - action: light.turn_on
-    target:
-      entity_id:
-      - light.side_floodlight
-      - light.rear_floodlight
-      - light.camera1_floodlight
-      - light.camera1_floodlight_2
-      - light.front_door_floodlight
-      - light.front_balcony_floodlight
-      - light.garage_floodlight
-      - light.spotlight_1
-      - light.spotlight_2
-      - light.spotlight_3
-      - light.spotlight_4
-      - light.spotlight_5
-  - action: light.turn_on
-    target:
-      entity_id: light.den
-    data:
-      brightness_pct: 100
   - data:
       title: ALARM TRIGGERED
       message: 'Alarm triggered: {{ state_attr(''alarm_control_panel.alarmo'', ''open_sensors'') }}'
@@ -5968,11 +5949,10 @@
   alias: Security - Alarm pending announcement
   description: >-
     Alarmo entered pending (a perimeter door opened while armed, entry delay
-    running). Repeats 'Warning. Alarm pending' on the upstairs kitchen speaker
-    every ~4 seconds until the pending window ends (disarm or trigger), so a
-    resident keeps hearing the countdown and can cancel via 'ok google,
-    activate cancel alarm' or the phone notification from 'Night Security -
-    Alarm pending'.
+    running). Repeats a warning on the upstairs kitchen speaker every ~4
+    seconds for up to 90 seconds, continuing into the triggered state until
+    cancelled via 'ok google, disarm the alarm' / 'ok google, turn off the
+    alarm' or the phone notification from 'Night Security - Alarm pending'.
   triggers:
   - trigger: state
     entity_id: alarm_control_panel.alarmo
@@ -5982,6 +5962,8 @@
     entity_id: input_boolean.enable_alarm
     state: 'on'
   actions:
+  - variables:
+      announce_start: "{{ now().timestamp() }}"
   # Prime the cast session with silence first - masks Google's cold-start
   # announcement beep the same way the alert script masks volume ticks.
   - action: media_player.play_media
@@ -5993,18 +5975,18 @@
   - delay:
       milliseconds: 800
   - repeat:
-      while:
-      - condition: state
-        entity_id: alarm_control_panel.alarmo
-        state: pending
       sequence:
       - action: tts.speak
         target:
           entity_id: tts.home_assistant_cloud
         data:
           media_player_entity_id: media_player.kitchen_display
-          message: Warning. Alarm pending.
+          message: >-
+            {% if is_state('alarm_control_panel.alarmo', 'triggered') %}Warning. Alarm triggered.{% else %}Warning. Alarm pending.{% endif %}
       - delay: '00:00:04'
+      until:
+      - condition: template
+        value_template: "{{ now().timestamp() - announce_start|float > 90 or states('alarm_control_panel.alarmo') not in ['pending','triggered'] }}"
   # Pending over - return the display to its ambient screen instead of leaving
   # the black cast placeholder up.
   - action: media_player.turn_off
@@ -6096,19 +6078,3 @@
             Security sensors currently unavailable: {{ expand(['binary_sensor.lumi_lumi_sensor_magnet_opening','binary_sensor.lumi_lumi_sensor_magnet_b586cf03_on_off','binary_sensor.lumi_lumi_sensor_magnet_on_off','binary_sensor.lumi_lumi_sensor_magnet_opening_3','binary_sensor.lumi_lumi_sensor_magnet_opening_4','binary_sensor.door_sensor_7_iaszone','binary_sensor.door_sensor_8_iaszone','binary_sensor.door_sensor_9_iaszone','binary_sensor.door_sensor_10_iaszone','binary_sensor.door_sensor_11_iaszone','binary_sensor.door_sensor_12_iaszone','binary_sensor.motion_7','binary_sensor.motion_3','binary_sensor.front_entry','binary_sensor.night_downstairs_motion','binary_sensor.front_door_person','binary_sensor.front_door_pet','binary_sensor.doorbell_person_2','binary_sensor.doorbell_motion_2','binary_sensor.garage_person','binary_sensor.garage_vehicle','binary_sensor.side_person','binary_sensor.rear_person','binary_sensor.camera1_person','binary_sensor.camera1_person_3','binary_sensor.front_balcony_person','binary_sensor.hue_outdoor_motion_sensor_1_motion','binary_sensor.hue_outdoor_motion_sensor_2_motion','alarm_control_panel.alarmo','camera.front_door_fluent','camera.doorbell_fluent_2','camera.garage_fluent','camera.rear_fluent','camera.side_fluent','camera.camera1_fluent','camera.camera1_fluent_3','camera.front_balcony_fluent']) | selectattr('state','eq','unavailable') | map(attribute='name') | join(', ') }}
   mode: single
 
-- id: 'security_alarm_cancel_window_expired'
-  alias: Security - Alarm cancel confirm window expired
-  description: >-
-    Clears the voice-cancel confirm flag when its 30-second window lapses so a
-    stale 'Cancel Alarm' request cannot be confirmed against a future pending.
-  triggers:
-  - trigger: event
-    event_type: timer.finished
-    event_data:
-      entity_id: timer.alarm_cancel_confirm_window
-  conditions: []
-  actions:
-  - action: input_boolean.turn_off
-    target:
-      entity_id: input_boolean.alarm_cancel_confirm
-  mode: single

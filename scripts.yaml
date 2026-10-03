@@ -480,61 +480,36 @@ ensure_off:
 alarm_cancel:
   alias: Alarm Cancel
   description: >-
-    Voice alarm cancel, exposed to Google ('ok google, turn off the alarm' via
-    switch.alarm, or 'ok google, turn on alarm cancel' as a scene). Only valid
-    while Alarmo is pending: first call opens a 30-second confirm window and
-    asks for confirmation; a second call within the window disarms. A
-    triggered or fully armed alarm can never be voice-cancelled.
+    Voice alarm disarm, exposed to Google ('ok google, disarm the alarm' via
+    the Alarm security-system entity, or 'ok google, turn off the alarm' via
+    switch.alarm). Disarms Alarmo when it is pending or triggered; a normally
+    armed or already-disarmed panel is unaffected.
   mode: single
   sequence:
   - choose:
     - conditions:
       - condition: state
-        entity_id: input_boolean.alarm_cancel_confirm
-        state: 'on'
-      - condition: state
         entity_id: alarm_control_panel.alarmo
-        state: pending
+        state:
+        - pending
+        - triggered
       sequence:
       - action: alarm_control_panel.alarm_disarm
         target:
           entity_id: alarm_control_panel.alarmo
-      - action: input_boolean.turn_off
-        target:
-          entity_id: input_boolean.alarm_cancel_confirm
-      - action: timer.cancel
-        target:
-          entity_id: timer.alarm_cancel_confirm_window
       - action: tts.speak
         target:
           entity_id: tts.home_assistant_cloud
         data:
           media_player_entity_id: media_player.kitchen_display
           message: Alarm disarmed.
-    - conditions:
-      - condition: state
-        entity_id: alarm_control_panel.alarmo
-        state: pending
-      sequence:
-      - action: input_boolean.turn_on
-        target:
-          entity_id: input_boolean.alarm_cancel_confirm
-      - action: timer.start
-        target:
-          entity_id: timer.alarm_cancel_confirm_window
-      - action: tts.speak
-        target:
-          entity_id: tts.home_assistant_cloud
-        data:
-          media_player_entity_id: media_player.kitchen_display
-          message: Are you sure? Say 'turn off the alarm' again within thirty seconds to disarm.
     default:
     - action: tts.speak
       target:
         entity_id: tts.home_assistant_cloud
       data:
         media_player_entity_id: media_player.kitchen_display
-        message: No alarm is pending.
+        message: There is no active alarm to cancel.
   - action: media_player.turn_off
     target:
       entity_id: media_player.kitchen_display
