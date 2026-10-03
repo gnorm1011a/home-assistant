@@ -255,9 +255,13 @@ zha_add_device:
 cast_media_with_no_chime:
   alias: "Cast Media with no Chime \U0001F515"
   sequence:
-  - condition: state
-    entity_id: input_boolean.speaker_alerts
-    state: 'on'
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: input_boolean.speaker_alerts
+      state: 'on'
+    - condition: template
+      value_template: '{{ (bypass_gate | default(false)) | bool }}'
   - variables:
       orig_vol: '{{ state_attr(media_file.entity_id, ''volume_level'') | float(0.5) }}'
       orig_muted: '{{ is_state_attr(media_file.entity_id, ''is_volume_muted'', true) }}'

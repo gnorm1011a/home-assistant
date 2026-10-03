@@ -3256,6 +3256,7 @@
     metadata: {}
     data:
       volume: 0.5
+      bypass_gate: true
       media_file:
         entity_id: media_player.living_room_speaker
         media_content_id: https://parkplace.duckdns.org:8123/local/cat-meow.ogg
@@ -5659,6 +5660,7 @@
     metadata: {}
     data:
       volume: 0.5
+      bypass_gate: true
       media_file:
         entity_id: media_player.living_room_speaker
         media_content_id: https://parkplace.duckdns.org:8123/local/arm-click.wav
