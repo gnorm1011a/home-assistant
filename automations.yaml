@@ -5604,13 +5604,14 @@
 - id: cast_keepalive_den_speaker
   alias: Cast Keep-Alive - Notification Speakers
   description: >-
-    Keeps the cast session warm on the alert speakers (den, kitchen, bedroom) by
-    playing a 0.6s silent clip every 4 minutes while the Default Media Receiver
-    session is idle. Google cast sessions time out after ~10 minutes; a warm
-    session means notifications play instantly with no connect chime and no
-    volume-mute gymnastics. Skips speakers that are off, playing content, or
-    running a different app - so it never interrupts real playback and never
-    causes an audible cold-start chime on its own.
+    Keeps the cast session warm on the alert speakers (den, bedroom) by playing
+    a 0.6s silent clip every 4 minutes while the Default Media Receiver session
+    is idle. Google cast sessions time out after ~10 minutes; a warm session
+    means notifications play instantly with no connect chime. Skips speakers
+    that are off, playing content, or running a different app. The kitchen
+    display is deliberately excluded: on a display every pulse briefly steals
+    the screen with the black cast placeholder - its announcements prime their
+    own silence mask instead.
   triggers:
   - trigger: time_pattern
     minutes: /4
@@ -5619,7 +5620,6 @@
   - repeat:
       for_each:
       - media_player.living_room_speaker
-      - media_player.kitchen_display
       - media_player.bedroom_speaker_2
       sequence:
       - if:
