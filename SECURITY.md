@@ -269,10 +269,10 @@ playing; gates whether Home-mode alerts ring just the den or all three speakers.
 | Piece | Detail |
 |---|---|
 | `tts.home_assistant_cloud` | Nabu Casa TTS — used for the alarm-pending announcement on `media_player.kitchen_display`. TTS leaves the display on a black cast screen — every TTS call site ends with `media_player.turn_off` to return it to ambient |
-| `script.cancel_pending_alarm` ("Cancel Alarm") | Voice phrase 1 — "ok google, activate cancel alarm". Only while `pending`: sets `input_boolean.alarm_cancel_confirm` + starts `timer.alarm_cancel_confirm_window` (30s), asks "Confirm alarm cancel". Does NOT disarm |
-| `script.confirm_alarm_cancel` ("Confirm Alarm Cancel") | Voice phrase 2 — "ok google, activate confirm alarm cancel". Disarms only while pending AND inside the 30s confirm window; then confirms "Alarm disarmed" |
+| `switch.alarm` ("Alarm") | Template switch exposed to Google. State mirrors Alarmo (self-resets after each command). `turn_off` → `script.alarm_cancel`. Voice arming deliberately not supported |
+| `script.alarm_cancel` ("Alarm Cancel") | The voice flow: only valid while `pending`. First call → "Are you sure? Say 'turn off the alarm' again within 30 seconds" + opens `alarm_cancel_confirm`/`timer.alarm_cancel_confirm_window`. Second call inside the window → disarm + "Alarm disarmed". A triggered or fully armed alarm can never be voice-cancelled |
 | `Security - Alarm cancel confirm window expired` | Clears the confirm flag when the window lapses — a stale request can't be confirmed against a future pending |
-| Google Assistant | Via Nabu Casa cloud (`google_connected: true`); `script` is in `google_default_expose` so new scripts auto-expose. Custom phrases need a Google Home routine; "activate \<name\>" works natively |
+| Google Assistant | Via Nabu Casa cloud. **Native phrases**: "ok google, **turn off the alarm**" (×2 = request + confirm), "ok google, **turn on alarm cancel**" (scene fallback). Arbitrary custom phrases ("cancel alarm") would need a Google Home routine — not currently configured |
 
 ---
 

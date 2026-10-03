@@ -477,81 +477,65 @@ ensure_off:
       target:
         entity_id: '{{ entity }}'
 
-cancel_pending_alarm:
-  alias: Cancel Alarm
+alarm_cancel:
+  alias: Alarm Cancel
   description: >-
-    Voice phrase 1 of 2 (exposed to Google Assistant - 'ok google, activate
-    cancel alarm'). Only valid while Alarmo is pending: asks for voice
-    confirmation and opens a 30-second confirm window. Does NOT disarm by
-    itself - 'Confirm Alarm Cancel' must follow.
+    Voice alarm cancel, exposed to Google ('ok google, turn off the alarm' via
+    switch.alarm, or 'ok google, turn on alarm cancel' as a scene). Only valid
+    while Alarmo is pending: first call opens a 30-second confirm window and
+    asks for confirmation; a second call within the window disarms. A
+    triggered or fully armed alarm can never be voice-cancelled.
   mode: single
   sequence:
-  - if:
-    - condition: state
-      entity_id: alarm_control_panel.alarmo
-      state: pending
-    then:
-    - action: input_boolean.turn_on
-      target:
+  - choose:
+    - conditions:
+      - condition: state
         entity_id: input_boolean.alarm_cancel_confirm
-    - action: timer.start
-      target:
-        entity_id: timer.alarm_cancel_confirm_window
-    - action: tts.speak
-      target:
-        entity_id: tts.home_assistant_cloud
-      data:
-        media_player_entity_id: media_player.kitchen_display
-        message: Confirm alarm cancel.
-    - action: media_player.turn_off
-      target:
-        entity_id: media_player.kitchen_display
-      continue_on_error: true
-    else:
+        state: 'on'
+      - condition: state
+        entity_id: alarm_control_panel.alarmo
+        state: pending
+      sequence:
+      - action: alarm_control_panel.alarm_disarm
+        target:
+          entity_id: alarm_control_panel.alarmo
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.alarm_cancel_confirm
+      - action: timer.cancel
+        target:
+          entity_id: timer.alarm_cancel_confirm_window
+      - action: tts.speak
+        target:
+          entity_id: tts.home_assistant_cloud
+        data:
+          media_player_entity_id: media_player.kitchen_display
+          message: Alarm disarmed.
+    - conditions:
+      - condition: state
+        entity_id: alarm_control_panel.alarmo
+        state: pending
+      sequence:
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.alarm_cancel_confirm
+      - action: timer.start
+        target:
+          entity_id: timer.alarm_cancel_confirm_window
+      - action: tts.speak
+        target:
+          entity_id: tts.home_assistant_cloud
+        data:
+          media_player_entity_id: media_player.kitchen_display
+          message: Are you sure? Say 'turn off the alarm' again within thirty seconds to disarm.
+    default:
     - action: tts.speak
       target:
         entity_id: tts.home_assistant_cloud
       data:
         media_player_entity_id: media_player.kitchen_display
         message: No alarm is pending.
-    - action: media_player.turn_off
-      target:
-        entity_id: media_player.kitchen_display
-      continue_on_error: true
-
-confirm_alarm_cancel:
-  alias: Confirm Alarm Cancel
-  description: >-
-    Voice phrase 2 of 2 (exposed to Google Assistant - 'ok google, activate
-    confirm alarm cancel'). Disarms Alarmo only while pending AND within the
-    30-second confirm window opened by 'Cancel Alarm'. A triggered or fully
-    armed alarm cannot be cancelled this way.
-  mode: single
-  sequence:
-  - if:
-    - condition: state
-      entity_id: input_boolean.alarm_cancel_confirm
-      state: 'on'
-    - condition: state
-      entity_id: alarm_control_panel.alarmo
-      state: pending
-    then:
-    - action: alarm_control_panel.alarm_disarm
-      target:
-        entity_id: alarm_control_panel.alarmo
-    - action: input_boolean.turn_off
-      target:
-        entity_id: input_boolean.alarm_cancel_confirm
-    - action: timer.cancel
-      target:
-        entity_id: timer.alarm_cancel_confirm_window
-    - action: tts.speak
-      target:
-        entity_id: tts.home_assistant_cloud
-      data:
-        media_player_entity_id: media_player.kitchen_display
-        message: Alarm disarmed.
-    - action: media_player.turn_off
-      target:
-        entity_id: media_player.kitchen_display
-      continue_on_error: true
+  - action: media_player.turn_off
+    target:
+      entity_id: media_player.kitchen_display
+    continue_on_error: true

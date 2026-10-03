@@ -303,16 +303,19 @@
             'binary_sensor.motion_2'
           ]) | selectattr('state', 'eq', 'on') | list | count > 0 }}
       icon: mdi:motion-sensor
-
-### Den occupancy (motion or desktop-on or TV playing) ###
-- binary_sensor:
-    - name: "Den Occupied"
-      unique_id: den_occupied
-      device_class: occupancy
-      state: >-
-        {{ is_state('binary_sensor.den_motion','on')
-           or is_state('device_tracker.desktop_9qq42c7_2','home')
-           or is_state('media_player.den_tv','playing')
-           or is_state('media_player.den_tv_2','playing')
-           or is_state('media_player.den_tv_3','playing') }}
-      icon: mdi:account-eye
+- switch:
+    - name: "Alarm"
+      unique_id: alarm_voice_control
+      icon: mdi:shield-home
+      # Voice-facing proxy for Alarmo, exposed to Google as a plain switch so
+      # 'ok google, turn off the alarm' works natively. State mirrors Alarmo so
+      # it self-resets after each voice command.
+      state: "{{ states('alarm_control_panel.alarmo') in ['armed_away','armed_home','armed_night','armed_vacation','armed_custom_bypass','pending','triggered'] }}"
+      availability: "{{ states('alarm_control_panel.alarmo') != 'unavailable' }}"
+      turn_on:
+        # Arming by voice is deliberately not supported - no-op.
+        - action: homeassistant.update_entity
+          target:
+            entity_id: switch.alarm
+      turn_off:
+        - action: script.alarm_cancel
