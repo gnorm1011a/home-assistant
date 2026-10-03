@@ -153,11 +153,11 @@ Three trust classes:
 | Entity | Type | Location | Sees public space? | Used in alerts? |
 |---|---|---|---|---|
 | `binary_sensor.motion_7` | PIR | Front courtyard | No — aimed at courtyard | ✅ Independent trigger + floodlight |
-| `binary_sensor.front_door_person` / `_pet` | Camera class | Front door (high mount) | Street **excluded by painted zone** | ✅ Independent trigger + floodlight |
-| `binary_sensor.doorbell_person_2` / `_pet_2` | Camera class | Doorbell (head height) | **Yes — street in view, NO zone painted** | ⚠️ Corroboration only — gated on `motion_7` ±20s for alert/floodlight/stamp |
-| `binary_sensor.front_balcony_person` / `_pet` / `_motion` | Camera | Front balcony | **Yes — street in view, NO zone painted** | ❌ Never a trigger (stats + watchdog only) |
-| `binary_sensor.side_person` / `_pet` / `_motion` | Camera | Side of house | ⚠️ Verify — may see street over side gate | Correlated detection + night eval |
-| `binary_sensor.rear_person` / `_pet` / `_motion` | Camera | Rear | No — backyard only | Correlated detection + night eval |
+| `binary_sensor.front_door_person` / `_pet` | Camera class | Front door (high mount) | Porch only + sliver of neighbour driveway — street **excluded by painted zone** | ✅ Independent trigger + floodlight |
+| `binary_sensor.doorbell_person_2` / `_pet_2` | Camera class | Doorbell (head height) | **Yes — wide fisheye, whole street + parked cars; barely sees walkway** | ⚠️ Corroboration only — gated on `motion_7` ±20s for alert/floodlight/stamp |
+| `binary_sensor.front_balcony_person` / `_pet` / `_motion` | Camera | Front balcony | **Yes — ~80% street/footpath; sees front gate + courtyard edge** | ❌ Never a trigger (stats + watchdog only) |
+| `binary_sensor.side_person` / `_pet` / `_motion` | Camera | Side of house | No — narrow side walkway view, verified private | Correlated detection + night eval |
+| `binary_sensor.rear_person` / `_pet` / `_motion` | Camera | Rear | No — backyard only (neighbour rooflines over fence) | Correlated detection + night eval |
 | `binary_sensor.camera1_person_3` / `_pet_2` | Camera | Patio | No — backyard only (⚠️ cam offline) | Correlated detection + night eval |
 | `binary_sensor.garage_person` / `_pet` | Camera | Garage interior | No | Away person alerts + night eval |
 | `binary_sensor.hue_outdoor_motion_sensor_1_motion` | PIR | Backyard (shed side) | No | Night eval stamps (`last_pir_shed`) |
