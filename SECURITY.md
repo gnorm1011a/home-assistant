@@ -43,8 +43,15 @@ Last updated: 2026-10-02.
   trackers not_home. Dual-source means WiFi loss alone (e.g. phone doze) cannot
   mark someone away — GPS still reports the home zone. Conversely a GPS flap
   while away cannot mark them home — the router tracker must also see them.
-- `house_mode → Away` requires a person `not_home` **for 15 minutes** — absorbs
-  transient GPS/router glitches.
+- UniFi `detection_time` is **120s** (was 300): the router tracker marks a phone
+  away ~2 min after it leaves WiFi range. It is the slow leg of away-detection.
+- `house_mode → Away` has two paths per person:
+  - **Normal:** person `not_home` for **5 min** (absorbs transient glitches).
+  - **Departure fast path:** that person's GPS tracker `not_home` for 3 min
+    within 5 min of `input_datetime.last_house_departure` — a physical door
+    exit corroborates the GPS, bypassing the router timeout entirely.
+  Both still require the **other** person `not_home` before Away sets — a
+  departure can't be misattributed to the wrong resident.
 - `person → home` sets `house_mode → Home` immediately and disarms Alarmo —
   digital arrival is instant once a tracker sees the phone.
 - `device_tracker.windows_home_assistant` (Adam's PC) is deliberately NOT a

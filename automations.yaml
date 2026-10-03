@@ -51,17 +51,37 @@
   mode: single
 - id: f9d3baa409ee4d26a946bf151a04e78e
   alias: Presence Detection - Set house mode to 'Away' (Adam)
-  description: Set house mode to away when Adam and Mads are not home
+  description: >-
+    Set house mode to away when Adam and Mads are not home. Two paths: normal -
+    person not_home for 5 min; fast - Adam's GPS not_home for 3 min within 5 min
+    of a physical departure stamp (bypasses the slow UniFi router timeout). The
+    other-person condition on Mads prevents misattributing someone else's
+    departure to Adam.
   trigger:
   - platform: state
     entity_id: person.adam_smith
     to: not_home
     from: home
-    for: 00:15:00
+    for: 00:05:00
+    id: normal
+  - platform: state
+    entity_id: device_tracker.pixel_6
+    to: not_home
+    for: 00:03:00
+    id: departure
   condition:
   - condition: state
     entity_id: person.madeleine_moloney
     state: not_home
+  - condition: or
+    conditions:
+    - condition: trigger
+      id:
+      - normal
+    - condition: template
+      value_template: >-
+        {{ (now() - (states('input_datetime.last_house_departure') | as_datetime
+          | default(now() - timedelta(hours=2), true))).total_seconds() < 300 }}
   action:
   - service: input_select.select_option
     data:
@@ -362,17 +382,37 @@
   mode: single
 - id: '1617323375986'
   alias: Presence Detection - Set house mode to 'Away' (Mads)
-  description: Set house mode to away when Adam and Mads are not home
+  description: >-
+    Set house mode to away when Adam and Mads are not home. Two paths: normal -
+    person not_home for 5 min; fast - Mads' GPS not_home for 3 min within 5 min
+    of a physical departure stamp (bypasses the slow UniFi router timeout). The
+    other-person condition on Adam prevents misattributing someone else's
+    departure to Mads.
   trigger:
   - platform: state
     entity_id: person.madeleine_moloney
     to: not_home
     from: home
-    for: 00:15:00
+    for: 00:05:00
+    id: normal
+  - platform: state
+    entity_id: device_tracker.sm_a556e
+    to: not_home
+    for: 00:03:00
+    id: departure
   condition:
   - condition: state
     entity_id: person.adam_smith
     state: not_home
+  - condition: or
+    conditions:
+    - condition: trigger
+      id:
+      - normal
+    - condition: template
+      value_template: >-
+        {{ (now() - (states('input_datetime.last_house_departure') | as_datetime
+          | default(now() - timedelta(hours=2), true))).total_seconds() < 300 }}
   action:
   - service: input_select.select_option
     data:
