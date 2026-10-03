@@ -5907,10 +5907,11 @@
   alias: Security - Alarm pending announcement
   description: >-
     Alarmo entered pending (a perimeter door opened while armed, entry delay
-    running). Announces on the upstairs kitchen speaker immediately so a
-    resident hears the countdown and can disarm via 'ok google - cancel alarm'
-    (Cancel Alarm script, Google Assistant) or the phone notification from
-    'Night Security - Alarm pending'. Fires once per pending event.
+    running). Repeats 'Warning. Alarm pending' on the upstairs kitchen speaker
+    every ~4 seconds until the pending window ends (disarm or trigger), so a
+    resident keeps hearing the countdown and can cancel via 'ok google,
+    activate cancel alarm' or the phone notification from 'Night Security -
+    Alarm pending'.
   triggers:
   - trigger: state
     entity_id: alarm_control_panel.alarmo
@@ -5920,12 +5921,19 @@
     entity_id: input_boolean.enable_alarm
     state: 'on'
   actions:
-  - action: tts.speak
-    target:
-      entity_id: tts.home_assistant_cloud
-    data:
-      media_player_entity_id: media_player.kitchen_display
-      message: Warning. Alarm pending. You have sixty seconds to disarm.
+  - repeat:
+      while:
+      - condition: state
+        entity_id: alarm_control_panel.alarmo
+        state: pending
+      sequence:
+      - action: tts.speak
+        target:
+          entity_id: tts.home_assistant_cloud
+        data:
+          media_player_entity_id: media_player.kitchen_display
+          message: Warning. Alarm pending.
+      - delay: '00:00:04'
   mode: restart
 
 - id: 'security_sensor_health_watchdog'

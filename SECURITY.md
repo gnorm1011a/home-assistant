@@ -250,7 +250,7 @@ playing; gates whether Home-mode alerts ring just the den or all three speakers.
 | Piece | Detail |
 |---|---|
 | `tts.home_assistant_cloud` | Nabu Casa TTS — used for the alarm-pending announcement on `media_player.kitchen_display` |
-| `script.cancel_pending_alarm` ("Cancel Alarm") | Google-exposed script. Disarms Alarmo **only while `pending`** — cannot cancel an armed or triggered alarm. Google Home routine: "cancel alarm" → run script. Confirms via kitchen speaker. |
+| `script.cancel_pending_alarm` ("Cancel Alarm") | Google-exposed script. Disarms Alarmo **only while `pending`** — cannot cancel an armed or triggered alarm. Native voice command (no routine needed): **"ok google, activate cancel alarm"** or "turn on cancel alarm". A Google Home routine is only required to bind the exact phrase "cancel alarm". Confirms via kitchen speaker. |
 | Google Assistant | Via Nabu Casa cloud (`google_connected: true`); `script` is in `google_default_expose` so new scripts auto-expose |
 
 ---
@@ -346,11 +346,12 @@ triggered` (all floodlights + den 100% + "ALARM TRIGGERED" push to both phones) 
 
 **Pending window (armed_away entry):** 60s. On `alarmo → pending`:
 
-- `Security - Alarm pending announcement` — immediate TTS on the upstairs
-  kitchen speaker: "Warning. Alarm pending." (gated by `enable_alarm`)
+- `Security - Alarm pending announcement` — repeats "Warning. Alarm pending."
+  via TTS on the upstairs kitchen speaker every ~4s until pending ends
+  (gated by `enable_alarm`)
 - `Night Security - Alarm pending` — waits 10s (so a resident exit that
   auto-disarms doesn't alert), then pushes a Disarm action to both phones
-- Voice cancel: "ok google, cancel alarm" → `script.cancel_pending_alarm` →
+- Voice cancel: "ok google, activate cancel alarm" → `script.cancel_pending_alarm` →
   disarms only while pending
 - If a person's tracker flips `home` during the window, `Presence Detection -
   Home` disarms — the pending period is the grace for GPS to catch up with a
