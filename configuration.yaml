@@ -273,6 +273,11 @@ input_boolean:
     name: "Enable Alarm"
     initial: true
     icon: mdi:shield-check
+
+  alarm_cancel_confirm:
+    name: "Alarm Cancel Confirm Pending"
+    initial: false
+    icon: mdi:account-question
 input_select:
 
   guest_lamp_scene:
@@ -440,6 +445,12 @@ timer:
   resident_outside_window:
     name: "Resident Outside Window"
     duration: "00:45:00"
+    restore: false
+    icon: mdi:timer-outline
+
+  alarm_cancel_confirm_window:
+    name: "Alarm Cancel Confirm Window"
+    duration: "00:00:30"
     restore: false
     icon: mdi:timer-outline
 

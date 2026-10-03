@@ -5982,6 +5982,16 @@
     entity_id: input_boolean.enable_alarm
     state: 'on'
   actions:
+  # Prime the cast session with silence first - masks Google's cold-start
+  # announcement beep the same way the alert script masks volume ticks.
+  - action: media_player.play_media
+    target:
+      entity_id: media_player.kitchen_display
+    data:
+      media_content_id: https://parkplace.duckdns.org:8123/local/silence.wav
+      media_content_type: music
+  - delay:
+      milliseconds: 800
   - repeat:
       while:
       - condition: state
@@ -5995,6 +6005,12 @@
           media_player_entity_id: media_player.kitchen_display
           message: Warning. Alarm pending.
       - delay: '00:00:04'
+  # Pending over - return the display to its ambient screen instead of leaving
+  # the black cast placeholder up.
+  - action: media_player.turn_off
+    target:
+      entity_id: media_player.kitchen_display
+    continue_on_error: true
   mode: restart
 
 - id: 'security_sensor_health_watchdog'
@@ -6078,4 +6094,21 @@
           title: Security sensor check
           message: >-
             Security sensors currently unavailable: {{ expand(['binary_sensor.lumi_lumi_sensor_magnet_opening','binary_sensor.lumi_lumi_sensor_magnet_b586cf03_on_off','binary_sensor.lumi_lumi_sensor_magnet_on_off','binary_sensor.lumi_lumi_sensor_magnet_opening_3','binary_sensor.lumi_lumi_sensor_magnet_opening_4','binary_sensor.door_sensor_7_iaszone','binary_sensor.door_sensor_8_iaszone','binary_sensor.door_sensor_9_iaszone','binary_sensor.door_sensor_10_iaszone','binary_sensor.door_sensor_11_iaszone','binary_sensor.door_sensor_12_iaszone','binary_sensor.motion_7','binary_sensor.motion_3','binary_sensor.front_entry','binary_sensor.night_downstairs_motion','binary_sensor.front_door_person','binary_sensor.front_door_pet','binary_sensor.doorbell_person_2','binary_sensor.doorbell_motion_2','binary_sensor.garage_person','binary_sensor.garage_vehicle','binary_sensor.side_person','binary_sensor.rear_person','binary_sensor.camera1_person','binary_sensor.camera1_person_3','binary_sensor.front_balcony_person','binary_sensor.hue_outdoor_motion_sensor_1_motion','binary_sensor.hue_outdoor_motion_sensor_2_motion','alarm_control_panel.alarmo','camera.front_door_fluent','camera.doorbell_fluent_2','camera.garage_fluent','camera.rear_fluent','camera.side_fluent','camera.camera1_fluent','camera.camera1_fluent_3','camera.front_balcony_fluent']) | selectattr('state','eq','unavailable') | map(attribute='name') | join(', ') }}
+  mode: single
+
+- id: 'security_alarm_cancel_window_expired'
+  alias: Security - Alarm cancel confirm window expired
+  description: >-
+    Clears the voice-cancel confirm flag when its 30-second window lapses so a
+    stale 'Cancel Alarm' request cannot be confirmed against a future pending.
+  triggers:
+  - trigger: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.alarm_cancel_confirm_window
+  conditions: []
+  actions:
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.alarm_cancel_confirm
   mode: single

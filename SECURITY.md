@@ -268,9 +268,11 @@ playing; gates whether Home-mode alerts ring just the den or all three speakers.
 
 | Piece | Detail |
 |---|---|
-| `tts.home_assistant_cloud` | Nabu Casa TTS — used for the alarm-pending announcement on `media_player.kitchen_display` |
-| `script.cancel_pending_alarm` ("Cancel Alarm") | Google-exposed script. Disarms Alarmo **only while `pending`** — cannot cancel an armed or triggered alarm. Native voice command (no routine needed): **"ok google, activate cancel alarm"** or "turn on cancel alarm". A Google Home routine is only required to bind the exact phrase "cancel alarm". Confirms via kitchen speaker. |
-| Google Assistant | Via Nabu Casa cloud (`google_connected: true`); `script` is in `google_default_expose` so new scripts auto-expose |
+| `tts.home_assistant_cloud` | Nabu Casa TTS — used for the alarm-pending announcement on `media_player.kitchen_display`. TTS leaves the display on a black cast screen — every TTS call site ends with `media_player.turn_off` to return it to ambient |
+| `script.cancel_pending_alarm` ("Cancel Alarm") | Voice phrase 1 — "ok google, activate cancel alarm". Only while `pending`: sets `input_boolean.alarm_cancel_confirm` + starts `timer.alarm_cancel_confirm_window` (30s), asks "Confirm alarm cancel". Does NOT disarm |
+| `script.confirm_alarm_cancel` ("Confirm Alarm Cancel") | Voice phrase 2 — "ok google, activate confirm alarm cancel". Disarms only while pending AND inside the 30s confirm window; then confirms "Alarm disarmed" |
+| `Security - Alarm cancel confirm window expired` | Clears the confirm flag when the window lapses — a stale request can't be confirmed against a future pending |
+| Google Assistant | Via Nabu Casa cloud (`google_connected: true`); `script` is in `google_default_expose` so new scripts auto-expose. Custom phrases need a Google Home routine; "activate \<name\>" works natively |
 
 ---
 
@@ -370,9 +372,10 @@ triggered` (all floodlights + den 100% + "ALARM TRIGGERED" push to both phones) 
 
 **Pending window (armed_away entry):** 60s. On `alarmo → pending`:
 
-- `Security - Alarm pending announcement` — repeats "Warning. Alarm pending."
-  via TTS on the upstairs kitchen speaker every ~4s until pending ends
-  (gated by `enable_alarm`)
+- `Security - Alarm pending announcement` — primes the kitchen speaker with a
+  silence mask (suppresses Google's cold-start beep), then repeats "Warning.
+  Alarm pending." via TTS every ~4s until pending ends, and turns the display
+  off afterward so it returns to ambient (gated by `enable_alarm`)
 - `Night Security - Alarm pending` — waits 10s (so a resident exit that
   auto-disarms doesn't alert), then pushes a Disarm action to both phones
 - Voice cancel: "ok google, activate cancel alarm" → `script.cancel_pending_alarm` →
@@ -479,3 +482,5 @@ routers — Plug 3 dropping previously orphaned Aqara end devices.
   column** — if it sees public space it is corroboration-only until a
   non-detection zone is painted in the Reolink app. Update the column when zones
   change.
+- **Never add deterrent actions (floodlights, sirens, brightening) to alarm
+  triggers without explicit request** — alerts notify; they don't perform.
