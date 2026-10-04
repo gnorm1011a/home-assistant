@@ -270,7 +270,6 @@ input_boolean:
 
   enable_alarm:
     name: "Enable Alarm"
-    initial: true
     icon: mdi:shield-check
 input_select:
 

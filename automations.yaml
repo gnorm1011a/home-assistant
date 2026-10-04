@@ -27,6 +27,10 @@
   - entity_id: input_select.house_mode
     to: Sleep
     trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
   actions:
   - action: alarm_control_panel.alarm_arm_night
     data: {}
@@ -40,6 +44,9 @@
     to: Holiday
     trigger: state
   conditions:
+  - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
   - condition: state
     entity_id: input_boolean.housesitter_mode
     state: 'off'
@@ -3794,7 +3801,10 @@
   - entity_id: input_select.house_mode
     to: Away
     trigger: state
-  conditions: []
+  conditions:
+  - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
   actions:
   - action: alarm_control_panel.alarm_arm_away
     data: {}
@@ -4116,6 +4126,9 @@
     trigger: state
   conditions:
   - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
+  - condition: state
     entity_id: input_select.house_mode
     state: Holiday
   actions:
@@ -4141,9 +4154,6 @@
     to: 'on'
     trigger: state
   conditions:
-  - condition: state
-    entity_id: input_boolean.speaker_alerts
-    state: 'on'
   - condition: state
     entity_id: input_boolean.enable_alarm
     state: 'on'
@@ -4182,9 +4192,6 @@
     trigger: state
   conditions:
   - condition: state
-    entity_id: input_boolean.speaker_alerts
-    state: 'on'
-  - condition: state
     entity_id: input_boolean.enable_alarm
     state: 'on'
 
@@ -4221,9 +4228,6 @@
     to: 'on'
     trigger: state
   conditions:
-  - condition: state
-    entity_id: input_boolean.speaker_alerts
-    state: 'on'
   - condition: state
     entity_id: input_boolean.enable_alarm
     state: 'on'
@@ -4262,9 +4266,6 @@
     trigger: state
   conditions:
   - condition: state
-    entity_id: input_boolean.speaker_alerts
-    state: 'on'
-  - condition: state
     entity_id: input_boolean.enable_alarm
     state: 'on'
 
@@ -4301,9 +4302,6 @@
     to: 'on'
     trigger: state
   conditions:
-  - condition: state
-    entity_id: input_boolean.speaker_alerts
-    state: 'on'
   - condition: state
     entity_id: input_boolean.enable_alarm
     state: 'on'
@@ -4342,9 +4340,6 @@
     trigger: state
   conditions:
   - condition: state
-    entity_id: input_boolean.speaker_alerts
-    state: 'on'
-  - condition: state
     entity_id: input_boolean.enable_alarm
     state: 'on'
 
@@ -4381,9 +4376,6 @@
     to: 'on'
     trigger: state
   conditions:
-  - condition: state
-    entity_id: input_boolean.speaker_alerts
-    state: 'on'
   - condition: state
     entity_id: input_boolean.enable_alarm
     state: 'on'
@@ -4430,9 +4422,6 @@
     to: 'on'
     trigger: state
   conditions:
-  - condition: state
-    entity_id: input_boolean.speaker_alerts
-    state: 'on'
   - condition: state
     entity_id: input_boolean.enable_alarm
     state: 'on'
@@ -4483,9 +4472,6 @@
     trigger: state
     id: patio
   conditions:
-  - condition: state
-    entity_id: input_boolean.speaker_alerts
-    state: 'on'
   - condition: state
     entity_id: input_boolean.enable_alarm
     state: 'on'
@@ -4722,6 +4708,9 @@
     trigger: state
   conditions:
   - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
+  - condition: state
     entity_id: alarm_control_panel.alarmo
     state: armed_night
   - condition: template
@@ -4761,6 +4750,9 @@
     to: 'on'
     trigger: state
   conditions:
+  - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
   - condition: state
     entity_id: input_boolean.resident_outside
     state: 'on'
@@ -4812,29 +4804,19 @@
     - action: alarm_control_panel.alarm_arm_night
       target:
         entity_id: alarm_control_panel.alarmo
-    - if:
-      - condition: state
-        entity_id: input_boolean.speaker_alerts
-        state: 'on'
-      then:
-      - data:
-          title: Night Security
-          message: Resident window expired - alarm re-armed (night).
-        action: notify.mobile_app_pixel_6
+    - data:
+        title: Night Security
+        message: Resident window expired - alarm re-armed (night).
+      action: notify.mobile_app_pixel_6
     else:
-    - if:
-      - condition: state
-        entity_id: input_boolean.speaker_alerts
-        state: 'on'
-      then:
-      - data:
-          title: Night Security
-          message: Resident outside window expired - alarm still disarmed.
-          data:
-            actions:
-            - action: rearm_night
-              title: Re-arm alarm
-        action: notify.mobile_app_pixel_6
+    - data:
+        title: Night Security
+        message: Resident outside window expired - alarm still disarmed.
+        data:
+          actions:
+          - action: rearm_night
+            title: Re-arm alarm
+      action: notify.mobile_app_pixel_6
   mode: single
 
 - id: 'night_late_return'
@@ -4851,6 +4833,9 @@
     to: home
     trigger: state
   conditions:
+  - condition: state
+    entity_id: input_boolean.enable_alarm
+    state: 'on'
   - condition: state
     entity_id: input_select.house_mode
     state: Sleep
@@ -4902,7 +4887,7 @@
     id: doorbell
   conditions:
   - condition: state
-    entity_id: input_boolean.speaker_alerts
+    entity_id: input_boolean.enable_alarm
     state: 'on'
   - condition: state
     entity_id: input_select.house_mode
@@ -5057,9 +5042,6 @@
     trigger: state
   conditions:
   - condition: state
-    entity_id: input_boolean.speaker_alerts
-    state: 'on'
-  - condition: state
     entity_id: input_boolean.enable_alarm
     state: 'on'
 
@@ -5104,9 +5086,6 @@
     trigger: state
   conditions:
   - condition: state
-    entity_id: input_boolean.speaker_alerts
-    state: 'on'
-  - condition: state
     entity_id: input_boolean.enable_alarm
     state: 'on'
 
@@ -5146,9 +5125,6 @@
     to: triggered
     trigger: state
   conditions:
-  - condition: state
-    entity_id: input_boolean.speaker_alerts
-    state: 'on'
   - condition: state
     entity_id: input_boolean.enable_alarm
     state: 'on'
@@ -5206,7 +5182,7 @@
     trigger: state
   conditions:
   - condition: state
-    entity_id: input_boolean.speaker_alerts
+    entity_id: input_boolean.enable_alarm
     state: 'on'
   actions:
   - delay: '00:01:00'
@@ -5248,15 +5224,10 @@
       option: Home
     target:
       entity_id: input_select.house_mode
-  - if:
-    - condition: state
-      entity_id: input_boolean.speaker_alerts
-      state: 'on'
-    then:
-    - data:
-        title: House Mode
-        message: Morning motion detected - switched to Home, alarm disarmed.
-      action: notify.mobile_app_pixel_6
+  - data:
+      title: House Mode
+      message: Morning motion detected - switched to Home, alarm disarmed.
+    action: notify.mobile_app_pixel_6
   mode: single
 
 - id: 'guest_mode_cds_reenable'
@@ -5381,9 +5352,6 @@
     id: laundry
   conditions:
   - condition: state
-    entity_id: input_boolean.speaker_alerts
-    state: 'on'
-  - condition: state
     entity_id: input_boolean.enable_alarm
     state: 'on'
 
@@ -5458,9 +5426,6 @@
     to: 'on'
     trigger: state
   conditions:
-  - condition: state
-    entity_id: input_boolean.speaker_alerts
-    state: 'on'
   - condition: state
     entity_id: input_boolean.enable_alarm
     state: 'on'
@@ -5878,9 +5843,6 @@
     id: person
   conditions:
   - condition: state
-    entity_id: input_boolean.speaker_alerts
-    state: 'on'
-  - condition: state
     entity_id: input_boolean.enable_alarm
     state: 'on'
   # Doorbell cam has no painted zone - it classifies street pedestrians.
@@ -6120,9 +6082,6 @@
     at: '09:00:00'
     id: daily
   conditions:
-  - condition: state
-    entity_id: input_boolean.speaker_alerts
-    state: 'on'
   - condition: state
     entity_id: input_boolean.enable_alarm
     state: 'on'
