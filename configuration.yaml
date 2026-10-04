@@ -266,7 +266,6 @@ input_boolean:
 
   speaker_alerts:
     name: "Speaker Alerts"
-    initial: true
     icon: mdi:volume-high
 
   enable_alarm:
